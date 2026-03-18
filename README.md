@@ -5,9 +5,9 @@ Een werkende openEHR demo-omgeving voor wondzorg bij [Sensire](https://www.sensi
 ## Wat kun je zien?
 
 - **Drie klinische beslisbomen**: Ulcus Cruris, Diabetische Voet, Algemeen Wondprotocol
-- **Internationale + eigen archetypes**: CKM hergebruik + Sensire-specifieke uitbreidingen
-- **Live data-opslag**: Composities worden opgeslagen in EHRbase en bewezen via AQL
-- **GDL2 beslisondersteuning**: Formele klinische beslislogica (EAI-drempels, escalatieregels)
+- **Internationale + eigen archetypes**: CKM hergebruik + 5 Sensire-specifieke uitbreidingen (ADL 1.4)
+- **Live data-opslag**: Composities worden als FLAT JSON opgeslagen in EHRbase en bewezen via AQL
+- **Klinische beslisondersteuning**: EAI-drempels, Charcot SPOED-detectie, WCS×exsudaat verbandkeuze matrix
 - **Volledige transparantie**: pgAdmin en openEHRTool voor visueel bewijs
 
 ## Vereisten
@@ -21,7 +21,7 @@ Een werkende openEHR demo-omgeving voor wondzorg bij [Sensire](https://www.sensi
 
 ```bash
 # 1. Repository clonen
-git clone https://github.com/vlieger/OpenEHRDemo.git
+git clone https://github.com/erik-jan-vlieger/OpenEHRDemo.git
 cd OpenEHRDemo
 
 # 2. Alles opzetten (Docker, EHRbase, template, test-EHR)
@@ -59,9 +59,9 @@ OpenEHRDemo/
 │   └── sensire/              # Eigen Sensire archetypes
 ├── templates/                # OPT bestanden
 ├── webtemplates/             # Webtemplate JSON
-├── gdl2/                     # GDL2 regelbestanden
+├── gdl2/                     # (gereserveerd voor CDS engine)
 ├── scripts/                  # Hulpscripts (upload, EHR, AQL)
-└── frontend/sensire-app/     # Vite + Medblocks UI demo
+└── frontend/sensire-app/     # Vite frontend demo
 ```
 
 ## Beheer
@@ -92,8 +92,18 @@ docker compose --profile tools up -d
 |------|-----------|------|
 | **Kennislaag** | Archetypes + Templates | Klinische betekenis vastleggen |
 | **Repository-laag** | EHRbase CDR (Docker) | openEHR server met REST API |
-| **Beslissingslaag** | GDL2 regels | Formele klinische beslislogica |
-| **Presentatielaag** | Browser demo-pagina | Beslisboom + formulier + AQL-bewijs |
+| **Beslissingslaag** | JavaScript in browser | Klinische beslislogica (EAI, Charcot, WCS) |
+| **Presentatielaag** | Vite frontend | Beslisboom + data-tab + AQL-bewijs |
+
+## Sensire Archetypes
+
+| Archetype | Type | Doel |
+|-----------|------|------|
+| `ankle_brachial_index.v0` | OBSERVATION | EAI meting + compressieadvies |
+| `stemmer_sign.v0` | CLUSTER | Lymfoedeem vs. veneus oedeem |
+| `wound_stagnation_assessment.v0` | CLUSTER | Stagnatiebeoordeling + escalatie |
+| `wcs_wound_classification.v0` | CLUSTER | WCS kleurenclassificatie |
+| `altis_pain_score.v0` | CLUSTER | ALTIS pijnscore |
 
 ## Documentatie
 
