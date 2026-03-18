@@ -1,0 +1,219 @@
+archetype (adl_version=1.4; uid=c3d4e5f6-a7b8-9012-cdef-012345678901)
+	openEHR-EHR-CLUSTER.wound_stagnation_assessment.v0
+
+concept
+	[at0000]	-- Wound stagnation assessment
+
+language
+	original_language = <[ISO_639-1::en]>
+	translations = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			author = <
+				["name"] = <"Sensire Wondzorg">
+				["organisation"] = <"Sensire">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Sensire Wondzorg">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-03-18">
+	>
+	details = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"To record the assessment of wound healing stagnation, specifically whether a wound has shown no improvement over a period of 2-3 weeks, triggering escalation to the wound care specialist team (Vakgroep Wond).">
+			use = <"Use in the context of wound care follow-up to assess whether a wound is progressing as expected or has stagnated. A wound is considered stagnant if there is no measurable improvement in size, depth, or wound bed quality over 2-3 weeks of treatment. Stagnation is the primary trigger for escalation to the wound care specialist team.">
+			misuse = <"Not to be used for initial wound assessment. Use CLUSTER.exam_wound for initial wound examination findings.">
+			keywords = <"wound", "stagnation", "healing", "escalation", "specialist", "progress">
+		>
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Voor het vastleggen van de beoordeling van wondgenezingsstagnatie, specifiek of een wond geen verbetering heeft getoond over een periode van 2-3 weken, wat leidt tot escalatie naar de Vakgroep Wond.">
+			use = <"Gebruik in de context van wondzorg follow-up om te beoordelen of een wond naar verwachting geneest of gestagneerd is. Een wond wordt als gestagneerd beschouwd als er geen meetbare verbetering is in grootte, diepte of wondbodemkwaliteit over 2-3 weken behandeling. Stagnatie is de primaire trigger voor escalatie naar de Vakgroep Wond.">
+			misuse = <"Niet gebruiken voor initiële wondbeoordeling. Gebruik CLUSTER.exam_wound voor initiële wondinspectiebevindingen.">
+			keywords = <"wond", "stagnatie", "genezing", "escalatie", "specialist", "voortgang">
+		>
+	>
+	lifecycle_state = <"in_development">
+	other_details = <
+		["licence"] = <"Creative Commons Attribution-ShareAlike 4.0 International">
+		["custodian_organisation"] = <"Sensire">
+		["original_namespace"] = <"nl.sensire">
+		["original_publisher"] = <"Sensire">
+	>
+
+definition
+	CLUSTER[at0000] matches {	-- Wound stagnation assessment
+		items cardinality matches {1..*; unordered} matches {
+			ELEMENT[at0001] occurrences matches {0..1} matches {	-- Duration of current treatment
+				value matches {
+					DV_DURATION matches {
+						value matches {PW/|P0W..P52W|}
+					}
+				}
+			}
+			ELEMENT[at0002] occurrences matches {0..1} matches {	-- Healing progress
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0003,	-- Improving
+							at0004,	-- Stable (no change)
+							at0005]	-- Deteriorating
+						}
+					}
+				}
+			}
+			ELEMENT[at0006] occurrences matches {0..1} matches {	-- Stagnation present
+				value matches {
+					DV_BOOLEAN matches {
+						value matches {True, False}
+					}
+				}
+			}
+			ELEMENT[at0007] occurrences matches {0..1} matches {	-- Escalation required
+				value matches {
+					DV_BOOLEAN matches {
+						value matches {True, False}
+					}
+				}
+			}
+			ELEMENT[at0008] occurrences matches {0..1} matches {	-- Escalation target
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0009,	-- Wound care specialist team
+							at0010,	-- General practitioner
+							at0011]	-- Medical specialist
+						}
+					}
+				}
+			}
+			ELEMENT[at0012] occurrences matches {0..1} matches {	-- Comment
+				value matches {
+					DV_TEXT matches {*}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["en"] = <
+			items = <
+				["at0000"] = <
+					text = <"Wound stagnation assessment">
+					description = <"Assessment of whether a wound has stagnated in its healing process.">
+				>
+				["at0001"] = <
+					text = <"Duration of current treatment">
+					description = <"The duration of the current wound treatment regimen.">
+				>
+				["at0002"] = <
+					text = <"Healing progress">
+					description = <"Assessment of how the wound is progressing under current treatment.">
+				>
+				["at0003"] = <
+					text = <"Improving">
+					description = <"The wound is showing signs of healing — reducing in size, improving wound bed quality.">
+				>
+				["at0004"] = <
+					text = <"Stable (no change)">
+					description = <"The wound is neither improving nor deteriorating.">
+				>
+				["at0005"] = <
+					text = <"Deteriorating">
+					description = <"The wound is getting worse — increasing in size, more exudate, or signs of infection.">
+				>
+				["at0006"] = <
+					text = <"Stagnation present">
+					description = <"Whether the wound has been stagnant (no improvement) for more than 2-3 weeks.">
+				>
+				["at0007"] = <
+					text = <"Escalation required">
+					description = <"Whether escalation to a specialist team is indicated based on the stagnation assessment.">
+				>
+				["at0008"] = <
+					text = <"Escalation target">
+					description = <"The team or professional to whom the case should be escalated.">
+				>
+				["at0009"] = <
+					text = <"Wound care specialist team">
+					description = <"Escalation to the wound care specialist team (Vakgroep Wond) for further assessment and treatment guidance.">
+				>
+				["at0010"] = <
+					text = <"General practitioner">
+					description = <"Escalation to the patient's general practitioner.">
+				>
+				["at0011"] = <
+					text = <"Medical specialist">
+					description = <"Escalation to a medical specialist (e.g., vascular surgeon, dermatologist).">
+				>
+				["at0012"] = <
+					text = <"Comment">
+					description = <"Additional narrative about the stagnation assessment.">
+				>
+			>
+		>
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Wondstagnatie-beoordeling">
+					description = <"Beoordeling of een wond gestagneerd is in het genezingsproces.">
+				>
+				["at0001"] = <
+					text = <"Duur huidige behandeling">
+					description = <"De duur van het huidige wondbehandelingsregime.">
+				>
+				["at0002"] = <
+					text = <"Genezingsvoortgang">
+					description = <"Beoordeling van hoe de wond vordert onder de huidige behandeling.">
+				>
+				["at0003"] = <
+					text = <"Verbeterend">
+					description = <"De wond toont tekenen van genezing — afname in grootte, verbetering van wondbodemkwaliteit.">
+				>
+				["at0004"] = <
+					text = <"Stabiel (geen verandering)">
+					description = <"De wond verbetert noch verslechtert.">
+				>
+				["at0005"] = <
+					text = <"Verslechterend">
+					description = <"De wond wordt erger — toename in grootte, meer exsudaat, of tekenen van infectie.">
+				>
+				["at0006"] = <
+					text = <"Stagnatie aanwezig">
+					description = <"Of de wond langer dan 2-3 weken gestagneerd is (geen verbetering).">
+				>
+				["at0007"] = <
+					text = <"Escalatie nodig">
+					description = <"Of escalatie naar een specialistisch team is geïndiceerd op basis van de stagnatiebeoordeling.">
+				>
+				["at0008"] = <
+					text = <"Escalatiedoel">
+					description = <"Het team of de professional naar wie de casus geëscaleerd moet worden.">
+				>
+				["at0009"] = <
+					text = <"Vakgroep Wond">
+					description = <"Escalatie naar de Vakgroep Wond voor nadere beoordeling en behandeladvies.">
+				>
+				["at0010"] = <
+					text = <"Huisarts">
+					description = <"Escalatie naar de huisarts van de patiënt.">
+				>
+				["at0011"] = <
+					text = <"Medisch specialist">
+					description = <"Escalatie naar een medisch specialist (bijv. vaatchirurg, dermatoloog).">
+				>
+				["at0012"] = <
+					text = <"Opmerking">
+					description = <"Aanvullend verhaal over de stagnatiebeoordeling.">
+				>
+			>
+		>
+	>

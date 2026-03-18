@@ -1,0 +1,392 @@
+archetype (adl_version=1.4; uid=e5f6a7b8-c9d0-1234-efab-234567890123)
+	openEHR-EHR-CLUSTER.altis_pain_score.v0
+
+concept
+	[at0000]	-- ALTIS pain assessment
+
+language
+	original_language = <[ISO_639-1::en]>
+	translations = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			author = <
+				["name"] = <"Sensire Wondzorg">
+				["organisation"] = <"Sensire">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Sensire Wondzorg">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-03-18">
+	>
+	details = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"To record the ALTIS pain assessment score, used in wound care to evaluate pain levels and guide pain management decisions. The assessment determines whether systemic or local pain relief is needed before wound care procedures.">
+			use = <"Use before wound care procedures to assess the patient's pain level and determine appropriate pain management. The ALTIS score guides the choice between:
+- No pain management needed
+- Systemic pain relief (paracetamol, NSAIDs, oxycodone, amitriptyline, fentanyl)
+- Local pain relief (lidocaine drops/spray for quick relief, EMLA cream/plaster for slower onset)
+
+Always wait for pain relief to take effect before starting wound care:
+- Systemic: 30-60 minutes
+- Local quick (lidocaine): 10 minutes
+- Local slow (EMLA): 45 minutes">
+			misuse = <"Not to be used as a general pain assessment tool outside the wound care context. For general pain assessment, use a validated pain scale such as the Visual Analogue Scale (VAS).">
+			keywords = <"ALTIS", "pain", "score", "assessment", "wound", "care", "analgesia", "management">
+		>
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Voor het vastleggen van de ALTIS-pijnbeoordeling, gebruikt in wondzorg om pijnniveaus te evalueren en pijnmanagementbeslissingen te sturen. De beoordeling bepaalt of systemische of lokale pijnstilling nodig is vóór wondzorghandelingen.">
+			use = <"Gebruik vóór wondzorghandelingen om het pijnniveau van de patiënt te beoordelen en de juiste pijnbestrijding te bepalen. De ALTIS-score stuurt de keuze tussen:
+- Geen pijnbestrijding nodig
+- Systemische pijnstilling (paracetamol, NSAID's, oxycodon, amitriptyline, fentanyl)
+- Lokale pijnstilling (lidocaïne druppels/spray voor snelle verlichting, EMLA zalf/pleister voor langzamere werking)
+
+Wacht altijd tot de pijnstilling is ingewerkt voor de start van wondzorg:
+- Systemisch: 30-60 minuten
+- Lokaal snel (lidocaïne): 10 minuten
+- Lokaal langzaam (EMLA): 45 minuten">
+			misuse = <"Niet gebruiken als algemeen pijnbeoordelingsinstrument buiten de wondzorgcontext. Gebruik voor algemene pijnbeoordeling een gevalideerde pijnschaal zoals de Visueel Analoge Schaal (VAS).">
+			keywords = <"ALTIS", "pijn", "score", "beoordeling", "wond", "zorg", "analgesie", "management">
+		>
+	>
+	lifecycle_state = <"in_development">
+	other_details = <
+		["licence"] = <"Creative Commons Attribution-ShareAlike 4.0 International">
+		["custodian_organisation"] = <"Sensire">
+		["original_namespace"] = <"nl.sensire">
+		["original_publisher"] = <"Sensire">
+	>
+
+definition
+	CLUSTER[at0000] matches {	-- ALTIS pain assessment
+		items cardinality matches {1..*; unordered} matches {
+			ELEMENT[at0001] occurrences matches {0..1} matches {	-- Pain present
+				value matches {
+					DV_BOOLEAN matches {
+						value matches {True, False}
+					}
+				}
+			}
+			ELEMENT[at0002] occurrences matches {0..1} matches {	-- Pain score
+				value matches {
+					DV_COUNT matches {
+						magnitude matches {|0..10|}
+					}
+				}
+			}
+			ELEMENT[at0003] occurrences matches {0..1} matches {	-- Pain timing
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0004,	-- At rest
+							at0005,	-- During dressing change
+							at0006,	-- During wound cleansing
+							at0007]	-- Continuous
+						}
+					}
+				}
+			}
+			ELEMENT[at0008] occurrences matches {0..1} matches {	-- Pain management type
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0009,	-- None required
+							at0010,	-- Systemic
+							at0011]	-- Local
+						}
+					}
+				}
+			}
+			ELEMENT[at0012] occurrences matches {0..1} matches {	-- Systemic medication
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0013,	-- Paracetamol
+							at0014,	-- NSAID
+							at0015,	-- Oxycodone
+							at0016,	-- Amitriptyline
+							at0017,	-- Fentanyl nasal spray
+							at0018,	-- Fentanyl patches
+							at0019]	-- Butrans
+						}
+					}
+				}
+			}
+			ELEMENT[at0020] occurrences matches {0..1} matches {	-- Local medication
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0021,	-- Lidocaine drops
+							at0022,	-- Lidocaine spray
+							at0023,	-- EMLA cream
+							at0024]	-- EMLA plaster
+						}
+					}
+				}
+			}
+			ELEMENT[at0025] occurrences matches {0..1} matches {	-- Wait time required
+				value matches {
+					DV_DURATION matches {
+						value matches {PTM/|PT0M..PT120M|}
+					}
+				}
+			}
+			ELEMENT[at0026] occurrences matches {0..1} matches {	-- Pain relief effective
+				value matches {
+					DV_BOOLEAN matches {
+						value matches {True, False}
+					}
+				}
+			}
+			ELEMENT[at0027] occurrences matches {0..1} matches {	-- Comment
+				value matches {
+					DV_TEXT matches {*}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["en"] = <
+			items = <
+				["at0000"] = <
+					text = <"ALTIS pain assessment">
+					description = <"Pain assessment tool used in wound care to evaluate pain and guide pain management before wound care procedures.">
+				>
+				["at0001"] = <
+					text = <"Pain present">
+					description = <"Whether the patient reports pain.">
+				>
+				["at0002"] = <
+					text = <"Pain score">
+					description = <"Numeric pain score on a 0-10 scale.">
+				>
+				["at0003"] = <
+					text = <"Pain timing">
+					description = <"When the pain occurs in relation to wound care.">
+				>
+				["at0004"] = <
+					text = <"At rest">
+					description = <"Pain is present even at rest, without any wound care activity.">
+				>
+				["at0005"] = <
+					text = <"During dressing change">
+					description = <"Pain occurs during removal or application of wound dressing.">
+				>
+				["at0006"] = <
+					text = <"During wound cleansing">
+					description = <"Pain occurs during wound cleansing or irrigation.">
+				>
+				["at0007"] = <
+					text = <"Continuous">
+					description = <"Pain is continuous throughout the wound care procedure.">
+				>
+				["at0008"] = <
+					text = <"Pain management type">
+					description = <"The type of pain management selected.">
+				>
+				["at0009"] = <
+					text = <"None required">
+					description = <"No pain management is needed.">
+				>
+				["at0010"] = <
+					text = <"Systemic">
+					description = <"Systemic pain relief medication is administered.">
+				>
+				["at0011"] = <
+					text = <"Local">
+					description = <"Local anaesthetic is applied to the wound area.">
+				>
+				["at0012"] = <
+					text = <"Systemic medication">
+					description = <"The specific systemic pain medication used.">
+				>
+				["at0013"] = <
+					text = <"Paracetamol">
+					description = <"Paracetamol (acetaminophen).">
+				>
+				["at0014"] = <
+					text = <"NSAID">
+					description = <"Non-steroidal anti-inflammatory drug.">
+				>
+				["at0015"] = <
+					text = <"Oxycodone">
+					description = <"Oxycodone opioid analgesic.">
+				>
+				["at0016"] = <
+					text = <"Amitriptyline">
+					description = <"Amitriptyline for neuropathic pain.">
+				>
+				["at0017"] = <
+					text = <"Fentanyl nasal spray">
+					description = <"Fentanyl administered as nasal spray for rapid onset.">
+				>
+				["at0018"] = <
+					text = <"Fentanyl patches">
+					description = <"Transdermal fentanyl patches for sustained release.">
+				>
+				["at0019"] = <
+					text = <"Butrans">
+					description = <"Buprenorphine transdermal patches.">
+				>
+				["at0020"] = <
+					text = <"Local medication">
+					description = <"The specific local anaesthetic used.">
+				>
+				["at0021"] = <
+					text = <"Lidocaine drops">
+					description = <"Lidocaine drops applied directly to the wound. Onset: ~10 minutes.">
+				>
+				["at0022"] = <
+					text = <"Lidocaine spray">
+					description = <"Lidocaine spray applied to the wound area. Onset: ~10 minutes.">
+				>
+				["at0023"] = <
+					text = <"EMLA cream">
+					description = <"EMLA cream (lidocaine/prilocaine) applied to the wound area. Onset: ~45 minutes.">
+				>
+				["at0024"] = <
+					text = <"EMLA plaster">
+					description = <"EMLA plaster (lidocaine/prilocaine) applied to the wound area. Onset: ~45 minutes.">
+				>
+				["at0025"] = <
+					text = <"Wait time required">
+					description = <"The time to wait for pain relief to take effect before starting wound care.">
+				>
+				["at0026"] = <
+					text = <"Pain relief effective">
+					description = <"Whether the administered pain relief has been effective before starting wound care.">
+				>
+				["at0027"] = <
+					text = <"Comment">
+					description = <"Additional narrative about the pain assessment.">
+				>
+			>
+		>
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"ALTIS pijnbeoordeling">
+					description = <"Pijnbeoordelingsinstrument gebruikt in wondzorg om pijn te evalueren en pijnmanagement te sturen vóór wondzorghandelingen.">
+				>
+				["at0001"] = <
+					text = <"Pijn aanwezig">
+					description = <"Of de patiënt pijn rapporteert.">
+				>
+				["at0002"] = <
+					text = <"Pijnscore">
+					description = <"Numerieke pijnscore op een schaal van 0-10.">
+				>
+				["at0003"] = <
+					text = <"Pijntiming">
+					description = <"Wanneer de pijn optreedt in relatie tot wondzorg.">
+				>
+				["at0004"] = <
+					text = <"In rust">
+					description = <"Pijn is aanwezig in rust, zonder wondzorgactiviteit.">
+				>
+				["at0005"] = <
+					text = <"Bij verbandwissel">
+					description = <"Pijn treedt op bij het verwijderen of aanbrengen van wondverband.">
+				>
+				["at0006"] = <
+					text = <"Bij wondreiniging">
+					description = <"Pijn treedt op bij wondreiniging of spoeling.">
+				>
+				["at0007"] = <
+					text = <"Continu">
+					description = <"Pijn is continu aanwezig gedurende de wondzorghandeling.">
+				>
+				["at0008"] = <
+					text = <"Type pijnbestrijding">
+					description = <"Het gekozen type pijnbestrijding.">
+				>
+				["at0009"] = <
+					text = <"Niet nodig">
+					description = <"Geen pijnbestrijding nodig.">
+				>
+				["at0010"] = <
+					text = <"Systemisch">
+					description = <"Systemische pijnstilling wordt toegediend.">
+				>
+				["at0011"] = <
+					text = <"Lokaal">
+					description = <"Lokale verdoving wordt aangebracht op het wondgebied.">
+				>
+				["at0012"] = <
+					text = <"Systemische medicatie">
+					description = <"De specifieke systemische pijnmedicatie die wordt gebruikt.">
+				>
+				["at0013"] = <
+					text = <"Paracetamol">
+					description = <"Paracetamol.">
+				>
+				["at0014"] = <
+					text = <"NSAID">
+					description = <"Niet-steroïdaal anti-inflammatoir geneesmiddel.">
+				>
+				["at0015"] = <
+					text = <"Oxycodon">
+					description = <"Oxycodon opioïd analgeticum.">
+				>
+				["at0016"] = <
+					text = <"Amitriptyline">
+					description = <"Amitriptyline voor neuropathische pijn.">
+				>
+				["at0017"] = <
+					text = <"Fentanyl neusspray">
+					description = <"Fentanyl toegediend als neusspray voor snelle werking.">
+				>
+				["at0018"] = <
+					text = <"Fentanyl pleisters">
+					description = <"Transdermale fentanyl pleisters voor langdurige afgifte.">
+				>
+				["at0019"] = <
+					text = <"Butrans">
+					description = <"Buprenorfine transdermale pleisters.">
+				>
+				["at0020"] = <
+					text = <"Lokale medicatie">
+					description = <"Het specifieke lokale verdovingsmiddel dat wordt gebruikt.">
+				>
+				["at0021"] = <
+					text = <"Lidocaïne druppels">
+					description = <"Lidocaïne druppels direct op de wond aangebracht. Werking: ~10 minuten.">
+				>
+				["at0022"] = <
+					text = <"Lidocaïne spray">
+					description = <"Lidocaïne spray op het wondgebied aangebracht. Werking: ~10 minuten.">
+				>
+				["at0023"] = <
+					text = <"EMLA zalf">
+					description = <"EMLA zalf (lidocaïne/prilocaïne) op het wondgebied aangebracht. Werking: ~45 minuten.">
+				>
+				["at0024"] = <
+					text = <"EMLA pleister">
+					description = <"EMLA pleister (lidocaïne/prilocaïne) op het wondgebied aangebracht. Werking: ~45 minuten.">
+				>
+				["at0025"] = <
+					text = <"Wachttijd nodig">
+					description = <"De tijd om te wachten tot de pijnstilling is ingewerkt voordat de wondzorg begint.">
+				>
+				["at0026"] = <
+					text = <"Pijnstilling effectief">
+					description = <"Of de toegediende pijnstilling effectief is geweest voordat de wondzorg begint.">
+				>
+				["at0027"] = <
+					text = <"Opmerking">
+					description = <"Aanvullend verhaal over de pijnbeoordeling.">
+				>
+			>
+		>
+	>
