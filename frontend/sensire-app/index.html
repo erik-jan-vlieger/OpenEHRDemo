@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sensire Wondzorg — openEHR Demo</title>
+  <meta name="description" content="Interactieve openEHR demo voor Sensire Wondzorg met drie klinische beslisbomen.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="app-header__brand">
+        <div>
+          <div class="app-header__logo">🏥 Sensire Wondzorg</div>
+          <div class="app-header__subtitle">openEHR Demo-omgeving</div>
+        </div>
+      </div>
+      <nav class="app-header__nav">
+        <a href="index.html" class="active">Home</a>
+        <a href="ulcus-cruris.html">Ulcus Cruris</a>
+        <a href="diabetische-voet.html">Diabetische Voet</a>
+        <a href="wondprotocol.html">Wondprotocol</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Client Banner -->
+    <div class="client-banner">
+      <div class="client-banner__avatar">MJ</div>
+      <div class="client-banner__info">
+        <div class="client-banner__name">Mevr. M.J. de Vries-Bakker</div>
+        <div class="client-banner__details">
+          <span class="client-banner__detail"><strong>BSN:</strong> 999.901.234</span>
+          <span class="client-banner__detail"><strong>Geb.:</strong> 14-03-1942 (83 jaar)</span>
+          <span class="client-banner__detail"><strong>Diagnoses:</strong> Veneus ulcus links onderbeen, Hypertensie, DM type 2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Header -->
+    <div class="section-header">
+      <h1 class="section-header__title">Klinische Protocollen</h1>
+      <p class="section-header__subtitle">Kies een protocol om de interactieve beslisboom te doorlopen. Alle data wordt opgeslagen als openEHR composities.</p>
+    </div>
+
+    <!-- Protocol Cards -->
+    <div class="protocol-grid">
+      <a href="ulcus-cruris.html" class="protocol-card" id="card-ulcus-cruris">
+        <div class="protocol-card__accent protocol-card__accent--ulcus"></div>
+        <div class="protocol-card__body">
+          <div class="protocol-card__icon">🦵</div>
+          <h2 class="protocol-card__title">Ulcus Cruris</h2>
+          <p class="protocol-card__description">
+            Triage, EAI-beoordeling, Stemmer-test, compressiekeuze (UrgoK2 / UrgoK2 Lite), en nazorg. Inclusief stagnatiebeoordeling en escalatie naar Vakgroep Wond.
+          </p>
+          <span class="protocol-card__tag">Beslisboom beschikbaar</span>
+        </div>
+      </a>
+
+      <a href="diabetische-voet.html" class="protocol-card" id="card-diabetische-voet">
+        <div class="protocol-card__accent protocol-card__accent--diabetisch"></div>
+        <div class="protocol-card__body">
+          <div class="protocol-card__icon">🦶</div>
+          <h2 class="protocol-card__title">Diabetische Voet</h2>
+          <p class="protocol-card__description">
+            Anamnese, voetinspectie beide voeten, Charcot-vermoeden screening, en doorverwijzing naar Wondprotocol met DM-laag bij wond aanwezig.
+          </p>
+          <span class="protocol-card__tag">Binnenkort beschikbaar</span>
+        </div>
+      </a>
+
+      <a href="wondprotocol.html" class="protocol-card" id="card-wondprotocol">
+        <div class="protocol-card__accent protocol-card__accent--wond"></div>
+        <div class="protocol-card__body">
+          <div class="protocol-card__icon">🩹</div>
+          <h2 class="protocol-card__title">Algemeen Wondprotocol</h2>
+          <p class="protocol-card__description">
+            Voorbereiding, wondinspectie, pijnmanagement (ALTIS), TIME+WCS analyse, debridement, infectiebeleid, verbandkeuze matrix, en nazorg.
+          </p>
+          <span class="protocol-card__tag">Binnenkort beschikbaar</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Tools Section -->
+    <div class="tools-section">
+      <div class="section-header">
+        <h2 class="section-header__title" style="font-size:1.3rem;">🔧 Beheertools</h2>
+        <p class="section-header__subtitle">Directe toegang tot de openEHR backend en database.</p>
+      </div>
+
+      <div class="tools-grid">
+        <a href="http://localhost:8080/ehrbase/swagger-ui/" target="_blank" class="protocol-card" id="tool-swagger">
+          <div class="protocol-card__accent protocol-card__accent--tool"></div>
+          <div class="protocol-card__body">
+            <div class="protocol-card__icon">📋</div>
+            <h3 class="protocol-card__title">Swagger UI</h3>
+            <p class="protocol-card__description">EHRbase REST API browser — bekijk en test alle endpoints.</p>
+          </div>
+        </a>
+
+        <a href="http://localhost:5050" target="_blank" class="protocol-card" id="tool-pgadmin">
+          <div class="protocol-card__accent protocol-card__accent--tool"></div>
+          <div class="protocol-card__body">
+            <div class="protocol-card__icon">🗃️</div>
+            <h3 class="protocol-card__title">pgAdmin</h3>
+            <p class="protocol-card__description">PostgreSQL database browser — bewijs dat het echte data is.</p>
+          </div>
+        </a>
+
+        <a href="http://localhost:8888" target="_blank" class="protocol-card" id="tool-openehrtool">
+          <div class="protocol-card__accent protocol-card__accent--tool"></div>
+          <div class="protocol-card__body">
+            <div class="protocol-card__icon">🔍</div>
+            <h3 class="protocol-card__title">openEHRTool</h3>
+            <p class="protocol-card__description">GUI browser voor EHRbase — interactief browsen van EHRs en composities.</p>
+          </div>
+        </a>
+
+        <a href="https://tools.openehr.org/designer/" target="_blank" class="protocol-card" id="tool-designer">
+          <div class="protocol-card__accent protocol-card__accent--tool"></div>
+          <div class="protocol-card__body">
+            <div class="protocol-card__icon">🏗️</div>
+            <h3 class="protocol-card__title">Archetype Designer</h3>
+            <p class="protocol-card__description">openEHR Foundation — archetype en template modellering.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Architecture Info -->
+    <div class="info-panel" style="margin-top: var(--space-2xl);">
+      <strong>💡 Over deze demo:</strong> Deze omgeving toont het volledige openEHR concept — van internationale archetype-modellering tot patiëntdata-invoer via beslisbomen, met opslag in EHRbase en bevraging via AQL. Alle data is onafhankelijk van de applicatie bevraagbaar via de internationale querytaal AQL.
+    </div>
+  </main>
+</body>
+</html>

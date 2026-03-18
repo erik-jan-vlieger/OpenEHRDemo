@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diabetische Voet — Sensire Wondzorg Demo</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="app-header__brand">
+        <div>
+          <div class="app-header__logo">🏥 Sensire Wondzorg</div>
+          <div class="app-header__subtitle">openEHR Demo-omgeving</div>
+        </div>
+      </div>
+      <nav class="app-header__nav">
+        <a href="index.html">Home</a>
+        <a href="ulcus-cruris.html">Ulcus Cruris</a>
+        <a href="diabetische-voet.html" class="active">Diabetische Voet</a>
+        <a href="wondprotocol.html">Wondprotocol</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="client-banner">
+      <div class="client-banner__avatar">MJ</div>
+      <div class="client-banner__info">
+        <div class="client-banner__name">Mevr. M.J. de Vries-Bakker</div>
+        <div class="client-banner__details">
+          <span class="client-banner__detail"><strong>BSN:</strong> 999.901.234</span>
+          <span class="client-banner__detail"><strong>Geb.:</strong> 14-03-1942 (83 jaar)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h1 class="section-header__title">🦶 Diabetische Voet Protocol</h1>
+      <p class="section-header__subtitle">Anamnese, voetinspectie, Charcot-screening en doorverwijzing.</p>
+    </div>
+
+    <div class="alert alert--info">
+      <span class="alert__icon">🚧</span>
+      <div>
+        <strong>Komt in Fase 4</strong><br>
+        Dit protocol wordt in de volgende fase gebouwd. De beslisboom omvat:
+        <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+          <li>Anamnese (glucose, claudicatio, eerder ulcus, Charcot)</li>
+          <li>Voetinspectie beide voeten (huidkleur, temp, pulsaties, monofilament)</li>
+          <li>Charcot-vermoeden → <strong>arts dezelfde dag</strong></li>
+          <li>Plantaire wond → <strong>arts binnen 24 uur</strong></li>
+          <li>Geen wond → preventieve zorg</li>
+          <li>Wond → doorverwijzing Wondprotocol met DM-laag</li>
+        </ul>
+      </div>
+    </div>
+
+    <a href="index.html" class="btn btn--outline" style="margin-top: var(--space-lg);">← Terug naar overzicht</a>
+  </main>
+</body>
+</html>

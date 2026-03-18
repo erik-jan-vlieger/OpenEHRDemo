@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ulcus Cruris — Sensire Wondzorg Demo</title>
+  <meta name="description" content="Interactieve Ulcus Cruris beslisboom — EAI-beoordeling, Stemmer-test en compressiekeuze.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="app-header__brand">
+        <div>
+          <div class="app-header__logo">🏥 Sensire Wondzorg</div>
+          <div class="app-header__subtitle">openEHR Demo-omgeving</div>
+        </div>
+      </div>
+      <nav class="app-header__nav">
+        <a href="index.html">Home</a>
+        <a href="ulcus-cruris.html" class="active">Ulcus Cruris</a>
+        <a href="diabetische-voet.html">Diabetische Voet</a>
+        <a href="wondprotocol.html">Wondprotocol</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Client Banner -->
+    <div class="client-banner">
+      <div class="client-banner__avatar">MJ</div>
+      <div class="client-banner__info">
+        <div class="client-banner__name">Mevr. M.J. de Vries-Bakker</div>
+        <div class="client-banner__details">
+          <span class="client-banner__detail"><strong>BSN:</strong> 999.901.234</span>
+          <span class="client-banner__detail"><strong>Geb.:</strong> 14-03-1942 (83 jaar)</span>
+          <span class="client-banner__detail"><strong>Diagnoses:</strong> Veneus ulcus links onderbeen, Hypertensie, DM type 2</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h1 class="section-header__title">🦵 Ulcus Cruris Protocol</h1>
+      <p class="section-header__subtitle">Doorloop de beslisboom stap voor stap. Na afloop wordt de data opgeslagen als openEHR compositie.</p>
+    </div>
+
+    <!-- Decision Tree -->
+    <div class="decision-tree" id="decision-tree"></div>
+
+    <!-- Result Section (hidden initially) -->
+    <div id="result-section" style="display:none;">
+      <!-- Tabs -->
+      <div class="tabs" id="result-tabs">
+        <button class="tab-btn tab-btn--active" data-tab="advice">💊 Klinisch Advies</button>
+        <button class="tab-btn" data-tab="data">📋 openEHR Data</button>
+        <button class="tab-btn" data-tab="aql">🔍 AQL Bewijs</button>
+      </div>
+
+      <div class="tab-panel tab-panel--active" id="tab-advice"></div>
+      <div class="tab-panel" id="tab-data"></div>
+      <div class="tab-panel" id="tab-aql"></div>
+
+      <div style="margin-top: var(--space-xl); display:flex; gap: var(--space-md);">
+        <button class="btn btn--primary" id="btn-save" onclick="saveComposition()">💾 Opslaan naar EHRbase</button>
+        <button class="btn btn--outline" onclick="location.reload()">🔄 Opnieuw starten</button>
+      </div>
+
+      <div id="save-result" style="margin-top: var(--space-lg);"></div>
+    </div>
+  </main>
+
+  <script>
+    // ============================================================
+    // Ulcus Cruris Decision Tree Engine
+    // ============================================================
+    const EHRBASE_URL = 'http://localhost:8080/ehrbase/rest';
+    const EHRBASE_USER = 'ehrbase-user';
+    const EHRBASE_PASS = 'SuperSecretPassword';
+
+    // Client data
+    const client = {
+      name: 'M.J. de Vries-Bakker',
+      bsn: '999901234',
+      birthdate: '1942-03-14',
+      diagnoses: ['Veneus ulcus links onderbeen', 'Hypertensie', 'DM type 2']
+    };
+
+    // State
+    let state = {
+      currentStep: 0,
+      answers: {},
+      ehrId: null,
+      compositionUid: null
+    };
+
+    // Steps definition
+    const steps = [
+      {
+        id: 'client-type',
+        title: 'Triage',
+        description: 'Is dit een nieuwe of bestaande cliënt met een wond aan het onderbeen/voet?',
+        type: 'choice',
+        options: [
+          { value: 'new', label: 'Nieuwe cliënt', icon: '🆕' },
+          { value: 'existing', label: 'Bestaande cliënt', icon: '📋' }
+        ]
+      },
+      {
+        id: 'stagnation',
+        title: 'Stagnatiebeoordeling',
+        description: 'Heeft de wond al > 2-3 weken geen verbetering getoond?',
+        type: 'choice',
+        condition: () => state.answers['client-type'] === 'existing',
+        options: [
+          { value: 'stagnant', label: 'Ja — stagnatie (> 2-3 weken geen verbetering)', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'improving', label: 'Nee — wond verbetert', icon: '✅' },
+          { value: 'early', label: 'Nee — nog geen 2-3 weken bezig', icon: '🕑' }
+        ]
+      },
+      {
+        id: 'diabetes',
+        title: 'Diabetes Mellitus',
+        description: 'Is er sprake van Diabetes Mellitus?',
+        type: 'choice',
+        options: [
+          { value: 'yes', label: 'Ja — DM aanwezig', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'no', label: 'Nee', icon: '✅' }
+        ]
+      },
+      {
+        id: 'oedema',
+        title: 'Oedeem',
+        description: 'Is er oedeem aanwezig aan het been?',
+        type: 'choice',
+        condition: () => state.answers['diabetes'] !== 'yes',
+        options: [
+          { value: 'yes', label: 'Ja — oedeem aanwezig', icon: '💧' },
+          { value: 'no', label: 'Nee — geen oedeem', icon: '✅' }
+        ]
+      },
+      {
+        id: 'stemmer',
+        title: 'Teken van Stemmer',
+        description: 'Probeer een huidplooi op te pakken op de dorsale zijde van de 2e teen. Lukt dit?',
+        type: 'choice',
+        condition: () => state.answers['oedema'] === 'yes',
+        infobox: {
+          title: '📖 Stemmer-test uitleg',
+          content: '<strong>Positief:</strong> Huidplooi NIET op te pakken → wijst op <strong>lymfoedeem</strong><br><strong>Negatief:</strong> Huidplooi WEL op te pakken → wijst op <strong>veneus oedeem</strong>'
+        },
+        options: [
+          { value: 'negative', label: 'Negatief — huidplooi wel oppakbaar (veneus oedeem)', icon: '🔵' },
+          { value: 'positive', label: 'Positief — huidplooi niet oppakbaar (lymfoedeem)', icon: '🟠', className: 'decision-btn--warning' }
+        ]
+      },
+      {
+        id: 'eai-known',
+        title: 'EAI Beschikbaar',
+        description: 'Is er een Enkel-Arm Index (EAI) bekend? LET OP: de meting mag max. 3 maanden oud zijn.',
+        type: 'choice',
+        condition: () => state.answers['diabetes'] !== 'yes',
+        options: [
+          { value: 'yes', label: 'Ja — EAI is bekend (< 3 maanden)', icon: '📊' },
+          { value: 'no', label: 'Nee — geen EAI bekend', icon: '❓' }
+        ]
+      },
+      {
+        id: 'eai-value',
+        title: 'EAI Waarde',
+        description: 'Voer de gemeten EAI-waarde in:',
+        type: 'number',
+        condition: () => state.answers['eai-known'] === 'yes',
+        min: 0.1,
+        max: 3.0,
+        step: 0.01,
+        placeholder: 'bijv. 0.85',
+        unit: 'ratio'
+      }
+    ];
+
+    // ── Render Engine ──
+    function renderTree() {
+      const tree = document.getElementById('decision-tree');
+      tree.innerHTML = '';
+
+      let stepNumber = 0;
+      for (let i = 0; i <= state.currentStep && i < steps.length; i++) {
+        const step = steps[i];
+
+        // Check condition
+        if (step.condition && !step.condition()) continue;
+
+        stepNumber++;
+        const isActive = (i === state.currentStep);
+        const isCompleted = (i < state.currentStep) || state.answers[step.id] !== undefined;
+        const answer = state.answers[step.id];
+
+        const stepEl = document.createElement('div');
+        stepEl.className = `step ${isActive && !isCompleted ? 'step--active' : ''} ${isCompleted && !isActive ? 'step--completed' : ''}`;
+        stepEl.id = `step-${step.id}`;
+
+        let bodyHTML = '';
+
+        if (step.description) {
+          bodyHTML += `<p class="step__description">${step.description}</p>`;
+        }
+
+        // Info box
+        if (step.infobox) {
+          bodyHTML += `<div class="info-panel" style="margin-bottom: var(--space-lg);">
+            <strong>${step.infobox.title}</strong><br>${step.infobox.content}
+          </div>`;
+        }
+
+        if (step.type === 'choice') {
+          bodyHTML += '<div class="decision-options">';
+          for (const opt of step.options) {
+            const selected = answer === opt.value;
+            const cls = opt.className || '';
+            bodyHTML += `<button class="decision-btn ${cls} ${selected ? 'decision-btn--selected' : ''}"
+              onclick="selectAnswer('${step.id}', '${opt.value}', ${i})"
+              ${isCompleted && !isActive ? 'disabled' : ''}>
+              <span class="decision-btn__icon">${opt.icon}</span>
+              <span>${opt.label}</span>
+            </button>`;
+          }
+          bodyHTML += '</div>';
+        } else if (step.type === 'number') {
+          bodyHTML += `<div class="form-group">
+            <label>Waarde (${step.unit})</label>
+            <div style="display:flex; gap: var(--space-md); align-items:center;">
+              <input type="number" class="form-input form-input--number" id="input-${step.id}"
+                min="${step.min}" max="${step.max}" step="${step.step}"
+                placeholder="${step.placeholder}"
+                value="${answer || ''}"
+                ${isCompleted && !isActive ? 'disabled' : ''}>
+              <button class="btn btn--primary btn--sm"
+                onclick="submitNumber('${step.id}', ${i})"
+                ${isCompleted && !isActive ? 'disabled' : ''}>Bevestig</button>
+            </div>
+          </div>`;
+        }
+
+        // Show stagnation alert
+        if (step.id === 'stagnation' && answer === 'stagnant') {
+          bodyHTML += `<div class="alert alert--warning" style="margin-top: var(--space-lg);">
+            <span class="alert__icon">⚠️</span>
+            <div><strong>Vakgroep Wond ingeschakeld</strong><br>Indicatie: Ulcus Cruris + Stagnatie (> 2-3 weken zonder verbetering).<br>Vul het Consult/Triageformulier in.</div>
+          </div>`;
+        }
+
+        // Show DM redirect
+        if (step.id === 'diabetes' && answer === 'yes') {
+          bodyHTML += `<div class="alert alert--warning" style="margin-top: var(--space-lg);">
+            <span class="alert__icon">🦶</span>
+            <div><strong>Doorverwijzing: Diabetische Voet Protocol</strong><br>Bij DM dient eerst het <a href="diabetische-voet.html">Diabetische Voet protocol</a> te worden doorlopen.</div>
+          </div>`;
+        }
+
+        // Stemmer positive alert
+        if (step.id === 'stemmer' && answer === 'positive') {
+          bodyHTML += `<div class="alert alert--warning" style="margin-top: var(--space-lg);">
+            <span class="alert__icon">🟠</span>
+            <div><strong>Let op: Lymfoedeem</strong><br>Schakel een huidtherapeut in voor MLD (Manuele Lymfedrainage) en/of therapeutisch elastische kousen.</div>
+          </div>`;
+        }
+
+        stepEl.innerHTML = `
+          <div class="step__header">
+            <span class="step__number">${isCompleted ? '✓' : stepNumber}</span>
+            <span class="step__title">${step.title}</span>
+          </div>
+          <div class="step__body">${bodyHTML}</div>
+        `;
+
+        tree.appendChild(stepEl);
+      }
+    }
+
+    function selectAnswer(stepId, value, stepIndex) {
+      state.answers[stepId] = value;
+
+      // Special: DM = yes → stop tree, show redirect
+      if (stepId === 'diabetes' && value === 'yes') {
+        renderTree();
+        return;
+      }
+
+      advanceToNext(stepIndex);
+    }
+
+    function submitNumber(stepId, stepIndex) {
+      const input = document.getElementById(`input-${stepId}`);
+      const value = parseFloat(input.value);
+      if (isNaN(value)) return;
+      state.answers[stepId] = value;
+      advanceToNext(stepIndex);
+    }
+
+    function advanceToNext(currentIndex) {
+      // Find next applicable step
+      let nextIndex = currentIndex + 1;
+      while (nextIndex < steps.length) {
+        const step = steps[nextIndex];
+        if (!step.condition || step.condition()) break;
+        nextIndex++;
+      }
+
+      if (nextIndex >= steps.length) {
+        // Tree complete — show results
+        state.currentStep = nextIndex;
+        renderTree();
+        showResults();
+      } else {
+        state.currentStep = nextIndex;
+        renderTree();
+        // Scroll to new step
+        setTimeout(() => {
+          const el = document.getElementById(`step-${steps[nextIndex].id}`);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+
+    // ── Clinical Logic ──
+    function getEAIInterpretation(eai) {
+      if (eai < 0.6) return {
+        category: 'severe_arterial',
+        label: 'Ernstig arterieel vaatlijden',
+        compression: 'GEEN compressie — verwijs naar vaatchirurg',
+        color: 'danger',
+        bandage: null
+      };
+      if (eai <= 0.8) return {
+        category: 'mixed',
+        label: 'Gemengd arterieel/veneus vaatlijden',
+        compression: 'Lichte compressie — UrgoK2 Lite',
+        color: 'warning',
+        bandage: 'UrgoK2 Lite'
+      };
+      if (eai <= 1.3) return {
+        category: 'normal_venous',
+        label: 'Veneus normaal',
+        compression: 'Standaard compressie — UrgoK2',
+        color: 'success',
+        bandage: 'UrgoK2'
+      };
+      return {
+        category: 'unreliable',
+        label: 'Onbetrouwbaar (verkalkte vaten)',
+        compression: 'Overleg huisarts — nadere diagnostiek nodig',
+        color: 'warning',
+        bandage: null
+      };
+    }
+
+    function showResults() {
+      const resultSection = document.getElementById('result-section');
+      resultSection.style.display = 'block';
+
+      const eaiValue = state.answers['eai-value'];
+      const eaiKnown = state.answers['eai-known'];
+      const stemmer = state.answers['stemmer'];
+      const oedema = state.answers['oedema'];
+      const stagnation = state.answers['stagnation'];
+
+      // ── Advice Tab ──
+      const adviceTab = document.getElementById('tab-advice');
+      let adviceHTML = '';
+
+      if (stagnation === 'stagnant') {
+        adviceHTML += `<div class="alert alert--warning">
+          <span class="alert__icon">⚠️</span>
+          <div><strong>Escalatie:</strong> Vakgroep Wond inschakelen wegens stagnatie > 2-3 weken.</div>
+        </div>`;
+      }
+
+      if (stemmer === 'positive') {
+        adviceHTML += `<div class="alert alert--warning">
+          <span class="alert__icon">🟠</span>
+          <div><strong>Lymfoedeem:</strong> Huidtherapeut inschakelen voor MLD en/of therapeutisch elastische kousen.</div>
+        </div>`;
+      }
+
+      if (eaiKnown === 'yes' && eaiValue !== undefined) {
+        const interp = getEAIInterpretation(eaiValue);
+        adviceHTML += `<div class="advice-box ${interp.color === 'danger' ? 'advice-box--danger' : ''}">
+          <div class="advice-box__title">📊 EAI-beoordeling: ${eaiValue.toFixed(2)}</div>
+          <div class="advice-box__content">
+            <p><strong>Interpretatie:</strong> ${interp.label}</p>
+            <p><strong>Aanbeveling:</strong> ${interp.compression}</p>
+            ${interp.bandage ? `<p style="margin-top: var(--space-md);"><strong>Zwachtelsysteem:</strong> ${interp.bandage}</p>` : ''}
+          </div>
+        </div>`;
+
+        if (interp.bandage) {
+          adviceHTML += `<div class="card" style="margin-top: var(--space-lg);">
+            <div class="card__header"><h3 class="card__title">📋 Werkinstructie ${interp.bandage}</h3></div>
+            <div class="card__body">
+              <ol style="padding-left: var(--space-lg); line-height: 2;">
+                <li><strong>Meten:</strong> Enkelomvang 2cm boven knobbel (18-25cm = Maat 1, 25-32cm = Maat 2)</li>
+                <li><strong>Voorbereiding:</strong> Voet in 90 graden, polster wreef/hiel/knie, kijk 'in de rol'</li>
+                <li><strong>Laag 1 (Wit):</strong> Start bij de tenen, hiel achtvormig, rek tot cirkels verschijnen</li>
+                <li><strong>Bereik:</strong> Zwachtelen tot 2 cm onder de knieholte</li>
+                <li><strong>Laag 2 (Beige):</strong> Zelfde techniek, laat 0.5cm wit uitsteken, druk stevig aan</li>
+              </ol>
+              <p style="margin-top: var(--space-md); font-size: 0.85rem; color: var(--color-text-secondary);">
+                ℹ️ Instructievideo: <a href="https://youtube.com/watch?v=RcE5-G9b0pc" target="_blank">youtube.com/watch?v=RcE5-G9b0pc</a>
+              </p>
+            </div>
+          </div>`;
+        }
+      } else if (eaiKnown === 'no') {
+        adviceHTML += `<div class="alert alert--info">
+          <span class="alert__icon">📋</span>
+          <div><strong>Geen EAI beschikbaar:</strong> Vraag de huisarts om een diagnose (arterieel / veneus / gemengd) en pas het compressiebeleid daarop aan.</div>
+        </div>`;
+      }
+
+      adviceHTML += `<div class="card" style="margin-top: var(--space-lg);">
+        <div class="card__header"><h3 class="card__title">📅 Nazorg & Evaluatie</h3></div>
+        <div class="card__body" style="line-height: 1.8;">
+          <ul style="padding-left: var(--space-lg);">
+            <li>Draagtijd: max 7 dagen</li>
+            <li>Wissel indien afgezakt (max 2x hergebruik)</li>
+            <li>Startfase: vaker wisselen</li>
+            <li>Evaluatie: wekelijks TIME & Foto</li>
+            <li><strong>Schakel Vakgroep Wond in bij:</strong> wond > 2-3 weken stagnatie of geen verbetering</li>
+          </ul>
+        </div>
+      </div>`;
+
+      adviceTab.innerHTML = adviceHTML;
+
+      // ── Data Tab ──
+      const composition = buildFlatComposition();
+      document.getElementById('tab-data').innerHTML = `
+        <div class="alert alert--info">
+          <span class="alert__icon">📋</span>
+          <div>Deze data wordt opgeslagen als openEHR FLAT JSON compositie in EHRbase. Het template is <strong>sensire_wound_care</strong>.</div>
+        </div>
+        <div class="data-display">${JSON.stringify(composition, null, 2)}</div>
+      `;
+
+      // ── AQL Tab ──
+      document.getElementById('tab-aql').innerHTML = `
+        <div class="alert alert--info">
+          <span class="alert__icon">🔍</span>
+          <div>Na opslaan kun je deze AQL query uitvoeren om de data terug te halen. Dit bewijst dat de data onafhankelijk van de applicatie bevraagbaar is.</div>
+        </div>
+        <div class="data-display">SELECT
+  c/uid/value as compositie_id,
+  c/name/value as naam,
+  c/context/start_time/value as datum
+FROM EHR e
+CONTAINS COMPOSITION c
+WHERE c/name/value = 'sensire_wound_care'
+ORDER BY c/context/start_time/value DESC
+LIMIT 10</div>
+        <button class="btn btn--outline btn--sm" style="margin-top: var(--space-md);" onclick="executeAQL()">▶ Query uitvoeren</button>
+        <div id="aql-result" style="margin-top: var(--space-md);"></div>
+      `;
+
+      // Tab switching
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-btn--active'));
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('tab-panel--active'));
+          btn.classList.add('tab-btn--active');
+          document.getElementById(`tab-${btn.dataset.tab}`).classList.add('tab-panel--active');
+        });
+      });
+
+      setTimeout(() => {
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 200);
+    }
+
+    // ── Build FLAT JSON Composition ──
+    function buildFlatComposition() {
+      const now = new Date().toISOString();
+      const eaiValue = state.answers['eai-value'];
+      const eaiKnown = state.answers['eai-known'];
+      const stemmer = state.answers['stemmer'];
+      const stagnation = state.answers['stagnation'];
+
+      const comp = {
+        'sensire_wound_care/_uid': '',
+        'sensire_wound_care/category|code': '433',
+        'sensire_wound_care/category|value': 'event',
+        'sensire_wound_care/category|terminology': 'openehr',
+        'sensire_wound_care/context/start_time': now,
+        'sensire_wound_care/context/setting|code': '227',
+        'sensire_wound_care/context/setting|value': 'emergency care',
+        'sensire_wound_care/context/setting|terminology': 'openehr',
+      };
+
+      // Health risk assessment
+      comp['sensire_wound_care/health_risk_assessment/health_risk|value'] = 'Ulcus Cruris risicobeoordeling';
+      comp['sensire_wound_care/health_risk_assessment/health_risk|code'] = 'local_at_ulcus';
+      comp['sensire_wound_care/health_risk_assessment/health_risk|terminology'] = 'local';
+
+      // Risk factors
+      let riskIdx = 0;
+
+      if (eaiKnown === 'yes' && eaiValue !== undefined) {
+        const interp = getEAIInterpretation(eaiValue);
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/risk_factor|value`] = 'Enkel-Arm Index (EAI)';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|code`] = 'at0018';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|value`] = 'Present';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|terminology`] = 'local';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/description`] = `EAI: ${eaiValue.toFixed(2)} — ${interp.label}. ${interp.compression}`;
+        riskIdx++;
+      }
+
+      if (stemmer) {
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/risk_factor|value`] = 'Teken van Stemmer';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|code`] = stemmer === 'positive' ? 'at0018' : 'at0019';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|value`] = stemmer === 'positive' ? 'Present' : 'Absent';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|terminology`] = 'local';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/description`] = stemmer === 'positive' ? 'Positief — lymfoedeem vermoed' : 'Negatief — veneus oedeem';
+        riskIdx++;
+      }
+
+      if (stagnation === 'stagnant') {
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/risk_factor|value`] = 'Wondstagnatie';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|code`] = 'at0018';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|value`] = 'Present';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|terminology`] = 'local';
+        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/description`] = 'Wond > 2-3 weken zonder verbetering — Vakgroep Wond ingeschakeld';
+        riskIdx++;
+      }
+
+      // Risk assessment summary
+      if (eaiKnown === 'yes' && eaiValue !== undefined) {
+        const interp = getEAIInterpretation(eaiValue);
+        comp['sensire_wound_care/health_risk_assessment/risk_assessment/text_value'] = interp.compression;
+      }
+
+      // Problem/Diagnosis
+      comp['sensire_wound_care/problem_diagnosis/problem_diagnosis_name|value'] = 'Ulcus Cruris';
+      comp['sensire_wound_care/problem_diagnosis/clinical_description'] = `Ulcus Cruris protocol doorlopen. Oedeem: ${state.answers['oedema'] || 'n.v.t.'}. Stemmer: ${stemmer || 'n.v.t.'}. EAI: ${eaiValue ? eaiValue.toFixed(2) : 'niet gemeten'}.`;
+
+      // Composer
+      comp['sensire_wound_care/composer|name'] = 'Sensire Wondzorg Demo';
+      comp['sensire_wound_care/language|code'] = 'nl';
+      comp['sensire_wound_care/language|terminology'] = 'ISO_639-1';
+      comp['sensire_wound_care/territory|code'] = 'NL';
+      comp['sensire_wound_care/territory|terminology'] = 'ISO_3166-1';
+
+      return comp;
+    }
+
+    // ── Save to EHRbase ──
+    async function saveComposition() {
+      const btn = document.getElementById('btn-save');
+      const resultDiv = document.getElementById('save-result');
+      btn.disabled = true;
+      btn.textContent = '⏳ Opslaan...';
+
+      try {
+        // Step 1: Get or create EHR
+        if (!state.ehrId) {
+          const ehrResp = await fetch(`${EHRBASE_URL}/openehr/v1/ehr`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)
+            },
+            body: JSON.stringify({
+              _type: 'EHR_STATUS',
+              archetype_node_id: 'openEHR-EHR-EHR_STATUS.generic.v1',
+              name: { value: 'EHR Status' },
+              subject: { _type: 'PARTY_SELF' },
+              is_queryable: true,
+              is_modifiable: true
+            })
+          });
+
+          if (ehrResp.ok) {
+            const ehrData = await ehrResp.json();
+            state.ehrId = ehrData.ehr_id?.value;
+          } else {
+            // Try to get existing EHR
+            const text = await ehrResp.text();
+            // Use a query to find an EHR
+            const qResp = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)
+              },
+              body: JSON.stringify({ q: 'SELECT e/ehr_id/value FROM EHR e LIMIT 1' })
+            });
+            if (qResp.ok) {
+              const qData = await qResp.json();
+              if (qData.rows && qData.rows.length > 0) {
+                state.ehrId = qData.rows[0][0];
+              }
+            }
+          }
+        }
+
+        if (!state.ehrId) {
+          throw new Error('Kan geen EHR aanmaken of vinden');
+        }
+
+        // Step 2: Post composition
+        const composition = buildFlatComposition();
+        const compResp = await fetch(
+          `${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition?format=FLAT&templateId=sensire_wound_care`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)
+            },
+            body: JSON.stringify(composition)
+          }
+        );
+
+        if (compResp.ok || compResp.status === 201 || compResp.status === 204) {
+          const locationHeader = compResp.headers.get('Location') || compResp.headers.get('ETag');
+          const compData = compResp.status !== 204 ? await compResp.json().catch(() => null) : null;
+          state.compositionUid = compData?.uid?.value || locationHeader || 'opgeslagen';
+
+          resultDiv.innerHTML = `<div class="alert alert--success">
+            <span class="alert__icon">✅</span>
+            <div>
+              <strong>Compositie opgeslagen!</strong><br>
+              EHR-ID: <code>${state.ehrId}</code><br>
+              Compositie UID: <code>${state.compositionUid}</code>
+            </div>
+          </div>`;
+
+          btn.textContent = '✅ Opgeslagen';
+        } else {
+          const errText = await compResp.text();
+          throw new Error(`HTTP ${compResp.status}: ${errText.substring(0, 200)}`);
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<div class="alert alert--danger">
+          <span class="alert__icon">❌</span>
+          <div>
+            <strong>Fout bij opslaan:</strong> ${err.message}<br>
+            <small>Controleer of EHRbase draait op localhost:8080 en het template is geüpload.</small>
+          </div>
+        </div>`;
+        btn.disabled = false;
+        btn.textContent = '💾 Opnieuw proberen';
+      }
+    }
+
+    // ── AQL Query ──
+    async function executeAQL() {
+      const resultDiv = document.getElementById('aql-result');
+      resultDiv.innerHTML = '<p style="color: var(--color-text-secondary);">⏳ Query uitvoeren...</p>';
+
+      try {
+        const resp = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)
+          },
+          body: JSON.stringify({
+            q: `SELECT c/uid/value as compositie_id, c/name/value as naam, c/context/start_time/value as datum FROM EHR e CONTAINS COMPOSITION c ORDER BY c/context/start_time/value DESC LIMIT 10`
+          })
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          resultDiv.innerHTML = `<div class="alert alert--success">
+            <span class="alert__icon">✅</span>
+            <div><strong>${data.rows?.length || 0} compositie(s) gevonden</strong></div>
+          </div>
+          <div class="data-display">${JSON.stringify(data, null, 2)}</div>`;
+        } else {
+          throw new Error(`HTTP ${resp.status}`);
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<div class="alert alert--danger">
+          <span class="alert__icon">❌</span>
+          <div><strong>Query mislukt:</strong> ${err.message}<br><small>Controleer of EHRbase draait.</small></div>
+        </div>`;
+      }
+    }
+
+    // ── Init ──
+    renderTree();
+  </script>
+</body>
+</html>
