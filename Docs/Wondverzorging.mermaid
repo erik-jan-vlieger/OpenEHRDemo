@@ -1,0 +1,438 @@
+%%{init: {'flowchart': {'nodeSpacing': 30, 'rankSpacing': 45}}}%%
+flowchart TD
+
+
+   %% MAX 20 CHARS PER LINE — strict
+   %% Bold titles: max 18 chars
+
+
+   Start["Start: Patiënt met wond<br/>(Algemeen Wondprotocol)"]
+
+
+   BesluitOncologisch{{"Is het een<br/>oncologische wond?"}}
+
+
+   InfoOncologisch["⚠️ <b>ONCOLOGISCHE WOND</b><br/>──────────────────<br/>Werkinstructie NIET<br/>geschikt voor<br/>oncologische wonden<br/>──────────────────<br/>Raadpleeg specialistisch<br/>protocol en/of<br/>vakgroep wond"]
+
+
+   Start --> BesluitOncologisch
+   BesluitOncologisch -- "Ja" --> InfoOncologisch
+   BesluitOncologisch -- "Nee" --> StartVoorbereiding
+
+
+   subgraph Voorbereiding [" "]
+       direction TB
+       VoorbereidingTitel["<b>── VOORBEREIDING ──</b>"]
+       StartVoorbereiding( )
+
+
+       ActieWerkveld["<b>Stap 1: Werkveld</b><br/><b>& Houding</b><br/>──────────────────<br/>• Ondergrond reinigen<br/>• Schoon werkveld<br/>  aanleggen<br/>• Materialen binnen<br/>  handbereik<br/>• Cliënt: comfortabele<br/>  houding, wond<br/>  bereikbaar<br/>• Geen stofvorming<br/>• Onderlegger plaatsen"]
+
+
+       ActieMaterialen["<b>Stap 2: Materialen</b><br/>──────────────────<br/>• Aangebroken:<br/>  dichtvouwen, plakken,<br/>  in zakje bewaren<br/>• Max <b>14 dagen</b><br/>  na opening<br/>• Datum opening noteren<br/>  op flesjes/zalven/gel<br/>• Let op bewaarplaats:<br/>  koelkast vs kamertemp<br/>• Bewaren in<br/>  afsluitbare bak"]
+
+
+       InfoMaterialen["ℹ️ <b>Benodigdheden:</b><br/>──────────────────<br/>3 paar handschoenen<br/>Onderlegger + afvalbak<br/>4 gazen (wondomgeving)<br/>Verbandmateriaal<br/>(zie wondplan)<br/>Zalf/crème + spatel<br/>Schaar + pincet<br/>6 gaasjes + alcohol 70%<br/>Eventueel: schort<br/>+ spatbril"]
+
+
+       ActieHygiene["<b>Stap 3: Handhygiëne</b><br/>──────────────────<br/>• Handen desinfecteren<br/>• Handschoenen aan<br/>• Eventueel schort<br/>  en/of spatbril<br/>• Afval direct weggooien<br/>• Handhygiëne herhalen<br/>  na aanraken telefoon<br/><i>Cliënten vallen op<br/>niet-hygiënisch werken!</i>"]
+
+
+       ActieDesinfectie["<b>Stap 4: Schaar</b><br/><b>& Pincet desinfecteren</b><br/>──────────────────<br/>• Overgiet 3 gaasjes<br/>  alcohol 70%<br/>• Houd schaar bij oog<br/>• Desinfecteer bladen<br/>  met 1e gaasje<br/>• Desinfecteer rest<br/>  met 2e gaasje<br/>• Leg schaar op<br/>  3e gaasje"]
+
+
+       StartVoorbereiding --> ActieWerkveld --> ActieMaterialen
+       ActieMaterialen -.-> InfoMaterialen
+       ActieMaterialen --> ActieHygiene --> ActieDesinfectie
+   end
+
+
+   subgraph Wondinspectie [" "]
+       direction TB
+       InspectieTitel["<b>── WONDINSPECTIE ──</b>"]
+
+
+       ActieVerbandWeg["<b>Stap 5: Verband</b><br/><b>verwijderen</b><br/>──────────────────<br/>Inspecteer verband:<br/>• Kleur + geur<br/>• Hoeveelheid exsudaat<br/>• Juist absorberend<br/>  materiaal gebruikt?<br/>→ Gooi weg in afvalbak"]
+
+
+       ActieWondInspectie["<b>Stap 6: Wond</b><br/><b>inspecteren</b><br/>──────────────────<br/>• Grootte: l×b×d (cm)<br/>• Kleur wondbed:<br/>  vitaal / a-vitaal<br/>• Geur<br/>• Wondranden &<br/>  wondomgeving<br/>• Huidconditie rondom<br/>• Exsudaat:<br/>  droog/vochtig/nat<br/>• Oedeem aanwezig?"]
+
+
+       ActieVerbandWeg --> ActieWondInspectie
+   end
+
+
+   ActieDesinfectie --> ActieVerbandWeg
+
+
+   BesluitDM{{"Diabetes Mellitus?"}}
+
+
+   ActieWondInspectie --> BesluitDM
+
+
+   subgraph DMVoetCheck [" "]
+       direction TB
+       DMTitel["<b>── DM: VOET- ──</b><br/><b>── INSPECTIE ──</b>"]
+
+
+       ActieDMVoet["<b>DM Stap A:</b><br/><b>Voetinspectie</b><br/>──────────────────<br/>• Huidkleur + temp.<br/>• Eelt / fissuren<br/>• Standsafwijkingen<br/>• Tussen de tenen!<br/>• Pulsaties palperen<br/>• Gevoel testen<br/>  (monofilament)<br/>• Nagels + schoeisel<br/>• Zwelling / oedeem"]
+
+
+       InfoDMVoet["ℹ️ <b>Signalen → arts:</b><br/>──────────────────<br/>Pulsaties afwezig<br/>→ vaatonderzoek<br/>Gevoel afwezig<br/>→ neuropathie arts<br/>──────────────────<br/>Temp. asymmetrie<br/>→ Charcot vermoeden<br/>→ Meteen arts!"]
+
+
+       BesluitCharcot{{"Charcot vermoeden?<br/>──────────────<br/>Rode, warme,<br/>gezwollen voet<br/>zonder trauma?"}}
+
+
+       ActieArtsCharcot["⚠️ <b>ARTS DEZELFDE DAG</b><br/>──────────────────<br/>Charcot vermoeden:<br/>→ Arts bellen direct<br/>──────────────────<br/>Tussentijds:<br/>• Niet belasten!<br/>• Voet hoogleggen<br/>• Noteer bevindingen<br/>──────────────────<br/>Arts neemt over<br/>Rapporteer in dossier"]
+
+
+       BesluitPlantair{{"Wond plantair?<br/>──────────────<br/>(Voetzool)"}}
+
+
+       ActieArtsPlantair["⚠️ <b>ARTS BINNEN 24U</b><br/>──────────────────<br/>Plantaire wond DM:<br/>→ Arts beoordeling<br/>  binnen 24 uur<br/>──────────────────<br/>Tussentijds:<br/>• Schone afdekking<br/>• Geen belasting<br/>• Noteer datum,<br/>  locatie, afmeting<br/>Wondzorg gaat door"]
+
+
+       ActieDMVoet -.-> InfoDMVoet
+       ActieDMVoet --> BesluitCharcot
+       BesluitCharcot -- "Ja" --> ActieArtsCharcot
+       BesluitCharcot -- "Nee" --> BesluitPlantair
+       BesluitPlantair -- "Ja" --> ActieArtsPlantair
+   end
+
+
+   BesluitDM -- "Ja" --> ActieDMVoet
+   ActieArtsPlantair --> ActieHandWissel1
+   BesluitPlantair -- "Nee" --> ActieHandWissel1
+   BesluitDM -- "Nee" --> ActieHandWissel1
+
+
+   ActieHandWissel1["<b>Stap 7: Handschoenen</b><br/><b>wisselen</b><br/>──────────────────<br/>Handschoenen → afvalbak<br/>Handen desinfecteren<br/>Nieuwe handschoenen"]
+
+
+   %% ── NIEUW: PIJNMANAGEMENT ──────────────────────────────────
+   subgraph Pijnmanagement [" "]
+       direction TB
+       PijnTitel["<b>── PIJNMANAGEMENT ──</b><br/><b>(Vóór Wondzorg)</b>"]
+       StartPijn( )
+
+
+       BesluitPijn{{"Is er pijn?<br/>(ALTIS-score)"}}
+
+
+       BesluitPijnType{{"Type toediening?"}}
+
+
+       ActieSystemisch["<b>SYSTEMISCH</b><br/>──────────────────<br/>• Paracetamol<br/>• NSAID<br/>• Oxycodon<br/>• Amitriptyline<br/>• Fentanyl neusspray<br/>• Fentanyl pleisters<br/>• Butrans<br/>──────────────────<br/><small>Wachttijd: 30–60 min</small>"]
+
+
+       ActieLokaal["<b>LOKAAL</b><br/>──────────────────<br/><b>Snel (10 min):</b><br/>• Lidocaïne druppels<br/>• Lidocaïne spray<br/>──────────────────<br/><b>Traag (45 min):</b><br/>• EMLA zalf<br/>• EMLA pleister"]
+
+
+       ActiePijnWacht["<b>CHECK:</b><br/>Pijnstilling ingewerkt?<br/>──────────────────<br/>Start handeling<br/>pas daarna"]
+
+
+       StartPijn --> BesluitPijn
+       BesluitPijn -- "Nee" --> StartTIMEEntry
+       BesluitPijn -- "Ja" --> BesluitPijnType
+       BesluitPijnType -- "Systemisch" --> ActieSystemisch --> ActiePijnWacht
+       BesluitPijnType -- "Lokaal" --> ActieLokaal --> ActiePijnWacht
+       ActiePijnWacht --> StartTIMEEntry
+       StartTIMEEntry( )
+   end
+
+
+   ActieHandWissel1 --> StartPijn
+   %% ────────────────────────────────────────────────────────────
+
+
+   subgraph TIMEBlok [" "]
+       direction TB
+       TIMETitel["<b>── WONDANALYSE ──</b><br/><b>(TIME + WCS)</b>"]
+
+
+       ActieTissue["<b>T – Tissue</b><br/>──────────────────<br/>Kleur + kwaliteit<br/>wondbed<br/>Afmeting: l×b×d (cm)<br/>• Vitaal: rood,<br/>  korrelig granulatie<br/>• A-vitaal:<br/>  necrose (zwart)<br/>  fibrine/slough (geel)<br/>  callus / eelt"]
+
+
+       ActieICheck["<b>I – Infectie</b><br/>──────────────────<br/>Klassieke 5 tekenen:<br/>• Roodheid (rubor)<br/>• Warmte (calor)<br/>• Zwelling (tumor)<br/>• Pijn (dolor)<br/>• Functieverlies<br/>+ Meer vocht<br/>+ Geur / koorts"]
+
+
+       ActieMoistureCheck["<b>M – Moisture</b><br/>──────────────────<br/>Exsudaatgraad:<br/>Droog – Vochtig – Nat<br/>──────────────────<br/>Saturatiegraad verband<br/>Wisselfrequentie:<br/>o.b.v. vochtproductie"]
+
+
+       ActieEdgeCheck["<b>E – Edge</b><br/>──────────────────<br/>Wondranden &<br/>wondomgeving:<br/>• Vitaal / a-vitaal<br/>• Rood<br/>• Verweekt wit<br/>• Ondermijningen<br/>• Droog korstig<br/>• Eczeem<br/>• Eelt / callus"]
+
+
+       BesluitWCS{{"<b>WCS-kleur wond?</b><br/>──────────────<br/>Meest a-vitale<br/>weefsel = eindkleur:<br/>Min. zwart = zwart<br/>Min. geel = geel"}}
+
+
+       WCSZwart["<b>ZWART</b><br/>Necrose<br/>(droog of nat)"]
+       WCSGeel["<b>GEEL</b><br/>Fibrine/slough<br/>(geïnf. of niet)"]
+       WCSRood["<b>ROOD</b><br/>Granulerend<br/>(vitaal)"]
+
+
+       InfoWCS["ℹ️ <b>WCS-resources:</b><br/>──────────────────<br/>wondbedekkers.nl<br/>wcs.nl (online boek)<br/>WCS app + handboek<br/>e-learning wondzorg"]
+
+
+       ActieTissue --> ActieICheck --> ActieMoistureCheck --> ActieEdgeCheck --> BesluitWCS
+       BesluitWCS -.-> InfoWCS
+   end
+
+
+   StartTIMEEntry --> ActieTissue
+
+
+   InfoSkinTear["<b>Skin Tear</b><br/>──────────────────<br/>• Siliconen gaas<br/>• Absorberend verband<br/>• Windsel<br/>→ Zakprotocol<br/>  Skin Tear 1"]
+
+
+   InfoDecubitus["<b>Decubitus (cat. 2+)</b><br/>──────────────────<br/>• Druk + schuifkrachten<br/>  ontlasten — prioriteit!<br/>• Gladde ondergrond<br/>• Anti-decubitus<br/>  maatregelen<br/>• Vilt + barrièrecrème<br/>→ Richtlijn V&VN<br/>→ Vakgroep Wond"]
+
+
+   InfoSmetten["<b>Smetten / IAD</b><br/>──────────────────<br/>• Zinkolie / zoete olie<br/>• Huid-op-huid<br/>  voorkomen<br/>• Engels pluksel<br/>  (zachte kant)<br/>• Plooien droog houden<br/>→ Richtlijn V&VN"]
+
+
+   BesluitWCS -.-> InfoSkinTear
+   BesluitWCS -.-> InfoDecubitus
+   BesluitWCS -.-> InfoSmetten
+
+
+   subgraph Reiniging [" "]
+       direction TB
+       ReinigingTitel["<b>── WONDREINIGING ──</b>"]
+       StartReinigen( )
+
+
+       ActieReinigen["<b>Stap 8: Wond reinigen</b><br/>──────────────────<br/>• Lauwwarm water<br/>  (kraan 30 sec lopen)<br/>• Schilfers, korstjes<br/>  en debris verwijderen<br/>  met gaasje/pincet<br/>• Reinig wondbed,<br/>  wondranden én<br/>  omliggende huid<br/>  — mag krachtig!<br/>• Indien nodig:<br/>  spuit of douche"]
+
+
+       InfoReinigingLet["⚠️ <b>Terughoudend bij:</b><br/>──────────────────<br/>• Oncologische ulcera<br/>• Arterieel lijden<br/>  (PAV)<br/>• DM + slechte<br/>  circulatie: zacht!<br/>• Geen voetenbad!<br/><i>'Zachte heelmeesters<br/>maken stinkende<br/>wonden!'</i>"]
+
+
+       StartReinigen --> ActieReinigen
+       ActieReinigen -.-> InfoReinigingLet
+   end
+
+
+   BesluitWCS -- "Zwart" --> WCSZwart
+   BesluitWCS -- "Geel" --> WCSGeel
+   BesluitWCS -- "Rood" --> WCSRood
+   WCSZwart --> StartReinigen
+   WCSGeel --> StartReinigen
+   WCSRood --> StartReinigen
+
+
+   %% ── NIEUW: DEBRIDEMENT VEILIGHEIDSCHECK ────────────────────
+   subgraph DebrideCheck [" "]
+       direction TB
+       DebrideTitel["<b>── DEBRIDEMENT ──</b><br/><b>── CHECK ──</b>"]
+
+
+       BesluitAVitaal{{"A-vitaal weefsel?<br/>──────────────<br/>Necrose / Slough<br/>Callus aanwezig?"}}
+
+
+       BesluitDebrideVeilig{{"Scherp debridement<br/>veilig?<br/>──────────────<br/>1. Stollings-<br/>   stoornis?<br/>2. Diepe structuren<br/>   zichtbaar?<br/>3. Maligniteit?"}}
+
+
+       InfoMaligniteit["ℹ️ <b>Maligniteit =</b><br/>kwaadaardige tumor<br/>──────────────────<br/>Bij vermoeden:<br/>verwijzen, niet<br/>debrideren"]
+
+
+       ActieGeenDebride["<b>GEEN DEBRIDEMENT</b><br/>──────────────────<br/>Contra-indicatie:<br/>• Afdekken met<br/>  schoon gaas<br/>• Noteer bevinding<br/>• Overleg / verwijzen<br/>  naar wond-<br/>  verpleegkundige"]
+
+
+       ActieVerwijsDebride["<b>DEBRIDEMENT</b><br/>──────────────────<br/>Veilig uitvoerbaar:<br/>Wondverpleegkundige<br/>voert scherp<br/>debridement uit<br/>──────────────────<br/>Verwijzing via<br/>triageformulier"]
+
+
+       BesluitAVitaal -- "Nee" --> StartNaDebride
+       BesluitAVitaal -- "Ja" --> BesluitDebrideVeilig
+       BesluitDebrideVeilig -.-> InfoMaligniteit
+       BesluitDebrideVeilig -- "Contra-indicatie" --> ActieGeenDebride --> StartNaDebride
+       BesluitDebrideVeilig -- "Veilig" --> ActieVerwijsDebride --> StartNaDebride
+       StartNaDebride( )
+   end
+
+
+   ActieReinigen --> BesluitAVitaal
+   %% ────────────────────────────────────────────────────────────
+
+
+   BesluitInfectie{{"<b>Infectie-</b><br/><b>verschijnselen?</b><br/>──────────────<br/>Roodheid / Warmte<br/>Pus / Zwelling<br/>Koorts / Geur<br/>Pijn toe / Meer vocht"}}
+
+
+   StartNaDebride --> BesluitInfectie
+
+
+   BesluitDMErnstig{{"<b>DM + ernstige</b><br/><b>infectie?</b><br/>──────────────<br/>Koorts > 38°C<br/>Roodheid > 2 cm<br/>Pus / fluctuatie<br/>Botcontact wond?"}}
+
+
+   ActieArtsErnstigeInf["⚠️ <b>ARTS DEZELFDE DAG</b><br/>──────────────────<br/>Ernstige infectie DM:<br/>→ Arts bellen direct<br/>──────────────────<br/>Tussentijds:<br/>• Wond afdekken<br/>  met schoon gaas<br/>• Geen verdere<br/>  behandeling starten<br/>• Temp. + pols<br/>  noteren<br/>• Drukontlasting!<br/>Wacht op arts-beleid"]
+
+
+   ActieInfectieBeleid["<b>INFECTIEBELEID</b><br/>──────────────────<br/>1. Lokaal antibact.:<br/>   zilver/jodium/honing<br/>2. Arts raadplegen<br/>   bij koorts + infectie<br/>3. Verwijs naar HA<br/>   of poli voor<br/>   diagnostiek & therapie"]
+
+
+   BesluitInfectie -- "Ja" --> BesluitDMErnstig
+   BesluitDMErnstig -- "Ja (DM)" --> ActieArtsErnstigeInf
+   BesluitDMErnstig -- "Nee" --> ActieInfectieBeleid
+
+
+   subgraph BehandelingBlok [" "]
+       direction TB
+       BehandelingTitel["<b>── BEHANDELING ──</b><br/><b>(WCS x Vochtigheid)</b>"]
+
+
+       BesluitVocht{{"<b>Exsudaatniveau?</b>"}}
+
+
+       ActieDroog["<b>DROGE WOND</b><br/>──────────────────<br/><b>Zwart</b> (geen infectie):<br/>Droog verbinden<br/>─<br/><b>Geel:</b><br/>Debris verwijderen;<br/>vochtig milieu creëren<br/>─<br/><b>Rood</b> (geen infectie):<br/>Beschermen +<br/>groei stimuleren"]
+
+
+       ActieVochtig["<b>VOCHTIGE WOND</b><br/>──────────────────<br/><b>Zwart:</b><br/>Necrose verwijderen<br/>─<br/><b>Geel:</b><br/>Debris verwijderen;<br/>exsudaat absorberen<br/>─<br/><b>Geel (geïnf.):</b><br/>Uitspoelen +<br/>absorberen +<br/>infectie bestrijden<br/>─<br/><b>Rood:</b><br/>Vochtig milieu<br/>behouden +<br/>beschermen"]
+
+
+       ActieNat["<b>NATTE WOND</b><br/>──────────────────<br/><b>Zwart:</b><br/>Necrose verwijderen<br/>─<br/><b>Geel:</b><br/>Debris verwijderen +<br/>extra absorberend<br/>verband<br/>─<br/><b>Geel (geïnf.):</b><br/>Uitspoelen + extra<br/>verband + infectie<br/>bestrijden<br/>─<br/><b>Rood:</b><br/>Vochtig milieu +<br/>absorberen +<br/>beschermen"]
+
+
+       InfoMateriaalkeuze["ℹ️ <b>Materiaalkeuze:</b><br/>──────────────────<br/><b>Rood:</b> siliconen gaas,<br/>schuimverband,<br/>hydrocolloïd<br/><b>Geel:</b> honing, alginaat,<br/>zilver, jodium,<br/>prontosan<br/><b>Zwart:</b> alginaat, zilver,<br/>jodium zalf, honing<br/>──────────────────<br/>wondbedekkers.nl<br/>wcs.nl<br/>──────────────────<br/>⚠️ <b>DM: let op!</b><br/>Geen pleister direct<br/>  op de huid!<br/>Geen strak windsel!<br/>Callus → arts / podo"]
+
+
+       ActieOmgeving["<b>Wondomgeving</b><br/><b>reinigen</b><br/>──────────────────<br/>• Reinig met natte gazen<br/>• Droog met gaasje<br/>• Bescherm wondranden<br/>  met zalf/crème<br/>  indien nodig<br/>• DM: droge huid<br/>  rondom invetten<br/>  (niet tss. de tenen)"]
+
+
+       BesluitVocht -- "Droog" --> ActieDroog --> ActieOmgeving
+       BesluitVocht -- "Vochtig" --> ActieVochtig --> ActieOmgeving
+       BesluitVocht -- "Nat" --> ActieNat --> ActieOmgeving
+       ActieDroog -.-> InfoMateriaalkeuze
+       ActieVochtig -.-> InfoMateriaalkeuze
+       ActieNat -.-> InfoMateriaalkeuze
+   end
+
+
+   BesluitInfectie -- "Nee" --> BesluitVocht
+   ActieInfectieBeleid --> BesluitVocht
+
+
+   BesluitDMOffload{{"DM patiënt?<br/>Drukontlasting<br/>nodig"}}
+
+
+   ActieOmgeving --> BesluitDMOffload
+
+
+   ActieDrukontlasting["<b>DM Stap B:</b><br/><b>Drukontlasting</b><br/>──────────────────<br/>• Hielen vrijleggen<br/>• Dekenboog plaatsen<br/>• Schoeisel beoord.<br/>  + adviseren<br/>• Niet blootsvoets!<br/>• Vilt rondom wond:<br/>  arts/podo bepaalt<br/>• Gips / boot:<br/>  arts-indicatie<br/>• Verwijz. podo bij<br/>  standsafwijking"]
+
+
+   BesluitDMOffload -- "Ja (DM)" --> ActieDrukontlasting
+   BesluitDMOffload -- "Nee" --> ActieHandWissel2
+   ActieDrukontlasting --> ActieHandWissel2
+
+
+   subgraph VerbandBlok [" "]
+       direction TB
+       VerbandTitel["<b>── VERBAND AANLEGGEN ──</b>"]
+
+
+       ActieHandWissel2["<b>Stap 9: Handschoenen</b><br/><b>wisselen</b><br/>──────────────────<br/>Handschoenen → afvalbak<br/>Handen desinfecteren<br/>Nieuwe handschoenen"]
+
+
+       ActieVerband["<b>Stap 10: Verband</b><br/><b>aanbrengen</b><br/>──────────────────<br/>• Volgens wondplan<br/>• Vochtig milieu creëren<br/>• Diepe wonden:<br/>  goed opvullen<br/>• Verband raakt<br/>  wondbodem<br/>• Wondranden beschermen<br/>  indien nodig<br/>• Plakmateriaal<br/>  niet gespannen<br/>• Windsels niet te strak<br/>• Knip product bij met<br/>  gedesinfect. schaar"]
+
+
+       InfoVerbandFreq["ℹ️ <b>Verbandfrequentie:</b><br/>──────────────────<br/>O.b.v. vochtproductie<br/>Beperk wisselingen<br/>Verband buiten:<br/>niet doordrenkt"]
+
+
+       ActieHandWissel2 --> ActieVerband
+       ActieVerband -.-> InfoVerbandFreq
+   end
+
+
+   BesluitDMVoorl{{"DM patiënt?<br/>Voorlichting<br/>geven"}}
+
+
+   ActieVerband --> BesluitDMVoorl
+
+
+   ActieVoorlichtingDM["<b>DM Stap C:</b><br/><b>Voorlichting</b><br/>──────────────────<br/>• Geen voetenbadjes!<br/>• Dagelijks inspect.<br/>  (ook tss. de tenen)<br/>• Schoen inspecteren<br/>• Voeten wassen +<br/>  goed afdrogen<br/>• Huid invetten<br/>  (niet tss. tenen)<br/>• Geen warmtebron<br/>• Niet blootsvoets<br/>• Katoen sokken,<br/>  geen naad<br/>• Medisch pedicure<br/>• Direct contact bij<br/>  wondje / roodheid"]
+
+
+   BesluitDMVoorl -- "Ja (DM)" --> ActieVoorlichtingDM
+   BesluitDMVoorl -- "Nee" --> ActieOpruimen
+   ActieVoorlichtingDM --> ActieOpruimen
+
+
+   subgraph Afronding [" "]
+       direction TB
+       AfrondingTitel["<b>── AFRONDING ──</b>"]
+
+
+       ActieOpruimen["<b>Stap 11: Opruimen</b><br/>──────────────────<br/>• Materialen opbergen<br/>• Voorraad controleren<br/>  en bijbestellen<br/>  (max tot volgende<br/>  controle behandelaar)<br/>• Handschoenen → afvalbak<br/>• Handhygiëne"]
+
+
+       ActieRapportage["<b>Stap 12: Rapportage</b><br/>──────────────────<br/>• Handeling + bevindingen<br/>  noteren<br/>• Pijnscore (VAS)<br/>• TIME vastleggen<br/>  (T / I / M / E)<br/>• Foto indien indicatie<br/>• Behandelplan bijstellen<br/>• Wekelijks: TIME + Foto"]
+   end
+
+
+   ActieOpruimen --> ActieRapportage
+
+
+   BesluitEscalatie{{"<b>EVALUATIE:</b><br/><b>Complexe wond?</b><br/>──────────────<br/>Wond meer dan<br/>2-3 weken zonder<br/>verbetering?"}}
+
+
+   ActieRapportage --> BesluitEscalatie
+
+
+   ActieVakgroep["<b>SCHAKEL VAKGROEP IN</b><br/>──────────────────<br/>Via Triageformulier<br/>op intranet<br/>──────────────────<br/>Noord (Zutphen):<br/>0575-469293<br/>Oost (Winterswijk):<br/>0543-537499<br/>West (Doetinchem):<br/>0314-643661<br/>West (Liemers):<br/>0316-242094<br/>wondzorg@sensire.nl<br/>Ma-vr: 8-17u<br/>Weekend: 11-13u"]
+
+
+   ActieDoorgaan["<b>VOLGENDE WISSEL</b><br/>──────────────────<br/>Frequentie: o.b.v.<br/>vochtproductie<br/>Wekelijkse evaluatie<br/>TIME + Foto"]
+
+
+   BesluitEscalatie -- "Ja" --> ActieVakgroep --> ActieDoorgaan
+   BesluitEscalatie -- "Nee" --> ActieDoorgaan
+
+
+   InfoIndicaties["<b>INDICATIES VAKGROEP</b><br/>──────────────────<br/>Twijfel? Bel voor overleg<br/>of vul triageformulier in<br/>──────────────────<br/>✓ Complexe wond:<br/>  meer dan 2-3 wkn<br/>✓ Ulcus Cruris<br/>✓ Wond + DM /<br/>  hartfalen / longfalen<br/>✓ Brandwonden<br/>✓ Decubitus cat. 2+<br/>✓ Geïnf. smetten / IAD<br/>✓ Oncologisch ulcus<br/>✓ Behoefte specialist<br/>──────────────────<br/><i>Generalistisch als</i><br/><i>het kan, specialist</i><br/><i>als het moet</i>"]
+
+
+   BesluitEscalatie -.-> InfoIndicaties
+
+
+   %% ── STYLING ────────────────────────────────────────────────
+   style StartVoorbereiding width:0px,height:0px
+   style StartReinigen width:0px,height:0px
+   style StartPijn width:0px,height:0px
+   style StartTIMEEntry width:0px,height:0px
+   style StartNaDebride width:0px,height:0px
+   style InfoOncologisch fill:#ffeaea,stroke:#cc3333,stroke-dasharray: 5 5
+   style InfoMaterialen fill:#eef6ff,stroke:#6699cc,stroke-dasharray: 5 5
+   style InfoReinigingLet fill:#fff3e0,stroke:#e6941a,stroke-dasharray: 5 5
+   style InfoWCS fill:#eef6ff,stroke:#6699cc,stroke-dasharray: 5 5
+   style InfoMateriaalkeuze fill:#eef6ff,stroke:#6699cc,stroke-dasharray: 5 5
+   style InfoVerbandFreq fill:#eef6ff,stroke:#6699cc,stroke-dasharray: 5 5
+   style InfoSkinTear fill:#f9f9f9,stroke:#999,stroke-dasharray: 5 5
+   style InfoDecubitus fill:#f9f9f9,stroke:#999,stroke-dasharray: 5 5
+   style InfoSmetten fill:#f9f9f9,stroke:#999,stroke-dasharray: 5 5
+   style InfoIndicaties fill:#f9f9f9,stroke:#999,stroke-dasharray: 5 5
+   style InfoDMVoet fill:#eef6ff,stroke:#6699cc,stroke-dasharray: 5 5
+   style InfoMaligniteit fill:#eef6ff,stroke:#6699cc,stroke-dasharray: 5 5
+   style ActieArtsCharcot fill:#ffeaea,stroke:#cc3333,stroke-width:2px
+   style ActieArtsPlantair fill:#ffeaea,stroke:#cc3333,stroke-width:2px
+   style ActieArtsErnstigeInf fill:#ffeaea,stroke:#cc3333,stroke-width:2px
+   style ActieDMVoet fill:#e8f5e9,stroke:#4caf50,stroke-width:1px
+   style ActieDrukontlasting fill:#e8f5e9,stroke:#4caf50,stroke-width:1px
+   style ActieVoorlichtingDM fill:#e8f5e9,stroke:#4caf50,stroke-width:1px
+   style ActieGeenDebride fill:#ffeaea,stroke:#cc3333,stroke-width:1px
+   style ActieVerwijsDebride fill:#fff3e0,stroke:#e6941a,stroke-width:1px
+   style ActiePijnWacht fill:#fff3e0,stroke:#e6941a,stroke-width:1px
+   style VoorbereidingTitel fill:none,stroke:none
+   style InspectieTitel fill:none,stroke:none
+   style DMTitel fill:none,stroke:none
+   style TIMETitel fill:none,stroke:none
+   style ReinigingTitel fill:none,stroke:none
+   style BehandelingTitel fill:none,stroke:none
+   style VerbandTitel fill:none,stroke:none
+   style AfrondingTitel fill:none,stroke:none
+   style PijnTitel fill:none,stroke:none
+   style DebrideTitel fill:none,stroke:none
+
+
+

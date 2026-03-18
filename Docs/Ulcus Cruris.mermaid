@@ -1,0 +1,217 @@
+%%{init: {'flowchart': {'nodeSpacing': 25, 'rankSpacing': 40}}}%%
+flowchart TD
+   %% ---------------------------------------------------------
+   %% START & TRIAGE
+   %% ---------------------------------------------------------
+   Start["Start: Patiënt met wond<br/>aan onderbeen/voet"]
+  
+   BesluitNieuwBestaand{{"Nieuwe of bestaande<br/>cliënt met wond?"}}
+  
+   Start --> BesluitNieuwBestaand
+
+
+   %% ---------------------------------------------------------
+   %% PAD A: BESTAANDE CLIËNT
+   %% ---------------------------------------------------------
+   CheckExpertise{{"<b>Evaluatie:</b><br/>Wond > 2-3 weken<br/>zonder verbetering?"}}
+  
+   ActieVakgroep["<b>SCHAKEL VAKGROEP WOND IN</b><br/>Indicatie: Ulcus Cruris + Stagnatie<br/>(Consult/Triageformulier)"]
+
+
+   BesluitNieuwBestaand -- "Bestaande cliënt" --> CheckExpertise
+   CheckExpertise -- "Ja (Stagnatie)" --> ActieVakgroep
+   ActieVakgroep --> CheckBestaandeEAI
+   CheckExpertise -- "Nee, wond verbetert" --> CheckBestaandeEAI
+   CheckExpertise -- "Nee, nog geen<br/>2-3 weken bezig" --> CheckBestaandeEAI
+
+
+   %% EAI check voor bestaande cliënt
+   CheckBestaandeEAI{{"Is er een EAI<br/>bekend in dossier?"}}
+   CheckBestaandeEAI -- "Ja" --> LinkNaarAWP
+   CheckBestaandeEAI -- "Nee" --> BesluitEAI
+
+
+   %% ---------------------------------------------------------
+   %% PAD B: NIEUWE CLIËNT – DIAGNOSTIEK
+   %% ---------------------------------------------------------
+   BesluitDiabetes{{"Is er sprake van<br/>Diabetes Mellitus?"}}
+   BesluitOedeem{{"Is er oedeem?"}}
+  
+   BesluitStemmer{{"<b>Teken van Stemmer</b><br/>positief?"}}
+
+
+   LinkDiabVoet[["Ga naar:<br/>Protocol Diabetische Voet"]]
+   ActieLymfeConsult["<b>LET OP: LYMFOEDEEM</b><br/>Schakel Huidtherapeut in<br/>(voor MLD/Kousen)"]
+
+
+   BesluitNieuwBestaand -- "Nieuwe cliënt" --> BesluitDiabetes
+   BesluitDiabetes -- Ja --> LinkDiabVoet
+   BesluitDiabetes -- Nee --> BesluitOedeem
+  
+   BesluitOedeem -- Nee --> LinkNaarAWP
+   BesluitOedeem -- Ja --> BesluitStemmer
+  
+   BesluitStemmer -- "Negatief (Veneus)" --> BesluitZwachtelAdvies
+   BesluitStemmer -- "Positief (Lymfoedeem)" --> ActieLymfeConsult
+   ActieLymfeConsult --> BesluitZwachtelAdvies
+
+
+   %% Uitleg Stemmer rechts
+   UitlegStemmer["<b>Stemmer-test uitleg:</b><br/>───────────────<br/>Probeer huidplooi op<br/><b>dorsale zijde 2e teen</b><br/>op te pakken<br/>───────────────<br/><b>Positief:</b> Niet oppakbaar<br/>→ Lymfoedeem<br/><b>Negatief:</b> Wel oppakbaar<br/>→ Veneus oedeem"]
+   BesluitStemmer -.-> UitlegStemmer
+
+
+   %% ---------------------------------------------------------
+   %% ZWACHTELADVIES CHECK
+   %% ---------------------------------------------------------
+   BesluitZwachtelAdvies{{"Is er een zwachteladvies<br/>van de arts?"}}
+  
+   BesluitZwachtelAdvies -- "Ja<br/>(Diagnose overslaan)" --> LinkNaarAWP
+   BesluitZwachtelAdvies -- "Nee" --> BesluitEAI
+
+
+   %% ---------------------------------------------------------
+   %% EAI-BEOORDELING
+   %% ---------------------------------------------------------
+   subgraph EAIBlok [" "]
+       direction TB
+       EAITitel["<b>── EAI-BEOORDELING ──</b><br/><b>(Enkel-Arm Index)</b>"]
+      
+       BesluitEAI{{"Is er een EAI<br/>bekend?"}}
+      
+       CheckEAILeeftijd{{"<b>Hoe oud is de EAI?</b><br/>───────────────<br/>Max <b>3 maanden</b> geldig<br/>───────────────<br/>Bij klinische verandering<br/>opnieuw laten meten"}}
+      
+       CheckWaarde{{"Wat is de<br/>EAI waarde?"}}
+      
+       DiagnoseHA{{"Diagnose Huisarts?"}}
+      
+       ActieNieuweEAI[["Nieuwe EAI aanvragen<br/>via Huisarts/Specialist"]]
+      
+       ActieOverleg[["Overleg Huisarts<br/>(EAI > 1.3 / Onbetrouwbaar)"]]
+
+
+       BesluitEAI -- "Nee<br/>(Sensire meet niet)" --> DiagnoseHA
+       BesluitEAI -- "Ja<br/>(Via specialist/HA)" --> CheckEAILeeftijd
+      
+       CheckEAILeeftijd -- "> 3 mnd / verandering" --> ActieNieuweEAI
+       CheckEAILeeftijd -- "< 3 mnd en stabiel" --> CheckWaarde
+       ActieNieuweEAI --> DiagnoseHA
+      
+       CheckWaarde -- "> 1.3 (Onbetrouwbaar)" --> ActieOverleg
+       ActieOverleg --> DiagnoseHA
+   end
+
+
+   %% Exits uit EAI-blok
+   DiagnoseHA -- Arterieel --> LinkVaatchirurg
+   DiagnoseHA -- Veneus --> LinkNaarAWP
+   DiagnoseHA -- Gemengd --> LinkNaarAWP
+   CheckWaarde -- "< 0.6 (Ernstig vaatlijden)" --> LinkVaatchirurg
+   CheckWaarde -- "0.6 - 1.3 (Veilig)" --> LinkNaarAWP
+
+
+   %% Ernstig vaatlijden: niet zwachtelen maar WEL wondzorg
+   LinkVaatchirurg["<b>STOP: Geen compressie</b><br/>Verwijs Vaatchirurg<br/>───────────────<br/>Wondzorg gaat wél door<br/>↓"]
+   LinkVaatchirurg --> LinkNaarAWP
+
+
+   %% ---------------------------------------------------------
+   %% VERWIJZING NAAR ALGEMEEN WONDPROTOCOL
+   %% ---------------------------------------------------------
+   LinkNaarAWP["🔗 <b>WONDZORG</b><br/>───────────────<br/>Voer uit volgens<br/><b>Algemeen Wondprotocol</b><br/>───────────────<br/>Inclusief:<br/>• Pijnmanagement<br/>• Reiniging<br/>• Debridement check<br/>• TIME / WCS analyse<br/>• Verbandkeuze<br/>• Infectiebeleid"]
+
+
+   LinkNaarAWP --> BesluitErnstigVaat
+
+
+   %% ---------------------------------------------------------
+   %% COMPRESSIE
+   %% ---------------------------------------------------------
+   BesluitErnstigVaat{{"Eerder vastgesteld:<br/>Ernstig vaatlijden<br/>(EAI < 0.6)?"}}
+
+
+   ActieErnstigVaatNazorg["<b>GEEN COMPRESSIE</b><br/>───────────────<br/>Verwijs naar Huisarts<br/>of Specialist"]
+
+
+   BesluitErnstigVaat -- "Ja" --> ActieErnstigVaatNazorg
+   BesluitErnstigVaat -- "Nee" --> BesluitTypeZwachtel
+
+
+   BesluitTypeZwachtel{{"<b>KEUZE ZWACHTELSYSTEEM</b>"}}
+  
+   KeuzeK2["START: <b>UrgoK2</b><br/>(Normale druk)<br/>Veneus / EAI > 0.8"]
+   KeuzeLite["START: <b>UrgoK2 Lite</b><br/>(Lichte druk)<br/>Gemengd / EAI 0.6-0.8"]
+
+
+   subgraph Werkinstructie [" "]
+       direction TB
+       WerkTitel["<b>── WERKINSTRUCTIE ──</b><br/><b>(UrgoK2 / UrgoK2 Lite)</b>"]
+      
+       InfoVideo["ℹ️ <b>Instructievideo:</b><br/>───────────────<br/>youtube.com/watch?v=<br/>RcE5-G9b0pc"]
+      
+       StapMeten["<b>Stap 1: Meten</b><br/>Enkelomvang 2cm boven knobbel<br/>───────────────<br/>18-25 cm = Maat 1<br/>25-32 cm = Maat 2"]
+      
+       StapPrep["<b>Stap 2: Voorbereiding</b><br/>Voet in 90 graden<br/>Polster wreef/hiel/knie<br/>Kijk 'in de rol'"]
+
+
+       StapKTech["<b>Stap 3: Laag 1 (Wit)</b><br/>Start tenen, hiel achtvormig<br/>Rek tot <b>CIRKELS</b><br/>───────────────<br/>Maat 1: 50% overlap<br/>Maat 2: 2/3 overlap"]
+
+
+       StapBereik["<b>Stap 4: Bereik</b><br/>Zwachtelen tot<br/>2 cm onder de knieholte"]
+
+
+       StapKPress["<b>Stap 5: Laag 2 (Beige)</b><br/>Zelfde techniek als laag 1<br/>Laat 0.5cm wit uitsteken<br/>Druk stevig aan"]
+      
+       StapMeten --> StapPrep --> StapKTech --> StapBereik --> StapKPress
+       StapMeten -.-> InfoVideo
+   end
+
+
+   BesluitTypeZwachtel -- "EAI 0.8-1.3 / Veneus" --> KeuzeK2
+   BesluitTypeZwachtel -- "EAI 0.6-0.8 (Gemengd)" --> KeuzeLite
+  
+   KeuzeK2 --> StapMeten
+   KeuzeLite --> StapMeten
+
+
+   %% ---------------------------------------------------------
+   %% NAZORG & EVALUATIE
+   %% ---------------------------------------------------------
+   StapKPress --> StapNazorg
+   ActieErnstigVaatNazorg --> StapNazorg
+
+
+   StapNazorg["<b>NAZORG & FREQUENTIE</b><br/>───────────────<br/>• Draagtijd: Max 7 dagen<br/>• Wissel indien afgezakt<br/>  (max 2x hergebruik)<br/>• Startfase: vaker wisselen<br/>• Evaluatie: wekelijks<br/>  TIME & Foto<br/>───────────────<br/><b>SCHAKEL VAKGROEP IN BIJ:</b><br/>• Wond > 2-3 wkn stagnatie<br/>• Geen verbetering"]
+
+
+   StapNazorg --> BesluitAfsluiting
+
+
+   BesluitAfsluiting{{"<b>EVALUATIE AFSLUITING</b><br/>Wat is de situatie?"}}
+
+
+   AfsluitKous["<b>STEUNKOUSEN</b><br/>───────────────<br/>Wond dicht én been oedeemvrij<br/>───────────────<br/>1. Machtiging Huisarts<br/>2. Steunkousen laten<br/>   aanmeten door bandagist"]
+  
+   AfsluitOedeem["<b>VOORTZETTEN COMPRESSIE</b><br/>───────────────<br/>Wond dicht maar nog oedeem<br/>───────────────<br/>Doorgaan met zwachtelen<br/>Herevaluatie na 2 weken"]
+  
+   AfsluitTrauma["<b>GEEN STEUNKOUSEN</b><br/>───────────────<br/>Wond ontstaan door trauma<br/>én weinig oedeem<br/>→ Geen kousen nodig"]
+  
+   AfsluitGeenVeneus["<b>GEEN STEUNKOUSEN</b><br/>───────────────<br/>Geen onderliggend<br/>veneus vaatlijden<br/>→ Geen kousen nodig"]
+
+
+   BesluitAfsluiting -- "Wond dicht +<br/>oedeemvrij" --> AfsluitKous
+   BesluitAfsluiting -- "Wond dicht +<br/>nog oedeem" --> AfsluitOedeem
+   BesluitAfsluiting -- "Trauma zonder<br/>veel oedeem" --> AfsluitTrauma
+   BesluitAfsluiting -- "Geen veneus<br/>vaatlijden" --> AfsluitGeenVeneus
+
+
+   %% ---------------------------------------------------------
+   %% STYLING
+   %% ---------------------------------------------------------
+   style UitlegStemmer fill:#f9f9f9,stroke:#999,stroke-dasharray: 5 5
+   style InfoVideo fill:#eef6ff,stroke:#6699cc,stroke-dasharray: 5 5
+   style LinkNaarAWP fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+   style ActieErnstigVaatNazorg fill:#ffeaea,stroke:#cc3333,stroke-width:1px
+   style EAITitel fill:none,stroke:none
+   style WerkTitel fill:none,stroke:none
+

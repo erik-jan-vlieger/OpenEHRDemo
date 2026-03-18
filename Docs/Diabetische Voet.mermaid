@@ -1,0 +1,85 @@
+%%{init: {'flowchart': {'nodeSpacing': 30, 'rankSpacing': 45}}}%%
+flowchart TD
+
+
+   Start["Start: DM patiënt<br/>voetscreening"]
+
+
+   subgraph Anamnese [" "]
+       direction TB
+       AnamneseTitel["<b>── ANAMNESE ──</b>"]
+       StartAnamnese( )
+
+
+       ActieAnamnese["<b>Stap 1: Anamnese</b><br/>──────────────────<br/>• Ontstaan + beloop<br/>• Glucose geregeld?<br/>• Claudicatio<br/>  klachten?<br/>• Mobiliteit +<br/>  schoeisel<br/>• Eerder ulcus /<br/>  operatie voet?<br/>• Temp. voeten<br/>• Neuropatische/<br/>  vasculaire pijn<br/>• Visus<br/>• Sociaal isolement"]
+
+
+       InfoRisico["ℹ️ <b>Risicofactoren</b><br/><b>DM voet:</b><br/>──────────────────<br/>• Slechte glucose-<br/>  regulatie<br/>• Perifeer vaatlijden<br/>• Neuropathie<br/>• Standsafwijkingen<br/>• Eerder amputatie<br/>• Nierfalen / roken<br/>• Verminderde visus<br/>• Charcot voet<br/>  in voorgeschied."]
+
+
+       StartAnamnese --> ActieAnamnese
+       ActieAnamnese -.-> InfoRisico
+   end
+
+
+   Start --> StartAnamnese
+
+
+   subgraph Inspectie [" "]
+       direction TB
+       InspectieTitel["<b>── VOETINSPECTIE ──</b>"]
+
+
+       ActieInspectie["<b>Stap 2: Beide</b><br/><b>voeten inspecteren</b><br/>──────────────────<br/>• Huidkleur + temp.<br/>• Eelt / fissuren<br/>• Standsafwijkingen<br/>• Droge huid / kloven<br/>• Doorbloeding:<br/>  pulsaties palperen<br/>• Gevoel testen<br/>  (monofilament)<br/>• Tussen de tenen!<br/>• Nagels + schoeisel<br/>• Zwelling / oedeem"]
+
+
+       InfoInspectie["ℹ️ <b>Signalen → arts:</b><br/>──────────────────<br/>Pulsaties afwezig?<br/>→ vaatonderzoek<br/>Gevoel afwezig?<br/>→ neuropathie arts<br/>──────────────────<br/>Temp. asymmetrie<br/>beide voeten?<br/>→ Charcot vermoeden<br/>→ Meteen arts!"]
+
+
+       ActieInspectie -.-> InfoInspectie
+   end
+
+
+   ActieAnamnese --> ActieInspectie
+
+
+   BesluitCharcot{{"Charcot vermoeden?<br/>──────────────<br/>Rode, warme,<br/>gezwollen voet<br/>zonder trauma?"}}
+
+
+   ActieInspectie --> BesluitCharcot
+
+
+   ActieArtsCharcot["⚠️ <b>ARTS DEZELFDE DAG</b><br/>──────────────────<br/>Charcot vermoeden:<br/>→ Arts bellen direct<br/>──────────────────<br/>Tussentijds:<br/>• Niet belasten!<br/>• Voet hoogleggen<br/>• Noteer bevindingen<br/>──────────────────<br/>Arts neemt over<br/>Rapporteer in dossier"]
+
+
+   BesluitCharcot -- "Ja" --> ActieArtsCharcot
+
+
+   BesluitWond{{"Wond<br/>aanwezig?"}}
+
+
+   BesluitCharcot -- "Nee" --> BesluitWond
+
+
+   ActiePreventie["<b>GEEN WOND:</b><br/><b>Preventieve zorg</b><br/>──────────────────<br/>• Huid invetten<br/>  (niet tussen tenen)<br/>• Voeten wassen +<br/>  goed afdrogen<br/>• Niet blootsvoets<br/>• Passend schoeisel<br/>  inspecteren<br/>• Medisch pedicure<br/>  inschakelen<br/>• Geen warmtebron<br/>• Dagelijks inspectie<br/>──────────────────<br/>→ Herhaal elk<br/>  zorgmoment"]
+
+
+   BesluitWond -- "Nee" --> ActiePreventie
+
+
+   ActieNaarWondprotocol["🔀 <b>NAAR WONDPROTOCOL</b><br/>──────────────────<br/>Gebruik: Algemeen<br/>Wondprotocol<br/>(incl. DM-laag)<br/>──────────────────<br/>DM-laag omvat:<br/>• DM Stap A:<br/>  voetinspectie<br/>• Plantaire check<br/>• Diepe infectie-<br/>  check<br/>• DM Stap B:<br/>  drukontlasting<br/>• DM Stap C:<br/>  voorlichting<br/>──────────────────<br/>Markeer patiënt<br/>als DM in het<br/>wondprotocol!"]
+
+
+   BesluitWond -- "Ja" --> ActieNaarWondprotocol
+
+
+   style StartAnamnese width:0px,height:0px
+   style ActieArtsCharcot fill:#ffeaea,stroke:#cc3333,stroke-width:2px
+   style ActiePreventie fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+   style ActieNaarWondprotocol fill:#e8f0ff,stroke:#7755cc,stroke-width:2px
+   style InfoRisico fill:#eef6ff,stroke:#6699cc,stroke-dasharray: 5 5
+   style InfoInspectie fill:#eef6ff,stroke:#6699cc,stroke-dasharray: 5 5
+   style AnamneseTitel fill:none,stroke:none
+   style InspectieTitel fill:none,stroke:none
+
+
