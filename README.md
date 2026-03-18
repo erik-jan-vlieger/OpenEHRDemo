@@ -8,7 +8,7 @@ Een werkende openEHR demo-omgeving voor wondzorg bij [Sensire](https://www.sensi
 - **Internationale + eigen archetypes**: CKM hergebruik + 5 Sensire-specifieke uitbreidingen (ADL 1.4)
 - **Live data-opslag**: Composities worden als FLAT JSON opgeslagen in EHRbase en bewezen via AQL
 - **Klinische beslisondersteuning**: EAI-drempels, Charcot SPOED-detectie, WCS×exsudaat verbandkeuze matrix
-- **Volledige transparantie**: pgAdmin en openEHRTool voor visueel bewijs
+- **Volledige transparantie**: pgAdmin en Swagger UI voor visueel bewijs
 
 ## Vereisten
 
@@ -43,7 +43,6 @@ npm run dev
 | **EHRbase REST API** | http://localhost:8080 | `ehrbase-user` / `SuperSecretPassword` |
 | **Swagger UI** | http://localhost:8080/ehrbase/swagger-ui/ | (zelfde als EHRbase) |
 | **pgAdmin** ¹ | http://localhost:5050 | `demo@sensire.nl` / `demo` |
-| **openEHRTool** ¹ | http://localhost:8888 | — |
 
 ¹ Start met: `docker compose --profile tools up -d`
 
@@ -82,7 +81,7 @@ curl -u ehrbase-user:SuperSecretPassword http://localhost:8080/ehrbase/rest/stat
 # AQL query testen
 ./scripts/test-aql.sh
 
-# Extra tools starten (pgAdmin + openEHRTool)
+# Extra tools starten (pgAdmin)
 docker compose --profile tools up -d
 ```
 
