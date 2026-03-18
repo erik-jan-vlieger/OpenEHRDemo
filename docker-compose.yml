@@ -62,15 +62,8 @@ services:
         condition: service_healthy
     profiles: ['tools']
 
-  # ── openEHRTool (GUI browser voor EHRbase) ──
-  openehrtool:
-    image: crs4/openehrtool:latest
-    networks: [ehrbase-net]
-    ports: ['8888:80']
-    depends_on:
-      ehrbase:
-        condition: service_healthy
-    profiles: ['tools']
+  # openEHRTool verwijderd — crs4/openehrtool image niet meer beschikbaar op Docker Hub.
+  # Gebruik Swagger UI (http://localhost:8080/ehrbase/swagger-ui/) als EHRbase browser.
 
 volumes:
   ehrbase_data:
