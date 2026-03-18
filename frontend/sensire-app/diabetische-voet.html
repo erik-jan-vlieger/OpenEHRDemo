@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diabetische Voet — Sensire Wondzorg Demo</title>
+  <meta name="description" content="Interactieve Diabetische Voet beslisboom — anamnese, voetinspectie, Charcot-screening.">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -25,6 +26,7 @@
   </header>
 
   <main class="container">
+    <!-- Client Banner -->
     <div class="client-banner">
       <div class="client-banner__avatar">MJ</div>
       <div class="client-banner__info">
@@ -32,32 +34,639 @@
         <div class="client-banner__details">
           <span class="client-banner__detail"><strong>BSN:</strong> 999.901.234</span>
           <span class="client-banner__detail"><strong>Geb.:</strong> 14-03-1942 (83 jaar)</span>
+          <span class="client-banner__detail"><strong>Diagnoses:</strong> Veneus ulcus links onderbeen, Hypertensie, DM type 2</span>
         </div>
       </div>
     </div>
 
     <div class="section-header">
       <h1 class="section-header__title">🦶 Diabetische Voet Protocol</h1>
-      <p class="section-header__subtitle">Anamnese, voetinspectie, Charcot-screening en doorverwijzing.</p>
+      <p class="section-header__subtitle">Anamnese, voetinspectie beide voeten, Charcot-screening en vervolgbeleid. Stap voor stap.</p>
     </div>
 
-    <div class="alert alert--info">
-      <span class="alert__icon">🚧</span>
-      <div>
-        <strong>Komt in Fase 4</strong><br>
-        Dit protocol wordt in de volgende fase gebouwd. De beslisboom omvat:
-        <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
-          <li>Anamnese (glucose, claudicatio, eerder ulcus, Charcot)</li>
-          <li>Voetinspectie beide voeten (huidkleur, temp, pulsaties, monofilament)</li>
-          <li>Charcot-vermoeden → <strong>arts dezelfde dag</strong></li>
-          <li>Plantaire wond → <strong>arts binnen 24 uur</strong></li>
-          <li>Geen wond → preventieve zorg</li>
-          <li>Wond → doorverwijzing Wondprotocol met DM-laag</li>
-        </ul>
+    <!-- Decision Tree -->
+    <div class="decision-tree" id="decision-tree"></div>
+
+    <!-- Result Section -->
+    <div id="result-section" style="display:none;">
+      <div class="tabs" id="result-tabs">
+        <button class="tab-btn tab-btn--active" data-tab="advice">💊 Klinisch Advies</button>
+        <button class="tab-btn" data-tab="data">📋 openEHR Data</button>
+        <button class="tab-btn" data-tab="aql">🔍 AQL Bewijs</button>
       </div>
-    </div>
 
-    <a href="index.html" class="btn btn--outline" style="margin-top: var(--space-lg);">← Terug naar overzicht</a>
+      <div class="tab-panel tab-panel--active" id="tab-advice"></div>
+      <div class="tab-panel" id="tab-data"></div>
+      <div class="tab-panel" id="tab-aql"></div>
+
+      <div style="margin-top: var(--space-xl); display:flex; gap: var(--space-md);">
+        <button class="btn btn--primary" id="btn-save" onclick="saveComposition()">💾 Opslaan naar EHRbase</button>
+        <button class="btn btn--outline" onclick="location.reload()">🔄 Opnieuw starten</button>
+      </div>
+
+      <div id="save-result" style="margin-top: var(--space-lg);"></div>
+    </div>
   </main>
+
+  <script>
+    // ============================================================
+    // Diabetische Voet Decision Tree Engine
+    // ============================================================
+    const EHRBASE_URL = 'http://localhost:8080/ehrbase/rest';
+    const EHRBASE_USER = 'ehrbase-user';
+    const EHRBASE_PASS = 'SuperSecretPassword';
+
+    let state = {
+      currentStep: 0,
+      answers: {},
+      ehrId: null,
+      compositionUid: null
+    };
+
+    const steps = [
+      // ── Stap 1: Anamnese ──
+      {
+        id: 'glucose',
+        title: 'Anamnese — Glucoseregulatie',
+        description: 'Is de glucoseregulatie van de patiënt onder controle?',
+        type: 'choice',
+        infobox: {
+          title: '📖 Risicofactoren DM voet',
+          content: 'Slechte glucoseregulatie, perifeer vaatlijden, neuropathie, standsafwijkingen, eerder amputatie, nierfalen, roken, verminderde visus, Charcot voet in voorgeschiedenis.'
+        },
+        options: [
+          { value: 'good', label: 'Ja — glucose goed gereguleerd', icon: '✅' },
+          { value: 'poor', label: 'Nee — glucose ontregeld', icon: '⚠️', className: 'decision-btn--warning' }
+        ]
+      },
+      {
+        id: 'claudicatio',
+        title: 'Anamnese — Claudicatio',
+        description: 'Heeft de patiënt claudicatio-klachten? (Krampende pijn in de benen bij lopen die weggaat in rust)',
+        type: 'choice',
+        options: [
+          { value: 'no', label: 'Nee — geen claudicatio', icon: '✅' },
+          { value: 'yes', label: 'Ja — claudicatio klachten aanwezig', icon: '⚠️', className: 'decision-btn--warning' }
+        ]
+      },
+      {
+        id: 'prior-ulcer',
+        title: 'Anamnese — Voorgeschiedenis',
+        description: 'Heeft de patiënt eerder een ulcus of operatie aan de voet gehad?',
+        type: 'choice',
+        options: [
+          { value: 'no', label: 'Nee — geen eerder ulcus/operatie', icon: '✅' },
+          { value: 'ulcer', label: 'Ja — eerder ulcus', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'surgery', label: 'Ja — operatie aan voet', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'both', label: 'Ja — zowel ulcus als operatie', icon: '🔴', className: 'decision-btn--danger' }
+        ]
+      },
+      {
+        id: 'neuropathic-pain',
+        title: 'Anamnese — Pijn & Gevoel',
+        description: 'Rapporteert de patiënt neuropathische of vasculaire pijn, of verminderd gevoel in de voeten?',
+        type: 'choice',
+        options: [
+          { value: 'none', label: 'Geen pijn of gevoelsprobleem', icon: '✅' },
+          { value: 'neuropathic', label: 'Neuropathische pijn (brandend, tintelend)', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'vascular', label: 'Vasculaire pijn (kramp, koudegevoel)', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'reduced', label: 'Verminderd gevoel (numbheid)', icon: '⚠️', className: 'decision-btn--warning' }
+        ]
+      },
+
+      // ── Stap 2: Voetinspectie ──
+      {
+        id: 'skin-inspection',
+        title: 'Voetinspectie — Huid & Temperatuur',
+        description: 'Inspecteer beide voeten: huidkleur, temperatuur, eelt, fissuren, droge huid, kloven.',
+        type: 'choice',
+        options: [
+          { value: 'normal', label: 'Normaal — geen bijzonderheden', icon: '✅' },
+          { value: 'abnormal', label: 'Afwijkend — eelt, fissuren, droge huid of kleurverandering', icon: '⚠️', className: 'decision-btn--warning' }
+        ]
+      },
+      {
+        id: 'circulation',
+        title: 'Voetinspectie — Doorbloeding',
+        description: 'Palpeer de pulsaties (a. dorsalis pedis + a. tibialis posterior) aan beide voeten.',
+        type: 'choice',
+        infobox: {
+          title: '📖 Bij afwezige pulsaties',
+          content: 'Verwijs voor vaatonderzoek (duplexecho / EAI meting). Overleg huisarts.'
+        },
+        options: [
+          { value: 'present', label: 'Pulsaties voelbaar beide voeten', icon: '✅' },
+          { value: 'weak', label: 'Pulsaties zwak of asymmetrisch', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'absent', label: 'Pulsaties niet voelbaar', icon: '🔴', className: 'decision-btn--danger' }
+        ]
+      },
+      {
+        id: 'sensation',
+        title: 'Voetinspectie — Gevoel (Monofilament)',
+        description: 'Test het gevoel met een 10g monofilament op de voorvoet. Test minimaal 3 plekken per voet.',
+        type: 'choice',
+        infobox: {
+          title: '📖 Monofilament test',
+          content: 'Druk het monofilament loodrecht op de huid tot het buigt. Vraag de patiënt of hij het voelt. Test op: hallux (1), MTP-1 (2), MTP-5 (3). Afwezig gevoel = neuropathie.'
+        },
+        options: [
+          { value: 'normal', label: 'Gevoel intact beide voeten', icon: '✅' },
+          { value: 'reduced', label: 'Verminderd gevoel (1-2 plekken niet gevoeld)', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'absent', label: 'Gevoel afwezig (≥ 3 plekken niet gevoeld) → neuropathie', icon: '🔴', className: 'decision-btn--danger' }
+        ]
+      },
+      {
+        id: 'deformities',
+        title: 'Voetinspectie — Standsafwijkingen & Nagels',
+        description: 'Inspecteer: standsafwijkingen (hamertenen, hallux valgus), nagels, schoeisel, oedeem. Kijk ook tussen de tenen!',
+        type: 'choice',
+        options: [
+          { value: 'none', label: 'Geen bijzonderheden', icon: '✅' },
+          { value: 'deformity', label: 'Standsafwijkingen aanwezig', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'nail', label: 'Nagelproblemen (ingroei, schimmel)', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'multiple', label: 'Meerdere afwijkingen', icon: '⚠️', className: 'decision-btn--warning' }
+        ]
+      },
+
+      // ── Stap 3: Charcot check ──
+      {
+        id: 'charcot',
+        title: 'Charcot Vermoeden',
+        description: 'Is er een rode, warme, gezwollen voet WITHOUT trauma? Dit is een Charcot vermoeden!',
+        type: 'choice',
+        infobox: {
+          title: '⚠️ Charcot voet = SPOED',
+          content: '<strong>Rode, warme, gezwollen voet zonder duidelijk trauma?</strong><br>→ Bel <strong>dezelfde dag de arts!</strong><br>→ Niet belasten, voet hoogleggen, bevindingen noteren.'
+        },
+        options: [
+          { value: 'no', label: 'Nee — geen Charcot vermoeden', icon: '✅' },
+          { value: 'yes', label: 'Ja — rood, warm, gezwollen → ARTS DEZELFDE DAG!', icon: '🚨', className: 'decision-btn--danger' }
+        ]
+      },
+
+      // ── Stap 4: Wond aanwezig? ──
+      {
+        id: 'wound-present',
+        title: 'Wond Aanwezig?',
+        description: 'Is er een wond aanwezig aan de voet?',
+        type: 'choice',
+        condition: () => state.answers['charcot'] !== 'yes',
+        options: [
+          { value: 'no', label: 'Nee — geen wond', icon: '✅' },
+          { value: 'yes', label: 'Ja — wond aanwezig', icon: '🩹' },
+          { value: 'plantar', label: 'Ja — plantaire wond → arts binnen 24 uur', icon: '🔴', className: 'decision-btn--danger' }
+        ]
+      }
+    ];
+
+    // ── Render Engine (identical pattern to Ulcus Cruris) ──
+    function renderTree() {
+      const tree = document.getElementById('decision-tree');
+      tree.innerHTML = '';
+
+      let stepNumber = 0;
+      for (let i = 0; i <= state.currentStep && i < steps.length; i++) {
+        const step = steps[i];
+        if (step.condition && !step.condition()) continue;
+
+        stepNumber++;
+        const isActive = (i === state.currentStep);
+        const isCompleted = (i < state.currentStep) || state.answers[step.id] !== undefined;
+        const answer = state.answers[step.id];
+
+        const stepEl = document.createElement('div');
+        stepEl.className = `step ${isActive && !isCompleted ? 'step--active' : ''} ${isCompleted && !isActive ? 'step--completed' : ''}`;
+        stepEl.id = `step-${step.id}`;
+
+        let bodyHTML = '';
+        if (step.description) {
+          bodyHTML += `<p class="step__description">${step.description}</p>`;
+        }
+        if (step.infobox) {
+          bodyHTML += `<div class="info-panel" style="margin-bottom: var(--space-lg);">
+            <strong>${step.infobox.title}</strong><br>${step.infobox.content}
+          </div>`;
+        }
+
+        if (step.type === 'choice') {
+          bodyHTML += '<div class="decision-options">';
+          for (const opt of step.options) {
+            const selected = answer === opt.value;
+            const cls = opt.className || '';
+            bodyHTML += `<button class="decision-btn ${cls} ${selected ? 'decision-btn--selected' : ''}"
+              onclick="selectAnswer('${step.id}', '${opt.value}', ${i})"
+              ${isCompleted && !isActive ? 'disabled' : ''}>
+              <span class="decision-btn__icon">${opt.icon}</span>
+              <span>${opt.label}</span>
+            </button>`;
+          }
+          bodyHTML += '</div>';
+        }
+
+        // Charcot alert
+        if (step.id === 'charcot' && answer === 'yes') {
+          bodyHTML += `<div class="alert alert--danger" style="margin-top: var(--space-lg);">
+            <span class="alert__icon">🚨</span>
+            <div><strong>SPOED: Arts dezelfde dag bellen!</strong><br>
+            Charcot vermoeden bevestigd. Tussentijds:<br>
+            • Niet belasten!<br>
+            • Voet hoogleggen<br>
+            • Bevindingen noteren<br>
+            • Arts neemt over — rapporteer in dossier</div>
+          </div>`;
+        }
+
+        // Absent pulsations alert
+        if (step.id === 'circulation' && answer === 'absent') {
+          bodyHTML += `<div class="alert alert--danger" style="margin-top: var(--space-lg);">
+            <span class="alert__icon">⚠️</span>
+            <div><strong>Pulsaties afwezig</strong> → Verwijs voor vaatonderzoek. Overleg huisarts.</div>
+          </div>`;
+        }
+
+        // Neuropathy alert
+        if (step.id === 'sensation' && answer === 'absent') {
+          bodyHTML += `<div class="alert alert--danger" style="margin-top: var(--space-lg);">
+            <span class="alert__icon">⚠️</span>
+            <div><strong>Neuropathie vastgesteld</strong> → Informeer arts. Verhoogd risico op voetletsel.</div>
+          </div>`;
+        }
+
+        // Plantar wound alert
+        if (step.id === 'wound-present' && answer === 'plantar') {
+          bodyHTML += `<div class="alert alert--danger" style="margin-top: var(--space-lg);">
+            <span class="alert__icon">🔴</span>
+            <div><strong>Plantaire wond bij DM patiënt</strong><br>Arts contacteren binnen 24 uur. Drukontlasting instellen.</div>
+          </div>`;
+        }
+
+        stepEl.innerHTML = `
+          <div class="step__header">
+            <span class="step__number">${isCompleted ? '✓' : stepNumber}</span>
+            <span class="step__title">${step.title}</span>
+          </div>
+          <div class="step__body">${bodyHTML}</div>
+        `;
+        tree.appendChild(stepEl);
+      }
+    }
+
+    function selectAnswer(stepId, value, stepIndex) {
+      state.answers[stepId] = value;
+
+      // Charcot = yes → stop tree, show urgent result
+      if (stepId === 'charcot' && value === 'yes') {
+        renderTree();
+        showResults();
+        return;
+      }
+
+      advanceToNext(stepIndex);
+    }
+
+    function advanceToNext(currentIndex) {
+      let nextIndex = currentIndex + 1;
+      while (nextIndex < steps.length) {
+        const step = steps[nextIndex];
+        if (!step.condition || step.condition()) break;
+        nextIndex++;
+      }
+
+      if (nextIndex >= steps.length) {
+        state.currentStep = nextIndex;
+        renderTree();
+        showResults();
+      } else {
+        state.currentStep = nextIndex;
+        renderTree();
+        setTimeout(() => {
+          const el = document.getElementById(`step-${steps[nextIndex].id}`);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+
+    // ── Risk Score ──
+    function calculateRiskLevel() {
+      let score = 0;
+      if (state.answers['glucose'] === 'poor') score += 2;
+      if (state.answers['claudicatio'] === 'yes') score += 2;
+      if (state.answers['prior-ulcer'] === 'both') score += 3;
+      else if (state.answers['prior-ulcer'] !== 'no') score += 2;
+      if (state.answers['neuropathic-pain'] !== 'none') score += 1;
+      if (state.answers['circulation'] === 'absent') score += 3;
+      else if (state.answers['circulation'] === 'weak') score += 1;
+      if (state.answers['sensation'] === 'absent') score += 3;
+      else if (state.answers['sensation'] === 'reduced') score += 1;
+      if (state.answers['deformities'] !== 'none') score += 1;
+
+      if (score >= 6) return { level: 'hoog', color: 'danger', label: 'Hoog risico' };
+      if (score >= 3) return { level: 'matig', color: 'warning', label: 'Matig risico' };
+      return { level: 'laag', color: 'success', label: 'Laag risico' };
+    }
+
+    // ── Results ──
+    function showResults() {
+      const resultSection = document.getElementById('result-section');
+      resultSection.style.display = 'block';
+
+      const charcot = state.answers['charcot'];
+      const wound = state.answers['wound-present'];
+      const risk = calculateRiskLevel();
+
+      // ── Advice Tab ──
+      const adviceTab = document.getElementById('tab-advice');
+      let adviceHTML = '';
+
+      // Risk summary
+      adviceHTML += `<div class="alert alert--${risk.color}">
+        <span class="alert__icon">${risk.level === 'hoog' ? '🔴' : risk.level === 'matig' ? '🟡' : '🟢'}</span>
+        <div><strong>Risicoprofiel: ${risk.label}</strong><br>
+        Op basis van anamnese en voetinspectie.</div>
+      </div>`;
+
+      if (charcot === 'yes') {
+        adviceHTML += `<div class="advice-box advice-box--danger">
+          <div class="advice-box__title">🚨 SPOED: Charcot Vermoeden</div>
+          <div class="advice-box__content">
+            <p><strong>Actie:</strong> Arts bellen <strong>dezelfde dag</strong>.</p>
+            <p><strong>Tussentijds:</strong></p>
+            <ul style="padding-left: var(--space-lg); margin-top: var(--space-sm);">
+              <li>Voet NIET belasten</li>
+              <li>Voet hoogleggen</li>
+              <li>Alle bevindingen noteren</li>
+            </ul>
+            <p style="margin-top: var(--space-md);"><strong>Arts neemt verdere behandeling over.</strong> Rapporteer in dossier.</p>
+          </div>
+        </div>`;
+      } else if (wound === 'no') {
+        adviceHTML += `<div class="advice-box">
+          <div class="advice-box__title">✅ Preventieve Voetzorg</div>
+          <div class="advice-box__content">
+            <p>Geen wond aanwezig. Voer preventieve voetzorg uit:</p>
+            <ul style="padding-left: var(--space-lg); margin-top: var(--space-sm); line-height: 2;">
+              <li>Huid invetten (niet tussen de tenen)</li>
+              <li>Voeten wassen + goed afdrogen</li>
+              <li>Niet blootsvoets lopen</li>
+              <li>Passend schoeisel inspecteren</li>
+              <li>Medisch pedicure inschakelen</li>
+              <li>Geen warmtebron tegen de voeten</li>
+              <li>Dagelijkse zelfinspectie adviseren</li>
+            </ul>
+            <p style="margin-top: var(--space-md);">→ Herhaal controle elk zorgmoment.</p>
+          </div>
+        </div>`;
+      } else if (wound === 'plantar') {
+        adviceHTML += `<div class="advice-box advice-box--danger">
+          <div class="advice-box__title">🔴 Plantaire Wond bij DM Patiënt</div>
+          <div class="advice-box__content">
+            <p><strong>Arts contacteren binnen 24 uur.</strong></p>
+            <p>Start alvast met:</p>
+            <ul style="padding-left: var(--space-lg); margin-top: var(--space-sm);">
+              <li>Drukontlasting (vilttherapie / orthese)</li>
+              <li>Wondverzorging volgens Wondprotocol</li>
+            </ul>
+            <p style="margin-top: var(--space-md);">
+              <a href="wondprotocol.html" class="btn btn--outline btn--sm">→ Naar Wondprotocol (met DM-laag)</a>
+            </p>
+          </div>
+        </div>`;
+      } else if (wound === 'yes') {
+        adviceHTML += `<div class="advice-box">
+          <div class="advice-box__title">🩹 Wond Aanwezig — Naar Wondprotocol</div>
+          <div class="advice-box__content">
+            <p>Vervolg met het <strong>Algemeen Wondprotocol inclusief DM-laag</strong>.</p>
+            <p style="margin-top: var(--space-sm);">De DM-laag omvat:</p>
+            <ul style="padding-left: var(--space-lg); margin-top: var(--space-sm); line-height: 2;">
+              <li><strong>DM Stap A:</strong> Voetinspectie (beide voeten)</li>
+              <li><strong>Plantaire check:</strong> Betreft het de voetzool?</li>
+              <li><strong>Diepe infectie-check</strong></li>
+              <li><strong>DM Stap B:</strong> Drukontlasting instellen</li>
+              <li><strong>DM Stap C:</strong> Voorlichting aan patiënt</li>
+            </ul>
+            <p style="margin-top: var(--space-md);">
+              <a href="wondprotocol.html" class="btn btn--primary btn--sm">→ Naar Wondprotocol (met DM-laag)</a>
+            </p>
+          </div>
+        </div>`;
+      }
+
+      // Additional findings summary
+      let findings = [];
+      if (state.answers['glucose'] === 'poor') findings.push('Glucose ontregeld');
+      if (state.answers['claudicatio'] === 'yes') findings.push('Claudicatio aanwezig');
+      if (state.answers['prior-ulcer'] !== 'no') findings.push('Eerder ulcus/operatie in VG');
+      if (state.answers['neuropathic-pain'] !== 'none') findings.push('Pijn/gevoelsprobleem gerapporteerd');
+      if (state.answers['skin-inspection'] === 'abnormal') findings.push('Huidafwijkingen geconstateerd');
+      if (state.answers['circulation'] !== 'present') findings.push('Doorbloeding afwijkend');
+      if (state.answers['sensation'] !== 'normal') findings.push('Sensibiliteit afwijkend');
+      if (state.answers['deformities'] !== 'none') findings.push('Standsafwijkingen/nagelproblemen');
+
+      if (findings.length > 0) {
+        adviceHTML += `<div class="card" style="margin-top: var(--space-lg);">
+          <div class="card__header"><h3 class="card__title">📋 Samenvatting Bevindingen</h3></div>
+          <div class="card__body">
+            <ul style="padding-left: var(--space-lg); line-height: 2;">
+              ${findings.map(f => `<li>${f}</li>`).join('')}
+            </ul>
+          </div>
+        </div>`;
+      }
+
+      adviceTab.innerHTML = adviceHTML;
+
+      // ── Data Tab ──
+      const composition = buildFlatComposition();
+      document.getElementById('tab-data').innerHTML = `
+        <div class="alert alert--info">
+          <span class="alert__icon">📋</span>
+          <div>Deze data wordt opgeslagen als openEHR FLAT JSON compositie. Het template is <strong>sensire_wound_care</strong>.</div>
+        </div>
+        <div class="data-display">${JSON.stringify(composition, null, 2)}</div>
+      `;
+
+      // ── AQL Tab ──
+      document.getElementById('tab-aql').innerHTML = `
+        <div class="alert alert--info">
+          <span class="alert__icon">🔍</span>
+          <div>Na opslaan kun je deze AQL query gebruiken om alle DM voetscreenings op te vragen.</div>
+        </div>
+        <div class="data-display">SELECT
+  c/uid/value as compositie_id,
+  c/name/value as naam,
+  c/context/start_time/value as datum
+FROM EHR e
+CONTAINS COMPOSITION c
+WHERE c/name/value = 'sensire_wound_care'
+ORDER BY c/context/start_time/value DESC
+LIMIT 10</div>
+        <button class="btn btn--outline btn--sm" style="margin-top: var(--space-md);" onclick="executeAQL()">▶ Query uitvoeren</button>
+        <div id="aql-result" style="margin-top: var(--space-md);"></div>
+      `;
+
+      // Tab switching
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-btn--active'));
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('tab-panel--active'));
+          btn.classList.add('tab-btn--active');
+          document.getElementById(`tab-${btn.dataset.tab}`).classList.add('tab-panel--active');
+        });
+      });
+
+      setTimeout(() => {
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 200);
+    }
+
+    // ── Build FLAT JSON ──
+    function buildFlatComposition() {
+      const now = new Date().toISOString();
+      const risk = calculateRiskLevel();
+
+      const comp = {
+        'sensire_wound_care/_uid': '',
+        'sensire_wound_care/category|code': '433',
+        'sensire_wound_care/category|value': 'event',
+        'sensire_wound_care/category|terminology': 'openehr',
+        'sensire_wound_care/context/start_time': now,
+        'sensire_wound_care/context/setting|code': '227',
+        'sensire_wound_care/context/setting|value': 'emergency care',
+        'sensire_wound_care/context/setting|terminology': 'openehr',
+      };
+
+      // Health risk assessment
+      comp['sensire_wound_care/health_risk_assessment/health_risk|value'] = 'Diabetische voet risicobeoordeling';
+
+      let riskIdx = 0;
+      const riskFactors = [
+        { key: 'glucose', label: 'Glucoseregulatie', present: v => v === 'poor', desc: v => v === 'poor' ? 'Glucose ontregeld' : 'Glucose onder controle' },
+        { key: 'claudicatio', label: 'Claudicatio', present: v => v === 'yes', desc: v => v === 'yes' ? 'Claudicatio klachten aanwezig' : 'Geen claudicatio' },
+        { key: 'prior-ulcer', label: 'Eerder ulcus/operatie', present: v => v !== 'no', desc: v => { const m = {ulcer:'Eerder ulcus',surgery:'Operatie voet',both:'Eerder ulcus + operatie'}; return m[v]||'Geen'; }},
+        { key: 'circulation', label: 'Pulsaties', present: v => v !== 'present', desc: v => { const m = {present:'Voelbaar',weak:'Zwak/asymmetrisch',absent:'Afwezig'}; return m[v]||v; }},
+        { key: 'sensation', label: 'Sensibiliteit (monofilament)', present: v => v !== 'normal', desc: v => { const m = {normal:'Intact',reduced:'Verminderd',absent:'Afwezig (neuropathie)'}; return m[v]||v; }},
+        { key: 'charcot', label: 'Charcot vermoeden', present: v => v === 'yes', desc: v => v === 'yes' ? 'SPOED: Charcot vermoeden bevestigd' : 'Geen Charcot vermoeden' },
+      ];
+
+      for (const rf of riskFactors) {
+        const val = state.answers[rf.key];
+        if (val !== undefined) {
+          const isPresent = rf.present(val);
+          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/risk_factor|value`] = rf.label;
+          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|code`] = isPresent ? 'at0018' : 'at0019';
+          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|value`] = isPresent ? 'Present' : 'Absent';
+          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|terminology`] = 'local';
+          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/description`] = rf.desc(val);
+          riskIdx++;
+        }
+      }
+
+      comp['sensire_wound_care/health_risk_assessment/risk_assessment/text_value'] = `${risk.label} (Diabetische Voet screening)`;
+
+      // Problem/Diagnosis
+      comp['sensire_wound_care/problem_diagnosis/problem_diagnosis_name|value'] = 'Diabetische voet screening';
+      comp['sensire_wound_care/problem_diagnosis/clinical_description'] = `DM voetscreening doorlopen. Risicoprofiel: ${risk.label}. Charcot: ${state.answers['charcot'] || 'n.v.t.'}. Wond: ${state.answers['wound-present'] || 'n.v.t.'}.`;
+
+      // Composer
+      comp['sensire_wound_care/composer|name'] = 'Sensire Wondzorg Demo';
+      comp['sensire_wound_care/language|code'] = 'nl';
+      comp['sensire_wound_care/language|terminology'] = 'ISO_639-1';
+      comp['sensire_wound_care/territory|code'] = 'NL';
+      comp['sensire_wound_care/territory|terminology'] = 'ISO_3166-1';
+
+      return comp;
+    }
+
+    // ── Save to EHRbase ──
+    async function saveComposition() {
+      const btn = document.getElementById('btn-save');
+      const resultDiv = document.getElementById('save-result');
+      btn.disabled = true;
+      btn.textContent = '⏳ Opslaan...';
+
+      try {
+        if (!state.ehrId) {
+          const ehrResp = await fetch(`${EHRBASE_URL}/openehr/v1/ehr`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)
+            },
+            body: JSON.stringify({
+              _type: 'EHR_STATUS',
+              archetype_node_id: 'openEHR-EHR-EHR_STATUS.generic.v1',
+              name: { value: 'EHR Status' },
+              subject: { _type: 'PARTY_SELF' },
+              is_queryable: true,
+              is_modifiable: true
+            })
+          });
+          if (ehrResp.ok) {
+            state.ehrId = (await ehrResp.json()).ehr_id?.value;
+          } else {
+            const qResp = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`) },
+              body: JSON.stringify({ q: 'SELECT e/ehr_id/value FROM EHR e LIMIT 1' })
+            });
+            if (qResp.ok) { const d = await qResp.json(); if (d.rows?.length) state.ehrId = d.rows[0][0]; }
+          }
+        }
+        if (!state.ehrId) throw new Error('Kan geen EHR aanmaken of vinden');
+
+        const composition = buildFlatComposition();
+        const compResp = await fetch(
+          `${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition?format=FLAT&templateId=sensire_wound_care`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`) },
+            body: JSON.stringify(composition)
+          }
+        );
+
+        if (compResp.ok || compResp.status === 201) {
+          const compData = await compResp.json().catch(() => null);
+          state.compositionUid = compData?.uid?.value || 'opgeslagen';
+          resultDiv.innerHTML = `<div class="alert alert--success">
+            <span class="alert__icon">✅</span>
+            <div><strong>Compositie opgeslagen!</strong><br>EHR-ID: <code>${state.ehrId}</code><br>Compositie UID: <code>${state.compositionUid}</code></div>
+          </div>`;
+          btn.textContent = '✅ Opgeslagen';
+        } else {
+          throw new Error(`HTTP ${compResp.status}: ${(await compResp.text()).substring(0, 200)}`);
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<div class="alert alert--danger">
+          <span class="alert__icon">❌</span>
+          <div><strong>Fout bij opslaan:</strong> ${err.message}<br><small>Controleer of EHRbase draait en het template is geüpload.</small></div>
+        </div>`;
+        btn.disabled = false;
+        btn.textContent = '💾 Opnieuw proberen';
+      }
+    }
+
+    // ── AQL Query ──
+    async function executeAQL() {
+      const resultDiv = document.getElementById('aql-result');
+      resultDiv.innerHTML = '<p style="color: var(--color-text-secondary);">⏳ Query uitvoeren...</p>';
+      try {
+        const resp = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`) },
+          body: JSON.stringify({ q: 'SELECT c/uid/value as id, c/name/value as naam, c/context/start_time/value as datum FROM EHR e CONTAINS COMPOSITION c ORDER BY c/context/start_time/value DESC LIMIT 10' })
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          resultDiv.innerHTML = `<div class="alert alert--success"><span class="alert__icon">✅</span><div><strong>${data.rows?.length||0} compositie(s) gevonden</strong></div></div>
+          <div class="data-display">${JSON.stringify(data, null, 2)}</div>`;
+        } else { throw new Error(`HTTP ${resp.status}`); }
+      } catch (err) {
+        resultDiv.innerHTML = `<div class="alert alert--danger"><span class="alert__icon">❌</span><div><strong>Query mislukt:</strong> ${err.message}</div></div>`;
+      }
+    }
+
+    // Init
+    renderTree();
+  </script>
 </body>
 </html>
