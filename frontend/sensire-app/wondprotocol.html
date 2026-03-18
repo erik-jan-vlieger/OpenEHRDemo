@@ -4,7 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Algemeen Wondprotocol — Sensire Wondzorg Demo</title>
+  <meta name="description" content="Interactief Algemeen Wondprotocol — voorbereiding, TIME+WCS analyse, pijnmanagement, verbandkeuze.">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .wcs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-sm); margin: var(--space-md) 0; }
+    .wcs-cell { padding: var(--space-md); border-radius: var(--radius-md); font-size: 0.85rem; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all 150ms ease; }
+    .wcs-cell:hover { transform: scale(1.02); }
+    .wcs-cell--selected { border-color: var(--color-text); box-shadow: var(--shadow-md); }
+    .wcs-red { background: #fee2e2; color: #991b1b; }
+    .wcs-yellow { background: #fef9c3; color: #854d0e; }
+    .wcs-black { background: #374151; color: #f9fafb; }
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { padding: var(--space-sm) 0; border-bottom: 1px solid var(--color-border-light); font-size: 0.9rem; display: flex; align-items: flex-start; gap: var(--space-sm); }
+    .checklist li::before { content: '☐'; flex-shrink: 0; }
+    .checklist li.done::before { content: '☑'; color: var(--color-success); }
+    .matrix-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .matrix-table th, .matrix-table td { padding: var(--space-sm) var(--space-md); border: 1px solid var(--color-border); text-align: left; }
+    .matrix-table th { background: var(--color-primary-50); font-weight: 600; }
+    .matrix-table tr:hover { background: var(--color-border-light); }
+    .matrix-highlight { background: #fef3c7 !important; font-weight: 600; }
+  </style>
 </head>
 <body>
   <header class="app-header">
@@ -32,36 +51,573 @@
         <div class="client-banner__details">
           <span class="client-banner__detail"><strong>BSN:</strong> 999.901.234</span>
           <span class="client-banner__detail"><strong>Geb.:</strong> 14-03-1942 (83 jaar)</span>
+          <span class="client-banner__detail"><strong>Diagnoses:</strong> Veneus ulcus links onderbeen, Hypertensie, DM type 2</span>
         </div>
       </div>
     </div>
 
     <div class="section-header">
       <h1 class="section-header__title">🩹 Algemeen Wondprotocol</h1>
-      <p class="section-header__subtitle">Het meest uitgebreide protocol: van voorbereiding tot nazorg.</p>
+      <p class="section-header__subtitle">Het meest uitgebreide protocol: voorbereiding, pijnmanagement, TIME+WCS analyse, verbandkeuze, en nazorg.</p>
     </div>
 
-    <div class="alert alert--info">
-      <span class="alert__icon">🚧</span>
-      <div>
-        <strong>Komt in Fase 5</strong><br>
-        Dit protocol wordt later gebouwd. De beslisboom omvat:
-        <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
-          <li>Oncologische wond check</li>
-          <li>Voorbereiding (werkveld, materialen, handhygiëne, desinfectie)</li>
-          <li>Wondinspectie + DM voetinspectie</li>
-          <li>Pijnmanagement (ALTIS-score)</li>
-          <li>TIME + WCS analyse (rood/geel/zwart)</li>
-          <li>Debridement veiligheidscheck</li>
-          <li>Infectiebeleid</li>
-          <li>Verbandkeuze matrix (WCS-kleur × exsudaatniveau)</li>
-          <li>DM: drukontlasting + voorlichting</li>
-          <li>Nazorg, rapportage, escalatie</li>
-        </ul>
+    <div class="decision-tree" id="decision-tree"></div>
+
+    <div id="result-section" style="display:none;">
+      <div class="tabs" id="result-tabs">
+        <button class="tab-btn tab-btn--active" data-tab="advice">💊 Klinisch Advies</button>
+        <button class="tab-btn" data-tab="data">📋 openEHR Data</button>
+        <button class="tab-btn" data-tab="aql">🔍 AQL Bewijs</button>
       </div>
+      <div class="tab-panel tab-panel--active" id="tab-advice"></div>
+      <div class="tab-panel" id="tab-data"></div>
+      <div class="tab-panel" id="tab-aql"></div>
+      <div style="margin-top: var(--space-xl); display:flex; gap: var(--space-md);">
+        <button class="btn btn--primary" id="btn-save" onclick="saveComposition()">💾 Opslaan naar EHRbase</button>
+        <button class="btn btn--outline" onclick="location.reload()">🔄 Opnieuw starten</button>
+      </div>
+      <div id="save-result" style="margin-top: var(--space-lg);"></div>
     </div>
-
-    <a href="index.html" class="btn btn--outline" style="margin-top: var(--space-lg);">← Terug naar overzicht</a>
   </main>
+
+  <script>
+    const EHRBASE_URL = 'http://localhost:8080/ehrbase/rest';
+    const EHRBASE_USER = 'ehrbase-user';
+    const EHRBASE_PASS = 'SuperSecretPassword';
+
+    let state = { currentStep: 0, answers: {}, ehrId: null, compositionUid: null };
+
+    const steps = [
+      {
+        id: 'oncologisch',
+        title: 'Oncologische Wond',
+        description: 'Is dit een oncologische (kwaadaardige) wond?',
+        type: 'choice',
+        infobox: { title: '⚠️ Oncologische wonden', content: 'Dit protocol is <strong>niet geschikt</strong> voor oncologische wonden. Raadpleeg het specialistisch protocol en/of Vakgroep Wond.' },
+        options: [
+          { value: 'no', label: 'Nee — geen oncologische wond', icon: '✅' },
+          { value: 'yes', label: 'Ja — oncologische wond → specialistisch protocol', icon: '🚨', className: 'decision-btn--danger' }
+        ]
+      },
+      {
+        id: 'voorbereiding',
+        title: 'Stap 1-4: Voorbereiding',
+        description: 'Controleer de voorbereiding (werkveld, materialen, hygiëne, desinfectie):',
+        type: 'checklist',
+        condition: () => state.answers['oncologisch'] !== 'yes',
+        items: [
+          'Ondergrond gereinigd, schoon werkveld aangelegd',
+          'Materialen binnen handbereik (3 paar handschoenen, onderlegger, gazen, verbandmateriaal, schaar, pincet, alcohol 70%)',
+          'Cliënt comfortabel, wond bereikbaar, onderlegger geplaatst',
+          'Handen gedesinfecteerd, handschoenen aan',
+          'Schaar & pincet gedesinfecteerd (3 gaasjes alcohol 70%)',
+          'Aangebroken materialen: datum genoteerd, max 14 dagen'
+        ]
+      },
+      {
+        id: 'verband-verwijderen',
+        title: 'Stap 5: Verband Verwijderen',
+        description: 'Verwijder het huidige verband. Inspecteer:',
+        type: 'choice',
+        condition: () => state.answers['oncologisch'] !== 'yes',
+        options: [
+          { value: 'normal', label: 'Normaal — verband zit goed, passende absorptie', icon: '✅' },
+          { value: 'too-wet', label: 'Te vochtig — verband doordrenkt, wisselfrequentie verhogen', icon: '💧', className: 'decision-btn--warning' },
+          { value: 'too-dry', label: 'Te droog — verband plakt, ander materiaal overwegen', icon: '🏜️', className: 'decision-btn--warning' },
+          { value: 'odor', label: 'Afwijkende geur — mogelijke infectie', icon: '⚠️', className: 'decision-btn--danger' }
+        ]
+      },
+      {
+        id: 'wound-size',
+        title: 'Stap 6: Wondinspectie — Afmeting',
+        description: 'Meet de wond: lengte × breedte × diepte (cm)',
+        type: 'dimensions',
+        condition: () => state.answers['oncologisch'] !== 'yes'
+      },
+      {
+        id: 'diabetes-check',
+        title: 'DM Check',
+        description: 'Is er sprake van Diabetes Mellitus?',
+        type: 'choice',
+        condition: () => state.answers['oncologisch'] !== 'yes',
+        options: [
+          { value: 'no', label: 'Nee — geen DM', icon: '✅' },
+          { value: 'yes', label: 'Ja — DM aanwezig', icon: '⚠️', className: 'decision-btn--warning' }
+        ]
+      },
+      {
+        id: 'charcot-check',
+        title: 'DM: Charcot Vermoeden',
+        description: 'Rode, warme, gezwollen voet zonder trauma?',
+        type: 'choice',
+        condition: () => state.answers['diabetes-check'] === 'yes',
+        infobox: { title: '🚨 Charcot = SPOED', content: 'Arts bellen <strong>dezelfde dag</strong>. Niet belasten, voet hoogleggen.' },
+        options: [
+          { value: 'no', label: 'Nee — geen Charcot vermoeden', icon: '✅' },
+          { value: 'yes', label: 'Ja — ARTS DEZELFDE DAG!', icon: '🚨', className: 'decision-btn--danger' }
+        ]
+      },
+      {
+        id: 'plantair-check',
+        title: 'DM: Plantaire Wond',
+        description: 'Bevindt de wond zich op de voetzool (plantair)?',
+        type: 'choice',
+        condition: () => state.answers['diabetes-check'] === 'yes' && state.answers['charcot-check'] !== 'yes',
+        options: [
+          { value: 'no', label: 'Nee — niet plantair', icon: '✅' },
+          { value: 'yes', label: 'Ja — plantaire wond → arts binnen 24u', icon: '🔴', className: 'decision-btn--danger' }
+        ]
+      },
+      {
+        id: 'pain',
+        title: 'Pijnmanagement (ALTIS)',
+        description: 'Heeft de patiënt pijn? Beoordeel met de ALTIS-score (0-10).',
+        type: 'choice',
+        condition: () => state.answers['oncologisch'] !== 'yes',
+        options: [
+          { value: 'none', label: 'Geen pijn — direct doorgaan met wondzorg', icon: '✅' },
+          { value: 'systemic', label: 'Pijn → Systemische pijnstilling (paracetamol, NSAID, oxycodon, fentanyl)', icon: '💊' },
+          { value: 'local-fast', label: 'Pijn → Lokaal snel: lidocaïne druppels/spray (wacht 10 min)', icon: '💧' },
+          { value: 'local-slow', label: 'Pijn → Lokaal langzaam: EMLA zalf/pleister (wacht 45 min)', icon: '🕑' }
+        ]
+      },
+      {
+        id: 'tissue',
+        title: 'TIME: T — Tissue (Weefsel)',
+        description: 'Beoordeel de kwaliteit van het wondbed:',
+        type: 'choice',
+        condition: () => state.answers['oncologisch'] !== 'yes',
+        infobox: { title: '📖 Weefselkwaliteit', content: '<strong>Vitaal:</strong> Rood, korrelig granulatieweefsel = goed genezend<br><strong>A-vitaal:</strong> Geel (fibrine/slough), Zwart (necrose) = belemmert genezing' },
+        options: [
+          { value: 'red', label: '🔴 Rood — vitaal granulatieweefsel', icon: '🟢' },
+          { value: 'yellow', label: '🟡 Geel — fibrine/slough', icon: '🟡' },
+          { value: 'black', label: '⚫ Zwart — necrose (droog of nat)', icon: '⚫' },
+          { value: 'mixed', label: 'Gemengd — meerdere kleuren aanwezig', icon: '🔶', className: 'decision-btn--warning' }
+        ]
+      },
+      {
+        id: 'infection',
+        title: 'TIME: I — Infectie',
+        description: 'Zijn er infectieverschijnselen? (5 klassieke tekenen: roodheid, warmte, zwelling, pijn, functieverlies + geur/koorts/meer vocht)',
+        type: 'choice',
+        condition: () => state.answers['oncologisch'] !== 'yes',
+        options: [
+          { value: 'no', label: 'Nee — geen infectietekenen', icon: '✅' },
+          { value: 'mild', label: 'Milde tekenen — lokaal rood, licht warm', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'severe', label: 'Ernstige tekenen — koorts >38°C, pus, roodheid >2cm, geur', icon: '🚨', className: 'decision-btn--danger' }
+        ]
+      },
+      {
+        id: 'dm-severe-infection',
+        title: 'DM + Ernstige Infectie',
+        description: 'Bij DM patiënt met ernstige infectie: koorts >38°C, roodheid >2cm, pus/fluctuatie, botcontact?',
+        type: 'choice',
+        condition: () => state.answers['diabetes-check'] === 'yes' && state.answers['infection'] === 'severe',
+        infobox: { title: '🚨 DM + ernstige infectie = SPOED', content: 'Arts bellen <strong>dezelfde dag</strong>. Wond afdekken met schoon gaas, geen verdere behandeling starten, temp+pols noteren, drukontlasting!' },
+        options: [
+          { value: 'yes', label: 'Ja — ARTS DEZELFDE DAG!', icon: '🚨', className: 'decision-btn--danger' },
+          { value: 'no', label: 'Nee — infectiebeleid lokaal', icon: '⚠️', className: 'decision-btn--warning' }
+        ]
+      },
+      {
+        id: 'moisture',
+        title: 'TIME: M — Moisture (Vocht)',
+        description: 'Beoordeel de vochtproductie (exsudaat):',
+        type: 'choice',
+        condition: () => state.answers['oncologisch'] !== 'yes',
+        options: [
+          { value: 'dry', label: 'Droog — weinig/geen exsudaat', icon: '🏜️' },
+          { value: 'moist', label: 'Vochtig — matig exsudaat, wondbed vochtig', icon: '💧' },
+          { value: 'wet', label: 'Nat — veel exsudaat, frequente verbandwissel nodig', icon: '🌊', className: 'decision-btn--warning' }
+        ]
+      },
+      {
+        id: 'edge',
+        title: 'TIME: E — Edge (Wondranden)',
+        description: 'Beoordeel de wondranden en wondomgeving:',
+        type: 'choice',
+        condition: () => state.answers['oncologisch'] !== 'yes',
+        options: [
+          { value: 'healthy', label: 'Vitaal — gezonde wondranden, goed doorbloed', icon: '✅' },
+          { value: 'macerated', label: 'Verweekt/wit — te vochtig, bescherming nodig', icon: '💧', className: 'decision-btn--warning' },
+          { value: 'undermined', label: 'Ondermijningen aanwezig', icon: '⚠️', className: 'decision-btn--warning' },
+          { value: 'dry-crusty', label: 'Droog/korstig/eczeem', icon: '🏜️' },
+          { value: 'callus', label: 'Callus/eelt rondom', icon: '⚠️', className: 'decision-btn--warning' }
+        ]
+      },
+      {
+        id: 'debridement',
+        title: 'Debridement Check',
+        description: 'Is er a-vitaal weefsel (necrose/slough/callus) dat verwijderd moet worden?',
+        type: 'choice',
+        condition: () => state.answers['oncologisch'] !== 'yes' && (state.answers['tissue'] === 'yellow' || state.answers['tissue'] === 'black' || state.answers['tissue'] === 'mixed'),
+        infobox: { title: '⚠️ Contra-indicaties debridement', content: '<strong>NIET debrideren bij:</strong> stollingssstoornis, diepe structuren zichtbaar (pezen/bot), maligniteit.' },
+        options: [
+          { value: 'safe', label: 'Veilig — debridement door wondverpleegkundige', icon: '✅' },
+          { value: 'contraindicated', label: 'Contra-indicatie — afdekken, verwijzen', icon: '🛑', className: 'decision-btn--danger' }
+        ]
+      },
+      {
+        id: 'stagnation',
+        title: 'Evaluatie & Escalatie',
+        description: 'Toont de wond verbetering? Of is er stagnatie (> 2-3 weken geen verbetering)?',
+        type: 'choice',
+        condition: () => state.answers['oncologisch'] !== 'yes',
+        options: [
+          { value: 'improving', label: 'Wond verbetert — doorgaan met huidig beleid', icon: '✅' },
+          { value: 'stable', label: 'Stabiel — nog geen 2-3 weken', icon: '🕑' },
+          { value: 'stagnant', label: 'Stagnatie > 2-3 weken → VAKGROEP WOND', icon: '⚠️', className: 'decision-btn--warning' }
+        ]
+      }
+    ];
+
+    // ── Render Engine ──
+    function renderTree() {
+      const tree = document.getElementById('decision-tree');
+      tree.innerHTML = '';
+      let stepNumber = 0;
+
+      for (let i = 0; i <= state.currentStep && i < steps.length; i++) {
+        const step = steps[i];
+        if (step.condition && !step.condition()) continue;
+        stepNumber++;
+        const isActive = (i === state.currentStep);
+        const isCompleted = (i < state.currentStep) || state.answers[step.id] !== undefined;
+        const answer = state.answers[step.id];
+
+        const stepEl = document.createElement('div');
+        stepEl.className = `step ${isActive && !isCompleted ? 'step--active' : ''} ${isCompleted && !isActive ? 'step--completed' : ''}`;
+        stepEl.id = `step-${step.id}`;
+
+        let bodyHTML = `<p class="step__description">${step.description}</p>`;
+        if (step.infobox) {
+          bodyHTML += `<div class="info-panel" style="margin-bottom:var(--space-lg);"><strong>${step.infobox.title}</strong><br>${step.infobox.content}</div>`;
+        }
+
+        if (step.type === 'choice') {
+          bodyHTML += '<div class="decision-options">';
+          for (const opt of step.options) {
+            const selected = answer === opt.value;
+            bodyHTML += `<button class="decision-btn ${opt.className||''} ${selected?'decision-btn--selected':''}"
+              onclick="selectAnswer('${step.id}','${opt.value}',${i})" ${isCompleted&&!isActive?'disabled':''}>
+              <span class="decision-btn__icon">${opt.icon}</span><span>${opt.label}</span></button>`;
+          }
+          bodyHTML += '</div>';
+        } else if (step.type === 'checklist') {
+          bodyHTML += '<ul class="checklist">';
+          const checked = answer || [];
+          step.items.forEach((item, idx) => {
+            bodyHTML += `<li class="${checked.includes(idx)?'done':''}" onclick="toggleChecklistItem('${step.id}',${idx},${i})" style="cursor:pointer;">${item}</li>`;
+          });
+          bodyHTML += '</ul>';
+          if (checked.length === step.items.length) {
+            bodyHTML += `<button class="btn btn--primary btn--sm" style="margin-top:var(--space-md);" onclick="advanceFromChecklist(${i})">✓ Voorbereiding voltooid</button>`;
+          } else {
+            bodyHTML += `<p style="margin-top:var(--space-sm);font-size:0.8rem;color:var(--color-text-muted);">Klik op elk item om af te vinken (${checked.length}/${step.items.length})</p>`;
+          }
+        } else if (step.type === 'dimensions') {
+          const dims = answer || {};
+          bodyHTML += `<div style="display:flex;gap:var(--space-md);flex-wrap:wrap;align-items:end;">
+            <div class="form-group" style="margin:0;"><label>Lengte (cm)</label><input type="number" class="form-input form-input--number" id="dim-l" min="0.1" max="50" step="0.1" value="${dims.l||''}" placeholder="L"></div>
+            <div class="form-group" style="margin:0;"><label>Breedte (cm)</label><input type="number" class="form-input form-input--number" id="dim-b" min="0.1" max="50" step="0.1" value="${dims.b||''}" placeholder="B"></div>
+            <div class="form-group" style="margin:0;"><label>Diepte (cm)</label><input type="number" class="form-input form-input--number" id="dim-d" min="0" max="20" step="0.1" value="${dims.d||''}" placeholder="D"></div>
+            <button class="btn btn--primary btn--sm" onclick="submitDimensions(${i})" ${isCompleted&&!isActive?'disabled':''}>Bevestig</button>
+          </div>`;
+        }
+
+        // Context alerts
+        if (step.id === 'oncologisch' && answer === 'yes') {
+          bodyHTML += `<div class="alert alert--danger" style="margin-top:var(--space-lg);"><span class="alert__icon">🚨</span><div><strong>STOP:</strong> Gebruik het specialistisch oncologisch protocol. Raadpleeg de Vakgroep Wond.</div></div>`;
+        }
+        if (step.id === 'charcot-check' && answer === 'yes') {
+          bodyHTML += `<div class="alert alert--danger" style="margin-top:var(--space-lg);"><span class="alert__icon">🚨</span><div><strong>SPOED: Arts dezelfde dag bellen!</strong> Niet belasten, voet hoogleggen.</div></div>`;
+        }
+        if (step.id === 'plantair-check' && answer === 'yes') {
+          bodyHTML += `<div class="alert alert--danger" style="margin-top:var(--space-lg);"><span class="alert__icon">🔴</span><div><strong>Plantaire wond DM:</strong> Arts contacteren binnen 24 uur. Drukontlasting instellen.</div></div>`;
+        }
+        if (step.id === 'dm-severe-infection' && answer === 'yes') {
+          bodyHTML += `<div class="alert alert--danger" style="margin-top:var(--space-lg);"><span class="alert__icon">🚨</span><div><strong>SPOED: DM + ernstige infectie.</strong> Arts dezelfde dag bellen. Wond afdekken, temp+pols noteren, drukontlasting.</div></div>`;
+        }
+        if (step.id === 'stagnation' && answer === 'stagnant') {
+          bodyHTML += `<div class="alert alert--warning" style="margin-top:var(--space-lg);"><span class="alert__icon">⚠️</span><div><strong>Vakgroep Wond inschakelen!</strong><br>Via Triageformulier op intranet.<br>wondzorg@sensire.nl | Ma-vr: 8-17u, Weekend: 11-13u</div></div>`;
+        }
+
+        stepEl.innerHTML = `<div class="step__header"><span class="step__number">${isCompleted?'✓':stepNumber}</span><span class="step__title">${step.title}</span></div><div class="step__body">${bodyHTML}</div>`;
+        tree.appendChild(stepEl);
+      }
+    }
+
+    function selectAnswer(stepId, value, idx) {
+      state.answers[stepId] = value;
+      if (stepId === 'oncologisch' && value === 'yes') { renderTree(); showResults(); return; }
+      if (stepId === 'charcot-check' && value === 'yes') { renderTree(); showResults(); return; }
+      if (stepId === 'dm-severe-infection' && value === 'yes') { renderTree(); showResults(); return; }
+      advanceToNext(idx);
+    }
+
+    function toggleChecklistItem(stepId, itemIdx, stepIdx) {
+      if (!state.answers[stepId]) state.answers[stepId] = [];
+      const arr = state.answers[stepId];
+      const pos = arr.indexOf(itemIdx);
+      if (pos === -1) arr.push(itemIdx); else arr.splice(pos, 1);
+      renderTree();
+    }
+
+    function advanceFromChecklist(idx) { advanceToNext(idx); }
+
+    function submitDimensions(idx) {
+      const l = parseFloat(document.getElementById('dim-l').value);
+      const b = parseFloat(document.getElementById('dim-b').value);
+      const d = parseFloat(document.getElementById('dim-d').value) || 0;
+      if (isNaN(l) || isNaN(b)) return;
+      state.answers['wound-size'] = { l, b, d };
+      advanceToNext(idx);
+    }
+
+    function advanceToNext(cur) {
+      let next = cur + 1;
+      while (next < steps.length) { if (!steps[next].condition || steps[next].condition()) break; next++; }
+      if (next >= steps.length) { state.currentStep = next; renderTree(); showResults(); }
+      else { state.currentStep = next; renderTree(); setTimeout(() => { const el = document.getElementById(`step-${steps[next].id}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100); }
+    }
+
+    // ── WCS×Exsudaat Matrix ──
+    function getMatrixAdvice(wcs, moisture) {
+      const m = {
+        'red-dry': { dressing: 'Hydrocolloïd / vetgaas / siliconen gaas', goal: 'Vochtig milieu creëren, beschermen' },
+        'red-moist': { dressing: 'Schuimverband / siliconen gaas', goal: 'Vochtig houden, beschermen' },
+        'red-wet': { dressing: 'Superabsorberend verband / schuimverband', goal: 'Absorberen, beschermen' },
+        'yellow-dry': { dressing: 'Honingverband / hydrogel + secundair verband', goal: 'Vochtig milieu, debris verwijderen' },
+        'yellow-moist': { dressing: 'Alginaat / honingverband / Prontosan', goal: 'Debris verwijderen, absorberen' },
+        'yellow-wet': { dressing: 'Alginaat + superabsorberend / zilververband', goal: 'Extra absorberen, infectie bestrijden' },
+        'black-dry': { dressing: 'Droog verbinden (geen vochtig milieu)', goal: 'Afdekken, geen infectie = droog houden' },
+        'black-moist': { dressing: 'Alginaat / jodiumzalf / honingverband', goal: 'Necrose verwijderen' },
+        'black-wet': { dressing: 'Alginaat + superabsorberend / zilververband', goal: 'Necrose verwijderen, absorberen' },
+        'mixed-dry': { dressing: 'Hydrogel + secundair verband', goal: 'Vochtig milieu, a-vitaal weefsel aanpakken' },
+        'mixed-moist': { dressing: 'Alginaat / honingverband', goal: 'A-vitaal behandelen, absorberen' },
+        'mixed-wet': { dressing: 'Alginaat + superabsorberend', goal: 'A-vitaal behandelen, extra absorberen' }
+      };
+      return m[`${wcs}-${moisture}`] || { dressing: 'Raadpleeg Vakgroep Wond', goal: 'Complexe situatie' };
+    }
+
+    // ── Results ──
+    function showResults() {
+      const resultSection = document.getElementById('result-section');
+      resultSection.style.display = 'block';
+
+      const tissue = state.answers['tissue'];
+      const moisture = state.answers['moisture'];
+      const infection = state.answers['infection'];
+      const dm = state.answers['diabetes-check'];
+      const stagnation = state.answers['stagnation'];
+      const dims = state.answers['wound-size'] || {};
+      const pain = state.answers['pain'];
+
+      let adviceHTML = '';
+
+      // Oncologisch stop
+      if (state.answers['oncologisch'] === 'yes') {
+        adviceHTML += `<div class="advice-box advice-box--danger"><div class="advice-box__title">🚨 Oncologische Wond</div><div class="advice-box__content"><p>Dit protocol is niet geschikt. Raadpleeg het specialistisch protocol en/of Vakgroep Wond.</p></div></div>`;
+        document.getElementById('tab-advice').innerHTML = adviceHTML;
+        setupTabs(); return;
+      }
+
+      // Charcot/DM severe stop
+      if (state.answers['charcot-check'] === 'yes') {
+        adviceHTML += `<div class="advice-box advice-box--danger"><div class="advice-box__title">🚨 SPOED: Charcot</div><div class="advice-box__content"><p>Arts dezelfde dag bellen. Niet belasten, voet hoogleggen.</p></div></div>`;
+      }
+      if (state.answers['dm-severe-infection'] === 'yes') {
+        adviceHTML += `<div class="advice-box advice-box--danger"><div class="advice-box__title">🚨 SPOED: DM + Ernstige Infectie</div><div class="advice-box__content"><p>Arts dezelfde dag. Wond afdekken, temp+pols noteren, drukontlasting.</p></div></div>`;
+      }
+
+      // WCS × Exsudaat Matrix
+      if (tissue && moisture) {
+        const wcs = tissue === 'mixed' ? 'mixed' : tissue;
+        const advice = getMatrixAdvice(wcs, moisture);
+        adviceHTML += `<div class="advice-box"><div class="advice-box__title">📊 Verbandadvies (WCS × Exsudaat)</div><div class="advice-box__content">
+          <p><strong>Weefsel:</strong> ${{'red':'🔴 Rood (vitaal)','yellow':'🟡 Geel (fibrine)','black':'⚫ Zwart (necrose)','mixed':'🔶 Gemengd'}[tissue]}</p>
+          <p><strong>Vocht:</strong> ${{'dry':'Droog','moist':'Vochtig','wet':'Nat'}[moisture]}</p>
+          <p style="margin-top:var(--space-md);"><strong>Aanbevolen verband:</strong> ${advice.dressing}</p>
+          <p><strong>Doel:</strong> ${advice.goal}</p>
+        </div></div>`;
+
+        // Full matrix table
+        adviceHTML += `<div class="card" style="margin-top:var(--space-lg);"><div class="card__header"><h3 class="card__title">📋 Volledige WCS × Exsudaat Matrix</h3></div><div class="card__body">
+          <table class="matrix-table"><thead><tr><th>WCS Kleur</th><th>Droog</th><th>Vochtig</th><th>Nat</th></tr></thead><tbody>
+          ${['red','yellow','black'].map(c => `<tr>
+            <td>${{'red':'🔴 Rood','yellow':'🟡 Geel','black':'⚫ Zwart'}[c]}</td>
+            ${['dry','moist','wet'].map(m => {
+              const a = getMatrixAdvice(c,m);
+              const hl = (c===wcs && m===moisture) ? 'matrix-highlight' : '';
+              return `<td class="${hl}">${a.dressing}</td>`;
+            }).join('')}
+          </tr>`).join('')}
+          </tbody></table>
+          <p style="margin-top:var(--space-sm);font-size:0.8rem;color:var(--color-text-secondary);">Bron: <a href="https://www.wondbedekkers.nl" target="_blank">wondbedekkers.nl</a> / <a href="https://www.wcs.nl" target="_blank">wcs.nl</a></p>
+        </div></div>`;
+      }
+
+      // Infection
+      if (infection === 'mild' || infection === 'severe') {
+        adviceHTML += `<div class="alert alert--${infection==='severe'?'danger':'warning'}" style="margin-top:var(--space-lg);"><span class="alert__icon">⚠️</span><div><strong>Infectiebeleid:</strong><br>
+          ${infection==='severe' ? '1. Arts raadplegen bij koorts + infectie<br>2. Verwijs naar HA/poli voor diagnostiek' : ''}
+          Lokaal antibacterieel: zilver, jodium of honingverband.</div></div>`;
+      }
+
+      // Pain management summary
+      if (pain && pain !== 'none') {
+        const painInfo = { systemic: '💊 Systemisch (wacht 30-60 min)', 'local-fast': '💧 Lokaal snel: lidocaïne (wacht 10 min)', 'local-slow': '🕑 Lokaal langzaam: EMLA (wacht 45 min)' };
+        adviceHTML += `<div class="alert alert--info" style="margin-top:var(--space-lg);"><span class="alert__icon">💊</span><div><strong>Pijnstilling:</strong> ${painInfo[pain]}</div></div>`;
+      }
+
+      // DM extras
+      if (dm === 'yes') {
+        adviceHTML += `<div class="card" style="margin-top:var(--space-lg);"><div class="card__header"><h3 class="card__title">🦶 DM-specifieke Aandachtspunten</h3></div><div class="card__body">
+          <ul style="padding-left:var(--space-lg);line-height:2;">
+            <li><strong>DM Stap B — Drukontlasting:</strong> Hielen vrijleggen, dekenboog, schoeisel beoordelen, niet blootsvoets, vilt rondom wond</li>
+            <li><strong>DM Stap C — Voorlichting:</strong> Geen voetenbadjes, dagelijks inspectie, schoenen inspecteren, voeten wassen+drogen, invetten (niet tss tenen), geen warmtebron, katoenen sokken, medisch pedicure</li>
+            <li><strong>LET OP:</strong> Geen pleister direct op de huid! Geen strak windsel! Callus → arts/podoloog</li>
+          </ul>
+        </div></div>`;
+      }
+
+      // Stagnation
+      if (stagnation === 'stagnant') {
+        adviceHTML += `<div class="alert alert--warning" style="margin-top:var(--space-lg);"><span class="alert__icon">⚠️</span><div><strong>Vakgroep Wond inschakelen</strong> — stagnatie > 2-3 weken. Via Triageformulier op intranet. wondzorg@sensire.nl</div></div>`;
+      }
+
+      // Wound dimensions
+      if (dims.l) {
+        adviceHTML += `<div class="alert alert--info" style="margin-top:var(--space-lg);"><span class="alert__icon">📏</span><div><strong>Wondafmeting:</strong> ${dims.l} × ${dims.b} × ${dims.d} cm (L×B×D) = ${(dims.l * dims.b).toFixed(1)} cm² oppervlak</div></div>`;
+      }
+
+      // Nazorg
+      adviceHTML += `<div class="card" style="margin-top:var(--space-lg);"><div class="card__header"><h3 class="card__title">📅 Nazorg & Rapportage</h3></div><div class="card__body" style="line-height:1.8;">
+        <ul style="padding-left:var(--space-lg);">
+          <li>Verbandfrequentie: o.b.v. vochtproductie</li>
+          <li>Wekelijks: TIME evaluatie + foto</li>
+          <li>Behandelplan bijstellen op basis van bevindingen</li>
+          <li><strong>Escalatie:</strong> Vakgroep Wond bij stagnatie > 2-3 weken</li>
+        </ul>
+      </div></div>`;
+
+      document.getElementById('tab-advice').innerHTML = adviceHTML;
+
+      // Data tab
+      const composition = buildFlatComposition();
+      document.getElementById('tab-data').innerHTML = `<div class="alert alert--info"><span class="alert__icon">📋</span><div>openEHR FLAT JSON compositie — template: <strong>sensire_wound_care</strong></div></div>
+        <div class="data-display">${JSON.stringify(composition, null, 2)}</div>`;
+
+      // AQL tab
+      document.getElementById('tab-aql').innerHTML = `<div class="alert alert--info"><span class="alert__icon">🔍</span><div>AQL query om alle wondzorg composities op te halen.</div></div>
+        <div class="data-display">SELECT\n  c/uid/value as compositie_id,\n  c/name/value as naam,\n  c/context/start_time/value as datum\nFROM EHR e\nCONTAINS COMPOSITION c\nWHERE c/name/value = 'sensire_wound_care'\nORDER BY c/context/start_time/value DESC\nLIMIT 10</div>
+        <button class="btn btn--outline btn--sm" style="margin-top:var(--space-md);" onclick="executeAQL()">▶ Query uitvoeren</button>
+        <div id="aql-result" style="margin-top:var(--space-md);"></div>`;
+
+      setupTabs();
+      setTimeout(() => { resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
+    }
+
+    function setupTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-btn--active'));
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('tab-panel--active'));
+          btn.classList.add('tab-btn--active');
+          document.getElementById(`tab-${btn.dataset.tab}`).classList.add('tab-panel--active');
+        };
+      });
+    }
+
+    // ── FLAT JSON ──
+    function buildFlatComposition() {
+      const now = new Date().toISOString();
+      const dims = state.answers['wound-size'] || {};
+      const tissue = state.answers['tissue'] || 'unknown';
+      const moisture = state.answers['moisture'] || 'unknown';
+      const infection = state.answers['infection'] || 'no';
+
+      const comp = {
+        'sensire_wound_care/_uid': '',
+        'sensire_wound_care/category|code': '433', 'sensire_wound_care/category|value': 'event', 'sensire_wound_care/category|terminology': 'openehr',
+        'sensire_wound_care/context/start_time': now,
+        'sensire_wound_care/context/setting|code': '227', 'sensire_wound_care/context/setting|value': 'emergency care', 'sensire_wound_care/context/setting|terminology': 'openehr',
+      };
+
+      // Wound examination
+      if (dims.l) {
+        comp['sensire_wound_care/wound_examination/length'] = dims.l;
+        comp['sensire_wound_care/wound_examination/width'] = dims.b;
+        comp['sensire_wound_care/wound_examination/depth'] = dims.d;
+      }
+
+      // Health risk / TIME assessment
+      comp['sensire_wound_care/health_risk_assessment/health_risk|value'] = 'Wondprotocol beoordeling';
+      let ri = 0;
+      const factors = [
+        { key: 'tissue', label: 'TIME-T: Weefseltype', desc: v => ({red:'Rood (vitaal)',yellow:'Geel (fibrine/slough)',black:'Zwart (necrose)',mixed:'Gemengd'}[v]||v) },
+        { key: 'infection', label: 'TIME-I: Infectie', desc: v => ({no:'Geen infectietekenen',mild:'Milde infectietekenen',severe:'Ernstige infectie'}[v]||v) },
+        { key: 'moisture', label: 'TIME-M: Exsudaat', desc: v => ({dry:'Droog',moist:'Vochtig',wet:'Nat'}[v]||v) },
+        { key: 'edge', label: 'TIME-E: Wondranden', desc: v => ({healthy:'Vitaal',macerated:'Verweekt',undermined:'Ondermijningen',['dry-crusty']:'Droog/korstig',callus:'Callus'}[v]||v) },
+        { key: 'pain', label: 'Pijnmanagement', desc: v => ({none:'Geen pijn',systemic:'Systemische pijnstilling','local-fast':'Lokaal snel (lidocaïne)','local-slow':'Lokaal langzaam (EMLA)'}[v]||v) },
+        { key: 'debridement', label: 'Debridement', desc: v => v === 'safe' ? 'Veilig uitvoerbaar' : 'Contra-geïndiceerd' },
+        { key: 'stagnation', label: 'Wondstagnatie', desc: v => ({improving:'Verbeterend',stable:'Stabiel',stagnant:'Stagnatie > 2-3 weken'}[v]||v) },
+      ];
+
+      for (const f of factors) {
+        const v = state.answers[f.key];
+        if (v !== undefined) {
+          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${ri}/risk_factor|value`] = f.label;
+          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${ri}/description`] = f.desc(v);
+          ri++;
+        }
+      }
+
+      // Dressing advice
+      if (tissue && moisture) {
+        const advice = getMatrixAdvice(tissue === 'mixed' ? 'mixed' : tissue, moisture);
+        comp['sensire_wound_care/health_risk_assessment/risk_assessment/text_value'] = `Verbandadvies: ${advice.dressing}. Doel: ${advice.goal}`;
+      }
+
+      // Problem/Diagnosis
+      comp['sensire_wound_care/problem_diagnosis/problem_diagnosis_name|value'] = 'Wondzorg (Algemeen Wondprotocol)';
+      comp['sensire_wound_care/problem_diagnosis/clinical_description'] = `Wondprotocol doorlopen. Afmeting: ${dims.l||'?'}×${dims.b||'?'}×${dims.d||'?'} cm. Weefsel: ${tissue}. Exsudaat: ${moisture}. Infectie: ${infection}. DM: ${state.answers['diabetes-check']||'nee'}.`;
+
+      comp['sensire_wound_care/composer|name'] = 'Sensire Wondzorg Demo';
+      comp['sensire_wound_care/language|code'] = 'nl'; comp['sensire_wound_care/language|terminology'] = 'ISO_639-1';
+      comp['sensire_wound_care/territory|code'] = 'NL'; comp['sensire_wound_care/territory|terminology'] = 'ISO_3166-1';
+      return comp;
+    }
+
+    // ── Save & AQL (identical pattern) ──
+    async function saveComposition() {
+      const btn = document.getElementById('btn-save'); const rd = document.getElementById('save-result');
+      btn.disabled = true; btn.textContent = '⏳ Opslaan...';
+      try {
+        if (!state.ehrId) {
+          const r = await fetch(`${EHRBASE_URL}/openehr/v1/ehr`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)}, body:JSON.stringify({_type:'EHR_STATUS',archetype_node_id:'openEHR-EHR-EHR_STATUS.generic.v1',name:{value:'EHR Status'},subject:{_type:'PARTY_SELF'},is_queryable:true,is_modifiable:true}) });
+          if (r.ok) state.ehrId = (await r.json()).ehr_id?.value;
+          else { const q = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)},body:JSON.stringify({q:'SELECT e/ehr_id/value FROM EHR e LIMIT 1'})}); if(q.ok){const d=await q.json();if(d.rows?.length)state.ehrId=d.rows[0][0];} }
+        }
+        if (!state.ehrId) throw new Error('Kan geen EHR vinden');
+        const c = buildFlatComposition();
+        const r = await fetch(`${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition?format=FLAT&templateId=sensire_wound_care`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)},body:JSON.stringify(c)});
+        if (r.ok||r.status===201) { const d=await r.json().catch(()=>null); state.compositionUid=d?.uid?.value||'opgeslagen';
+          rd.innerHTML=`<div class="alert alert--success"><span class="alert__icon">✅</span><div><strong>Compositie opgeslagen!</strong><br>EHR-ID: <code>${state.ehrId}</code><br>UID: <code>${state.compositionUid}</code></div></div>`; btn.textContent='✅ Opgeslagen';
+        } else throw new Error(`HTTP ${r.status}: ${(await r.text()).substring(0,200)}`);
+      } catch(e) { rd.innerHTML=`<div class="alert alert--danger"><span class="alert__icon">❌</span><div><strong>Fout:</strong> ${e.message}</div></div>`; btn.disabled=false; btn.textContent='💾 Opnieuw'; }
+    }
+
+    async function executeAQL() {
+      const rd = document.getElementById('aql-result'); rd.innerHTML='<p style="color:var(--color-text-secondary);">⏳ Uitvoeren...</p>';
+      try {
+        const r = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)},body:JSON.stringify({q:'SELECT c/uid/value as id, c/name/value as naam, c/context/start_time/value as datum FROM EHR e CONTAINS COMPOSITION c ORDER BY c/context/start_time/value DESC LIMIT 10'})});
+        if(r.ok){const d=await r.json();rd.innerHTML=`<div class="alert alert--success"><span class="alert__icon">✅</span><div><strong>${d.rows?.length||0} compositie(s)</strong></div></div><div class="data-display">${JSON.stringify(d,null,2)}</div>`;}
+        else throw new Error(`HTTP ${r.status}`);
+      } catch(e){rd.innerHTML=`<div class="alert alert--danger"><span class="alert__icon">❌</span><div>${e.message}</div></div>`;}
+    }
+
+    renderTree();
+  </script>
 </body>
 </html>
