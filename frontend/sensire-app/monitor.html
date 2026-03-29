@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Composition Monitor — Sensire openEHR Demo</title>
+  <meta name="description" content="Live monitoring van openEHR composities in EHRbase. Zie in realtime wat er wordt opgeslagen.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="app-header__brand">
+        <div>
+          <div class="app-header__logo">🏥 Sensire Wondzorg</div>
+          <div class="app-header__subtitle">openEHR Demo-omgeving</div>
+        </div>
+      </div>
+      <nav class="app-header__nav">
+        <a href="index.html">Home</a>
+        <a href="template-explorer.html">Template Explorer</a>
+        <a href="ulcus-cruris.html">Ulcus Cruris</a>
+        <a href="diabetische-voet.html">Diabetische Voet</a>
+        <a href="wondprotocol.html">Wondprotocol</a>
+        <a href="monitor.html" class="active">Live Monitor</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="monitor-header">
+      <div>
+        <h1 class="section-header__title">📡 Live Composition Monitor</h1>
+        <p class="section-header__subtitle">Realtime bewijs: wat wordt er daadwerkelijk opgeslagen in de openEHR database?</p>
+      </div>
+      <div class="monitor-status" id="monitor-status">
+        <div class="pulse-dot pulse-dot--inactive" id="pulse-dot"></div>
+        <span id="status-label">Verbinding maken...</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-row" id="stat-row">
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-total">—</div>
+        <div class="stat-card__label">Composities totaal</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-new">—</div>
+        <div class="stat-card__label">Nieuw deze sessie</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-interval">4s</div>
+        <div class="stat-card__label">Polling interval</div>
+      </div>
+    </div>
+
+    <!-- Info banner -->
+    <div class="alert alert--info" style="margin-bottom: var(--space-xl);">
+      <span class="alert__icon">💡</span>
+      <div>
+        <strong>Demo-moment:</strong> Open dit scherm naast een beslisboompagina. Doorloop de beslisboom en klik "Opslaan". Binnen enkele seconden verschijnt de nieuwe compositie hier. Klik erop om te zien <em>precies wat er is opgeslagen</em> — in openEHR-formaat én in het Nederlands.
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl); align-items: start;">
+
+      <!-- Compositielijst -->
+      <div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
+          <h2 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 600;">Recente composities</h2>
+          <button class="btn btn--outline btn--sm" onclick="manualRefresh()" id="btn-refresh">↺ Vernieuwen</button>
+        </div>
+        <div class="composition-list" id="composition-list">
+          <div style="text-align:center; padding: var(--space-2xl); color: var(--color-text-muted);">
+            <div style="font-size: 2rem; margin-bottom: var(--space-md);">⏳</div>
+            <p>Verbinding met EHRbase...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail view -->
+      <div id="detail-area">
+        <div class="monitor-detail" style="display:none;" id="detail-panel">
+          <div class="monitor-detail__header">
+            <div>
+              <div class="monitor-detail__title" id="detail-title">Compositie</div>
+              <div style="font-size: 0.75rem; opacity: 0.85; margin-top: 2px;" id="detail-uid"></div>
+            </div>
+            <button onclick="closeDetail()" style="background:none; border:none; color:white; cursor:pointer; font-size:1.2rem;">✕</button>
+          </div>
+          <div class="monitor-detail__body">
+            <div class="tabs" id="detail-tabs">
+              <button class="tab-btn tab-btn--active" data-tab="translated">🇳🇱 openEHR Data</button>
+              <button class="tab-btn" data-tab="raw">{ } Raw JSON</button>
+            </div>
+            <div class="tab-panel tab-panel--active" id="detail-tab-translated">
+              <div id="detail-translated-content" style="overflow-x:auto;"></div>
+            </div>
+            <div class="tab-panel" id="detail-tab-raw">
+              <div class="data-display" id="detail-raw-content"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="detail-empty" style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); min-height:300px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--color-text-muted); gap:var(--space-md); text-align:center; padding:var(--space-xl);">
+          <div style="font-size:3rem;">👆</div>
+          <p style="font-size:0.9rem;">Klik op een compositie om de inhoud te bekijken</p>
+          <p style="font-size:0.8rem; max-width:280px;">De driekolommen-view toont het openEHR-pad, het Nederlandse label en de opgeslagen waarde</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- AQL Uitleg -->
+    <div class="card" style="margin-top: var(--space-2xl);">
+      <div class="card__header">
+        <h3 class="card__title">🔍 Hoe werkt de monitor?</h3>
+      </div>
+      <div class="card__body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl);">
+          <div>
+            <p style="font-size:0.9rem; color:var(--color-text-secondary); margin-bottom:var(--space-md);">De monitor pollt elke 4 seconden EHRbase met deze AQL-query. Dat is dezelfde querytaal die elk openEHR-systeem begrijpt — ongeacht de leverancier.</p>
+            <div class="data-display">SELECT
+  e/ehr_id/value AS ehr_id,
+  c/uid/value AS composition_id,
+  c/name/value AS formulier,
+  c/context/start_time/value AS tijdstip,
+  c/composer/name AS behandelaar
+FROM EHR e
+CONTAINS COMPOSITION c
+ORDER BY c/context/start_time/value DESC
+LIMIT 10</div>
+          </div>
+          <div>
+            <p style="font-size:0.9rem; color:var(--color-text-secondary); margin-bottom:var(--space-md);">Bij een klik op een compositie haalt de monitor de volledige data op via:</p>
+            <div class="data-display">GET /ehrbase/rest/openehr/v1/ehr/
+  {ehr_id}/composition/
+  {uid}?format=FLAT
+
+→ Retourneert FLAT JSON
+→ Monitor vertaalt via WebTemplate
+→ Toont: pad | NL label | waarde</div>
+            <p style="font-size:0.85rem; color:var(--color-text-secondary); margin-top:var(--space-md);">
+              <strong>Kernboodschap:</strong> "Dit is dezelfde data, bevraagd via een internationale querytaal. Geen API van een leverancier — pure openEHR."
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/webtemplate-lookup.js"></script>
+  <script>
+    const EHRBASE_URL = 'http://localhost:8080/ehrbase/rest';
+    const EHRBASE_USER = 'ehrbase-user';
+    const EHRBASE_PASS = 'SuperSecretPassword';
+    const POLL_INTERVAL = 4000;
+    const TEMPLATE_ID = 'sensire_wound_care';
+
+    let knownUids = new Set();
+    let newThisSession = 0;
+    let pollTimer = null;
+    let isPolling = false;
+    let webTemplateLookup = null;
+    let selectedComposition = null;
+
+    function authHeader() {
+      return 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`);
+    }
+
+    async function init() {
+      // Laad WebTemplate lookup
+      try {
+        const wt = await loadWebTemplate('/webtemplates/sensire_wound_care_webtemplate.json');
+        webTemplateLookup = wt;
+      } catch (e) {
+        console.warn('WebTemplate niet geladen:', e.message);
+      }
+
+      // Start polling
+      await poll();
+      pollTimer = setInterval(poll, POLL_INTERVAL);
+    }
+
+    async function poll() {
+      if (isPolling) return;
+      isPolling = true;
+
+      try {
+        const resp = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authHeader()
+          },
+          body: JSON.stringify({
+            q: `SELECT e/ehr_id/value AS ehr_id, c/uid/value AS composition_id, c/name/value AS formulier, c/context/start_time/value AS tijdstip, c/composer/name AS behandelaar FROM EHR e CONTAINS COMPOSITION c ORDER BY c/context/start_time/value DESC LIMIT 10`
+          })
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          setStatus(true);
+          renderCompositions(data.rows || []);
+          document.getElementById('stat-total').textContent = data.rows?.length || 0;
+        } else {
+          setStatus(false, `HTTP ${resp.status}`);
+        }
+      } catch (e) {
+        setStatus(false, 'EHRbase niet bereikbaar');
+      } finally {
+        isPolling = false;
+      }
+    }
+
+    function setStatus(ok, msg) {
+      const dot = document.getElementById('pulse-dot');
+      const label = document.getElementById('status-label');
+      if (ok) {
+        dot.classList.remove('pulse-dot--inactive');
+        label.textContent = 'Verbonden — pollt elke 4s';
+        label.style.color = 'var(--color-success)';
+      } else {
+        dot.classList.add('pulse-dot--inactive');
+        label.textContent = msg || 'Niet verbonden';
+        label.style.color = 'var(--color-danger)';
+      }
+    }
+
+    function renderCompositions(rows) {
+      const list = document.getElementById('composition-list');
+      if (rows.length === 0) {
+        list.innerHTML = `
+          <div style="text-align:center; padding:var(--space-2xl); color:var(--color-text-muted);">
+            <div style="font-size:2rem; margin-bottom:var(--space-md);">📭</div>
+            <p>Geen composities gevonden.</p>
+            <p style="font-size:0.8rem; margin-top:var(--space-sm);">Doorloop een beslisboom en sla op om de eerste compositie te zien.</p>
+          </div>`;
+        return;
+      }
+
+      const newUids = new Set(rows.map(r => r[1]));
+
+      list.innerHTML = rows.map(row => {
+        const [ehrId, uid, name, tijdstip, behandelaar] = row;
+        const isNew = !knownUids.has(uid);
+        if (isNew) newThisSession++;
+
+        const dt = tijdstip ? new Date(tijdstip) : null;
+        const timeStr = dt ? dt.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '—';
+        const dateStr = dt ? dt.toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' }) : '';
+
+        const protocolIcon = getProtocolIcon(name);
+        const isSelected = selectedComposition?.uid === uid;
+
+        return `
+          <div class="composition-item ${isNew && knownUids.size > 0 ? 'composition-item--new' : ''} ${isSelected ? 'composition-item--selected' : ''}"
+               onclick="loadDetail('${ehrId}', '${uid}', '${escapeJs(name)}', '${timeStr} ${dateStr}')"
+               id="comp-${uid.replace(/[^a-zA-Z0-9]/g, '_')}">
+            <div class="composition-item__icon">${protocolIcon}</div>
+            <div class="composition-item__meta">
+              <div class="composition-item__title">${escapeHtmlVal(name || TEMPLATE_ID)}</div>
+              <div class="composition-item__uid">${uid}</div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+              <div class="composition-item__time">${timeStr}</div>
+              <div style="font-size:0.7rem; color:var(--color-text-muted);">${dateStr}</div>
+              ${isNew && knownUids.size > 0 ? '<div class="composition-item__badge">nieuw</div>' : ''}
+            </div>
+          </div>`;
+      }).join('');
+
+      knownUids = newUids;
+      document.getElementById('stat-new').textContent = newThisSession;
+    }
+
+    function getProtocolIcon(name) {
+      if (!name) return '📄';
+      const n = name.toLowerCase();
+      if (n.includes('ulcus') || n.includes('wound_care') || n.includes('wondzorg')) return '🩹';
+      if (n.includes('diabet') || n.includes('voet')) return '🦶';
+      if (n.includes('wond')) return '🏥';
+      return '📋';
+    }
+
+    async function loadDetail(ehrId, uid, name, timeStr) {
+      selectedComposition = { ehrId, uid };
+
+      document.getElementById('detail-empty').style.display = 'none';
+      const panel = document.getElementById('detail-panel');
+      panel.style.display = 'block';
+      document.getElementById('detail-title').textContent = name || 'Compositie';
+      document.getElementById('detail-uid').textContent = uid;
+      document.getElementById('detail-translated-content').innerHTML = '<p style="color:var(--color-text-secondary); padding:1rem;">⏳ Data ophalen...</p>';
+      document.getElementById('detail-raw-content').textContent = '...';
+
+      // Tab switching
+      document.querySelectorAll('#detail-tabs .tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#detail-tabs .tab-btn').forEach(b => b.classList.remove('tab-btn--active'));
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('tab-panel--active'));
+          btn.classList.add('tab-btn--active');
+          document.getElementById(`detail-tab-${btn.dataset.tab}`).classList.add('tab-panel--active');
+        });
+      });
+
+      try {
+        const resp = await fetch(
+          `${EHRBASE_URL}/openehr/v1/ehr/${ehrId}/composition/${uid}?format=FLAT`,
+          { headers: { 'Authorization': authHeader(), 'Accept': 'application/json' } }
+        );
+
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const flatJson = await resp.json();
+
+        // Raw tab
+        document.getElementById('detail-raw-content').textContent = JSON.stringify(flatJson, null, 2);
+
+        // Translated tab
+        if (webTemplateLookup) {
+          const html = renderFlatAsThreeColumns(flatJson, webTemplateLookup.lookup, TEMPLATE_ID);
+          document.getElementById('detail-translated-content').innerHTML = html;
+        } else {
+          document.getElementById('detail-translated-content').innerHTML =
+            '<div class="data-display">' + JSON.stringify(flatJson, null, 2) + '</div>';
+        }
+
+      } catch (e) {
+        document.getElementById('detail-translated-content').innerHTML =
+          `<div class="alert alert--danger"><span class="alert__icon">❌</span><div>${e.message}</div></div>`;
+      }
+    }
+
+    function closeDetail() {
+      selectedComposition = null;
+      document.getElementById('detail-panel').style.display = 'none';
+      document.getElementById('detail-empty').style.display = 'flex';
+    }
+
+    async function manualRefresh() {
+      const btn = document.getElementById('btn-refresh');
+      btn.disabled = true;
+      await poll();
+      btn.disabled = false;
+    }
+
+    function escapeJs(str) {
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    function escapeHtmlVal(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    init();
+  </script>
+</body>
+</html>

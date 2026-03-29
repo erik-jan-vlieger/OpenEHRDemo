@@ -18,9 +18,11 @@
       </div>
       <nav class="app-header__nav">
         <a href="index.html">Home</a>
+        <a href="template-explorer.html">Template Explorer</a>
         <a href="ulcus-cruris.html" class="active">Ulcus Cruris</a>
         <a href="diabetische-voet.html">Diabetische Voet</a>
         <a href="wondprotocol.html">Wondprotocol</a>
+        <a href="monitor.html">Live Monitor</a>
       </nav>
     </div>
   </header>
@@ -69,6 +71,7 @@
     </div>
   </main>
 
+  <script src="js/webtemplate-lookup.js"></script>
   <script>
     // ============================================================
     // Ulcus Cruris Decision Tree Engine
@@ -76,6 +79,13 @@
     const EHRBASE_URL = 'http://localhost:8080/ehrbase/rest';
     const EHRBASE_USER = 'ehrbase-user';
     const EHRBASE_PASS = 'SuperSecretPassword';
+    const TEMPLATE_ID = 'sensire_wound_care';
+
+    // WebTemplate lookup (geladen bij startup)
+    let wtLookup = null;
+    loadWebTemplate('/webtemplates/sensire_wound_care_webtemplate.json')
+      .then(wt => { wtLookup = wt; })
+      .catch(e => console.warn('WebTemplate niet geladen:', e.message));
 
     // Client data
     const client = {
@@ -432,14 +442,16 @@
 
       adviceTab.innerHTML = adviceHTML;
 
-      // ── Data Tab ──
+      // ── Data Tab ── (driekolommen-view via WebTemplate)
       const composition = buildFlatComposition();
-      document.getElementById('tab-data').innerHTML = `
-        <div class="alert alert--info">
+      const dataTabEl = document.getElementById('tab-data');
+      dataTabEl.innerHTML = `
+        <div class="alert alert--info" style="margin-bottom:var(--space-lg);">
           <span class="alert__icon">📋</span>
-          <div>Deze data wordt opgeslagen als openEHR FLAT JSON compositie in EHRbase. Het template is <strong>sensire_wound_care</strong>.</div>
+          <div>Onderstaande data wordt opgeslagen als openEHR FLAT JSON compositie in EHRbase. Template: <strong>sensire_wound_care</strong>.<br>
+          <span style="font-size:0.85rem;">Na opslaan verschijnt hier de bevestigde compositie met vertaalde labels uit het WebTemplate.</span></div>
         </div>
-        <div class="data-display">${JSON.stringify(composition, null, 2)}</div>
+        <div id="data-threecol">${wtLookup ? renderFlatAsThreeColumns(composition, wtLookup.lookup, TEMPLATE_ID) : '<div class="data-display">' + JSON.stringify(composition, null, 2) + '</div>'}</div>
       `;
 
       // ── AQL Tab ──
@@ -624,12 +636,28 @@ LIMIT 10</div>
           const compData = compResp.status !== 204 ? await compResp.json().catch(() => null) : null;
           state.compositionUid = compData?.uid?.value || locationHeader || 'opgeslagen';
 
+          // Haal de opgeslagen compositie op voor de driekolommen-view
+          let savedFlatJson = composition;
+          try {
+            const getResp = await fetch(
+              `${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition/${state.compositionUid}?format=FLAT`,
+              { headers: { 'Accept': 'application/json', 'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`) } }
+            );
+            if (getResp.ok) savedFlatJson = await getResp.json();
+          } catch(e) { /* gebruik lokale compositie als fallback */ }
+
+          // Update de data-tab met de daadwerkelijk opgeslagen data
+          if (document.getElementById('data-threecol') && wtLookup) {
+            document.getElementById('data-threecol').innerHTML = renderFlatAsThreeColumns(savedFlatJson, wtLookup.lookup, TEMPLATE_ID);
+          }
+
           resultDiv.innerHTML = `<div class="alert alert--success">
             <span class="alert__icon">✅</span>
             <div>
               <strong>Compositie opgeslagen!</strong><br>
               EHR-ID: <code>${state.ehrId}</code><br>
-              Compositie UID: <code>${state.compositionUid}</code>
+              Compositie UID: <code>${state.compositionUid}</code><br>
+              <span style="font-size:0.85rem; margin-top:4px; display:block;">Zie het tabblad 📋 openEHR Data voor de vertaalde weergave. Open de <a href="monitor.html" target="_blank">Live Monitor</a> om dit live te zien.</span>
             </div>
           </div>`;
 

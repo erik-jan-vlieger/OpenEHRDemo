@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Template Explorer — Sensire openEHR Demo</title>
+  <meta name="description" content="Visualisatie van het Sensire wondzorg template: internationale CKM archetypes versus eigen Sensire archetypes.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="app-header__brand">
+        <div>
+          <div class="app-header__logo">🏥 Sensire Wondzorg</div>
+          <div class="app-header__subtitle">openEHR Demo-omgeving</div>
+        </div>
+      </div>
+      <nav class="app-header__nav">
+        <a href="index.html">Home</a>
+        <a href="template-explorer.html" class="active">Template Explorer</a>
+        <a href="ulcus-cruris.html">Ulcus Cruris</a>
+        <a href="diabetische-voet.html">Diabetische Voet</a>
+        <a href="wondprotocol.html">Wondprotocol</a>
+        <a href="monitor.html">Live Monitor</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="section-header">
+      <h1 class="section-header__title">🔬 Template Explorer</h1>
+      <p class="section-header__subtitle">De kennislaag van de demo: welke archetypes bevat het Sensire template, welke zijn internationaal en welke zijn van ons?</p>
+    </div>
+
+    <!-- Legenda -->
+    <div class="legend-row">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#3b82f6;"></div>
+        <span>Internationaal CKM archetype — hergebruikt van de internationale community</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#22c55e;"></div>
+        <span>Sensire eigen archetype — onze bijdrage aan de internationale community</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#e2e8f0;"></div>
+        <span>Dataveld binnen een archetype</span>
+      </div>
+    </div>
+
+    <!-- Stat row -->
+    <div class="stat-row" id="stat-row" style="display:none;">
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-international">—</div>
+        <div class="stat-card__label">Internationale archetypes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-sensire">—</div>
+        <div class="stat-card__label">Sensire eigen archetypes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-fields">—</div>
+        <div class="stat-card__label">Totaal datavelden</div>
+      </div>
+    </div>
+
+    <!-- Kernconcept -->
+    <div class="alert alert--info" style="margin-bottom: var(--space-xl);">
+      <span class="alert__icon">💡</span>
+      <div>
+        <strong>Het template-mechanisme:</strong> Een archetype beschrijft <em>alles wat mogelijk is</em> voor een klinisch concept. Een template <em>selecteert</em> wat Sensire daadwerkelijk nodig heeft. Je gooit niets weg — je beperkt het voor jouw use-case. De originele semantiek blijft internationaal geldig.
+      </div>
+    </div>
+
+    <!-- Explorer layout -->
+    <div class="explorer-layout">
+      <!-- Boom (links) -->
+      <div class="tree-panel" id="tree-panel">
+        <div class="tree-panel__header">
+          🌲 Template Structuur
+        </div>
+        <div id="tree-container">
+          <div style="padding:var(--space-xl); text-align:center; color:var(--color-text-muted);">
+            ⏳ Template laden...
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail (rechts) -->
+      <div>
+        <div class="detail-panel" id="detail-panel">
+          <div class="detail-panel__empty" id="detail-empty">
+            <div style="font-size:3rem;">🔎</div>
+            <p style="font-weight:600;">Selecteer een archetype</p>
+            <p style="font-size:0.85rem; max-width:280px; text-align:center;">Klik op een archetype in de boom aan de linkerkant om de details te bekijken</p>
+          </div>
+          <div id="detail-content" style="display:none; padding:var(--space-xl);"></div>
+        </div>
+
+        <!-- Achtergrond info -->
+        <div class="card" style="margin-top:var(--space-xl);">
+          <div class="card__header">
+            <h3 class="card__title">📖 Wat is een archetype?</h3>
+          </div>
+          <div class="card__body" style="font-size:0.9rem; line-height:1.7; color:var(--color-text-secondary);">
+            <p style="margin-bottom:var(--space-md);">Een <strong style="color:var(--color-text);">archetype</strong> is een maximaal gedefinieerd, herbruikbaar datamodel voor één klinisch concept — geschreven in de Archetype Definition Language (ADL). Het bevat <em>elke denkbare parameter</em> die wereldwijd relevant zou kunnen zijn.</p>
+            <p style="margin-bottom:var(--space-md);">Een <strong style="color:var(--color-text);">template</strong> is een lokale samenstelling van meerdere archetypes. Het bepaalt welke velden Sensire daadwerkelijk gebruikt, welke verplicht zijn, en welke waardenlijsten zijn toegestaan.</p>
+            <p>De <strong style="color:var(--color-text);">Operational Template (OPT)</strong> is de gecompileerde versie — het contract waartegen EHRbase elke binnenkomende compositie valideert. Dit garandeert datakwaliteit.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/webtemplate-lookup.js"></script>
+  <script>
+    const CKM_BASE = 'https://ckm.openehr.org/ckm/archetypes/';
+
+    // Volledige info per archetype voor de detail-view
+    const ARCHETYPE_INFO = {
+      'openEHR-EHR-COMPOSITION.encounter.v1': {
+        type: 'international',
+        titel: 'Encounter (Contactmoment)',
+        beschrijving: 'De root-compositie voor een zorgcontact. Elke openEHR compositie heeft één root COMPOSITION archetype dat het type contact beschrijft: poliklinisch bezoek, thuisbezoek, telefonisch contact, etc.',
+        gebruik: 'Bevat alle andere archetypes als "content". Verplicht aanwezig in elke compositie.',
+        ckmLink: 'https://ckm.openehr.org/ckm/archetypes/1013.1.240',
+        velden_origineel: 8,
+        velden_sensire: 3
+      },
+      'openEHR-EHR-OBSERVATION.diabetic_wound_wagner.v0': {
+        type: 'international',
+        titel: 'Diabetische Wondclassificatie (Wagner)',
+        beschrijving: 'Het Wagner-systeem is de internationaal erkende classificatie voor diabetische voetulcera (graad 0-V). Dit archetype standaardiseert de registratie van de Wagner-score.',
+        gebruik: 'Gebruikt in het Diabetische Voet protocol voor classificatie van wonden bij DM-patiënten.',
+        ckmLink: 'https://ckm.openehr.org/ckm/search',
+        velden_origineel: 6,
+        velden_sensire: 3
+      },
+      'openEHR-EHR-EVALUATION.health_risk.v1': {
+        type: 'international',
+        titel: 'Gezondheidsrisicobeoordeling',
+        beschrijving: 'Beoordeling van het potentieel en de waarschijnlijkheid van toekomstige negatieve gezondheidseffecten op basis van geïdentificeerde risicofactoren.',
+        gebruik: 'Sensire gebruikt dit voor EAI-beoordeling, Stemmer-testresultaat, stagnatiebeoordeling, en Charcot-vermoeden.',
+        ckmLink: 'https://ckm.openehr.org/ckm/archetypes/1013.1.169',
+        velden_origineel: 18,
+        velden_sensire: 5
+      },
+      'openEHR-EHR-EVALUATION.problem_diagnosis.v1': {
+        type: 'international',
+        titel: 'Probleem/Diagnose',
+        beschrijving: 'Registratie van een enkel geïdentificeerd gezondheidsprobleem of diagnose. Één van de meest gebruikte archetypes in de internationale CKM — direct mappeerbaar op SNOMED, ICD-10 en ZIB Probleem.',
+        gebruik: 'Gebruikt voor diagnose registratie (Ulcus Cruris, DM-status, oncologische wond).',
+        ckmLink: 'https://ckm.openehr.org/ckm/archetypes/1013.1.166',
+        velden_origineel: 22,
+        velden_sensire: 3
+      },
+      'openEHR-EHR-OBSERVATION.ankle_brachial_index.v0': {
+        type: 'sensire',
+        titel: 'Enkel-Arm Index (EAI)',
+        beschrijving: 'Meting van de enkel-arm index — de ratio van de bloeddruk in de enkelarterie versus de armarterie. Essentieel voor het bepalen van perifeer arterieel vaatlijden en het kiezen van het juiste compressiebeleid.',
+        gebruik: 'Kernmeting in het Ulcus Cruris protocol. EAI < 0.6 = geen compressie. 0.6-0.8 = lichte compressie. 0.8-1.3 = standaard compressie.',
+        bijdrage: 'Dit archetype bestaat nog niet in de internationale CKM. Sensire kan dit als "contribution" indienen bij de openEHR Foundation.',
+        velden_origineel: null,
+        velden_sensire: 4
+      },
+      'openEHR-EHR-CLUSTER.stemmer_sign.v0': {
+        type: 'sensire',
+        titel: 'Teken van Stemmer',
+        beschrijving: 'De Stemmer-test differentieert lymfoedeem van veneus oedeem door te proberen een huidplooi op te pakken op de dorsale zijde van de tweede teen. Positief = huidplooi niet oppakbaar = lymfoedeem.',
+        gebruik: 'Gebruikt in het Ulcus Cruris protocol na vaststelling van oedeem.',
+        bijdrage: 'Nieuw archetype — bestaat niet in internationale CKM. Kan als internationale bijdrage worden ingediend.',
+        velden_origineel: null,
+        velden_sensire: 2
+      },
+      'openEHR-EHR-CLUSTER.wound_stagnation_assessment.v0': {
+        type: 'sensire',
+        titel: 'Wondstagnatiebeoordeling',
+        beschrijving: 'Beoordeling of een wond stagneert: meer dan 2-3 weken zonder aantoonbare verbetering. Dit is het klinische criterium voor escalatie naar de Vakgroep Wond bij Sensire.',
+        gebruik: 'Gebruikt in alle drie protocollen als triage-eerste-stap voor bestaande cliënten.',
+        bijdrage: 'Nieuw archetype gebaseerd op het Sensire wondzorgprotocol.',
+        velden_origineel: null,
+        velden_sensire: 3
+      },
+      'openEHR-EHR-CLUSTER.wcs_wound_classification.v0': {
+        type: 'sensire',
+        titel: 'WCS Wondkleurenclassificatie',
+        beschrijving: 'Het Wondconsulent Nederland (WCS) kleurensysteem: Rood (granulatie), Geel (fibrine/infectie), Zwart (necrose). Internationaal erkend systeem dat nog niet als formeel openEHR archetype bestaat.',
+        gebruik: 'Kernonderdeel van de TIME-analyse in het Algemeen Wondprotocol. Bepaalt de verbandkeuze.',
+        bijdrage: 'Dit archetype formaliseert het WCS-kleurensysteem als internationaal herbruikbaar openEHR archetype — een unieke bijdrage van Sensire.',
+        velden_origineel: null,
+        velden_sensire: 3
+      },
+      'openEHR-EHR-CLUSTER.altis_pain_score.v0': {
+        type: 'sensire',
+        titel: 'ALTIS Pijnscore',
+        beschrijving: 'De ALTIS (Acute en Langdurige Thuiszorg Instrumento voor Sores) pijnscore is een gevalideerd Nederlands pijnmeetinstrument specifiek voor thuiszorgcontext.',
+        gebruik: 'Gebruikt in het Algemeen Wondprotocol voor pijnmanagement. Bepaalt of lokale of systemische pijnstilling nodig is.',
+        bijdrage: 'Nederlandse innovatie — bestaat niet als internationaal openEHR archetype. Unieke bijdrage aan de internationale community.',
+        velden_origineel: null,
+        velden_sensire: 3
+      }
+    };
+
+    // Top-level archetypes om te tonen in de boom
+    const TOP_LEVEL_ARCHETYPES = [
+      { id: 'openEHR-EHR-COMPOSITION.encounter.v1', name: 'Encounter', icon: '📋' },
+      { id: 'openEHR-EHR-OBSERVATION.diabetic_wound_wagner.v0', name: 'Wagner Classificatie', icon: '🦶' },
+      { id: 'openEHR-EHR-EVALUATION.health_risk.v1', name: 'Gezondheidsrisico', icon: '⚠️' },
+      { id: 'openEHR-EHR-EVALUATION.problem_diagnosis.v1', name: 'Probleem/Diagnose', icon: '🏷️' },
+      { id: 'openEHR-EHR-OBSERVATION.ankle_brachial_index.v0', name: 'Enkel-Arm Index (EAI)', icon: '📊' },
+      { id: 'openEHR-EHR-CLUSTER.stemmer_sign.v0', name: 'Teken van Stemmer', icon: '🖐️' },
+      { id: 'openEHR-EHR-CLUSTER.wound_stagnation_assessment.v0', name: 'Wondstagnatie', icon: '⏱️' },
+      { id: 'openEHR-EHR-CLUSTER.wcs_wound_classification.v0', name: 'WCS Wondkleur', icon: '🎨' },
+      { id: 'openEHR-EHR-CLUSTER.altis_pain_score.v0', name: 'ALTIS Pijnscore', icon: '💊' },
+    ];
+
+    let selectedArchetypeId = null;
+    let webTemplateData = null;
+
+    async function init() {
+      try {
+        webTemplateData = await loadWebTemplate('/webtemplates/sensire_wound_care_webtemplate.json');
+      } catch (e) {
+        console.warn('WebTemplate niet geladen:', e);
+      }
+
+      renderTree();
+      updateStats();
+    }
+
+    function updateStats() {
+      const international = TOP_LEVEL_ARCHETYPES.filter(a => classifyArchetype(a.id) === 'international').length;
+      const sensire = TOP_LEVEL_ARCHETYPES.filter(a => classifyArchetype(a.id) === 'sensire').length;
+
+      document.getElementById('stat-international').textContent = international;
+      document.getElementById('stat-sensire').textContent = sensire;
+
+      // Tel velden uit WebTemplate
+      const totalFields = webTemplateData
+        ? Object.keys(webTemplateData.lookup).filter(k => !k.includes('/language') && !k.includes('/encoding') && !k.includes('/subject') && !k.includes('/composer')).length
+        : '—';
+      document.getElementById('stat-fields').textContent = totalFields;
+      document.getElementById('stat-row').style.display = 'flex';
+    }
+
+    function renderTree() {
+      const container = document.getElementById('tree-container');
+
+      container.innerHTML = TOP_LEVEL_ARCHETYPES.map(arch => {
+        const type = classifyArchetype(arch.id);
+        const badgeClass = type === 'sensire' ? 'tree-node__badge--sensire' : 'tree-node__badge--international';
+        const info = ARCHETYPE_INFO[arch.id];
+        const fieldCount = info ? `${info.velden_sensire} veld${info.velden_sensire !== 1 ? 'en' : ''}` : '';
+
+        // Sub-items (velden) op basis van WebTemplate
+        const subItems = getFieldsForArchetype(arch.id);
+
+        return `
+          <div class="tree-node">
+            <div class="tree-node__row" id="row-${sanitize(arch.id)}"
+                 onclick="selectArchetype('${arch.id}', '${arch.name}')">
+              <div class="tree-node__toggle">${subItems.length > 0 ? '▶' : ' '}</div>
+              <div class="tree-node__badge ${badgeClass}"></div>
+              <div class="tree-node__name">
+                ${arch.icon} ${arch.name}
+                <span style="font-size:0.7rem; color:var(--color-text-muted); margin-left:4px;">${fieldCount}</span>
+              </div>
+            </div>
+            ${subItems.length > 0 ? `
+              <div class="tree-node__children tree-node__children--hidden" id="children-${sanitize(arch.id)}">
+                ${subItems.map(f => `
+                  <div class="tree-node">
+                    <div class="tree-node__row" style="padding-left:var(--space-lg);">
+                      <div class="tree-node__toggle"></div>
+                      <div class="tree-node__badge tree-node__badge--field"></div>
+                      <div class="tree-node__name" style="color:var(--color-text-secondary);">
+                        ${f.en}
+                        ${f.nl !== f.en ? `<span style="color:var(--color-primary); margin-left:4px;">→ ${f.nl}</span>` : ''}
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    function getFieldsForArchetype(archetypeId) {
+      if (!webTemplateData) return [];
+      const key = archetypeId.toLowerCase();
+      return Object.values(webTemplateData.lookup)
+        .filter(v => v.archetypeId && v.archetypeId.toLowerCase() === key && v.rmType && !['EVALUATION','OBSERVATION','CLUSTER','COMPOSITION'].includes(v.rmType))
+        .slice(0, 8)
+        .map(v => ({ en: v.en, nl: v.nl }));
+    }
+
+    function selectArchetype(archetypeId, name) {
+      // Deselect vorige
+      if (selectedArchetypeId) {
+        const prev = document.getElementById(`row-${sanitize(selectedArchetypeId)}`);
+        if (prev) prev.classList.remove('tree-node__row--selected');
+        const prevChildren = document.getElementById(`children-${sanitize(selectedArchetypeId)}`);
+        if (prevChildren) prevChildren.classList.add('tree-node__children--hidden');
+      }
+
+      // Selecteer nieuwe
+      selectedArchetypeId = archetypeId;
+      const row = document.getElementById(`row-${sanitize(archetypeId)}`);
+      if (row) {
+        row.classList.add('tree-node__row--selected');
+        // Toggle children
+        const toggle = row.querySelector('.tree-node__toggle');
+        const children = document.getElementById(`children-${sanitize(archetypeId)}`);
+        if (children) {
+          children.classList.toggle('tree-node__children--hidden');
+          if (toggle) toggle.textContent = children.classList.contains('tree-node__children--hidden') ? '▶' : '▼';
+        }
+      }
+
+      renderDetail(archetypeId);
+    }
+
+    function renderDetail(archetypeId) {
+      document.getElementById('detail-empty').style.display = 'none';
+      const content = document.getElementById('detail-content');
+      content.style.display = 'block';
+
+      const info = ARCHETYPE_INFO[archetypeId];
+      const arch = TOP_LEVEL_ARCHETYPES.find(a => a.id === archetypeId);
+      if (!info || !arch) {
+        content.innerHTML = '<p>Geen details beschikbaar.</p>';
+        return;
+      }
+
+      const type = classifyArchetype(archetypeId);
+      const badgeClass = type === 'sensire' ? 'archetype-badge--sensire' : 'archetype-badge--international';
+      const badgeLabel = type === 'sensire' ? '🟢 Sensire eigen' : '🔵 Internationaal CKM';
+
+      const diffHtml = info.velden_origineel
+        ? `<div class="alert alert--info" style="margin-top:var(--space-lg);">
+            <span class="alert__icon">📐</span>
+            <div>
+              <strong>Template diff:</strong> Het CKM origineel bevat <strong>${info.velden_origineel}</strong> velden. 
+              Sensire gebruikt er <strong>${info.velden_sensire}</strong> in dit template.
+              Het origineel blijft intact — we beperken alleen wat we nodig hebben.
+            </div>
+          </div>`
+        : `<div class="alert alert--success" style="margin-top:var(--space-lg);">
+            <span class="alert__icon">✨</span>
+            <div>
+              <strong>Nieuw archetype:</strong> Dit archetype bestaat nog niet in de internationale CKM. 
+              Sensire heeft het gemodelleerd met <strong>${info.velden_sensire}</strong> velden.
+            </div>
+          </div>`;
+
+      const bijdrageHtml = info.bijdrage
+        ? `<div class="card" style="margin-top:var(--space-lg); border-color:#22c55e;">
+            <div class="card__header" style="background:#f0fdf4;">
+              <h4 class="card__title" style="color:#15803d;">💡 Bijdrage aan de internationale community</h4>
+            </div>
+            <div class="card__body" style="font-size:0.9rem; color:var(--color-text-secondary);">
+              ${info.bijdrage}
+            </div>
+          </div>`
+        : '';
+
+      const ckmLink = info.ckmLink
+        ? `<a href="${info.ckmLink}" target="_blank" class="btn btn--outline btn--sm" style="margin-top:var(--space-md);">
+            🌐 Bekijk op CKM →
+          </a>`
+        : '';
+
+      const fields = getFieldsForArchetype(archetypeId);
+      const fieldsHtml = fields.length > 0
+        ? `<div style="margin-top:var(--space-lg);">
+            <h4 style="font-family:var(--font-heading); font-size:0.9rem; font-weight:600; margin-bottom:var(--space-md);">Datavelden in dit template:</h4>
+            <table class="three-col-table">
+              <thead><tr><th>Engels (primair)</th><th>Nederlands (lokalisatie)</th></tr></thead>
+              <tbody>
+                ${fields.map(f => `
+                  <tr>
+                    <td class="three-col-table__label">${f.en}</td>
+                    <td class="three-col-table__value">${f.nl !== f.en ? f.nl : '<span style="color:var(--color-text-muted)">—</span>'}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>`
+        : '';
+
+      content.innerHTML = `
+        <div style="margin-bottom:var(--space-md);">
+          <span class="archetype-badge ${badgeClass}">${badgeLabel}</span>
+        </div>
+
+        <h2 style="font-family:var(--font-heading); font-size:1.3rem; font-weight:700; margin-bottom:var(--space-sm);">
+          ${arch.icon} ${info.titel}
+        </h2>
+
+        <div style="font-family:monospace; font-size:0.75rem; color:var(--color-text-muted); margin-bottom:var(--space-lg); word-break:break-all;">
+          ${archetypeId}
+        </div>
+
+        <p style="font-size:0.9rem; line-height:1.7; color:var(--color-text-secondary); margin-bottom:var(--space-md);">
+          ${info.beschrijving}
+        </p>
+
+        <div class="info-panel" style="margin-bottom:var(--space-md);">
+          <strong>Gebruik in dit template:</strong> ${info.gebruik}
+        </div>
+
+        ${diffHtml}
+        ${fieldsHtml}
+        ${bijdrageHtml}
+        ${ckmLink}
+      `;
+    }
+
+    function sanitize(str) {
+      return str.replace(/[^a-zA-Z0-9]/g, '_');
+    }
+
+    init();
+  </script>
+</body>
+</html>
