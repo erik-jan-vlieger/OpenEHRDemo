@@ -606,7 +606,7 @@
       try {
         if (!state.ehrId) {
           const r = await fetch(`${EHRBASE_URL}/openehr/v1/ehr`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)}, body:JSON.stringify({_type:'EHR_STATUS',archetype_node_id:'openEHR-EHR-EHR_STATUS.generic.v1',name:{value:'EHR Status'},subject:{_type:'PARTY_SELF'},is_queryable:true,is_modifiable:true}) });
-          if (r.ok) state.ehrId = (await r.json()).ehr_id?.value;
+          if (r.ok) { const loc=r.headers.get('Location')||''; const etag=(r.headers.get('ETag')||'').replace(/"/g,''); state.ehrId=loc.split('/').filter(Boolean).pop()||etag||(await r.json().catch(()=>({}))).ehr_id?.value; }
           else { const q = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)},body:JSON.stringify({q:'SELECT e/ehr_id/value FROM EHR e LIMIT 1'})}); if(q.ok){const d=await q.json();if(d.rows?.length)state.ehrId=d.rows[0][0];} }
         }
         if (!state.ehrId) throw new Error('Kan geen EHR vinden');

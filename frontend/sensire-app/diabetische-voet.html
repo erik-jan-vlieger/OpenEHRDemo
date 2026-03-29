@@ -613,7 +613,9 @@ LIMIT 10</div>
             })
           });
           if (ehrResp.ok) {
-            state.ehrId = (await ehrResp.json()).ehr_id?.value;
+            const loc = ehrResp.headers.get('Location') || '';
+            const etag = (ehrResp.headers.get('ETag') || '').replace(/"/g, '');
+            state.ehrId = loc.split('/').filter(Boolean).pop() || etag || (await ehrResp.json().catch(() => ({}))).ehr_id?.value;
           } else {
             const qResp = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`, {
               method: 'POST',

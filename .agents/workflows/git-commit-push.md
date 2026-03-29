@@ -5,34 +5,49 @@ description: How to commit and push to Git/GitHub efficiently
 
 ## Git Commit & Push Workflow
 
-**CRITICAL**: Git commands (add, commit, push) for repos under ~50MB finish in seconds. NEVER send them to background.
+**CRITICAL**: Git commands finish fast locally. Push can take longer over network. Either way: fire and move on.
 
 ### Rules
 
-1. **Always use `WaitMsBeforeAsync: 10000`** (the maximum) for ALL git commands: `git add`, `git commit`, `git push`, `git status`, `git log`.
-2. **Never poll** with `command_status` for git commands — they should complete synchronously.
-3. **Combine commands** in a single shell line to minimize round-trips:
+1. **Combine in één regel** — nooit losse add/commit/push calls:
    ```bash
    git add -A && git commit -m "message" && git push
    ```
-4. **Always set `SafeToAutoRun: false`** for commits and pushes (they mutate state).
-5. **Remove lock files first** if a previous git command was terminated mid-execution:
+2. **`WaitMsBeforeAsync: 8000`** — wacht 8 seconden. Als het klaar is: goed. Als het naar background gaat: ook goed, ga gewoon door.
+3. **NOOIT `command_status` aanroepen op git-commando's.** Ze zijn of snel klaar, of ze draaien op de achtergrond en komen goed. Pollen is zinloos en irritant voor de gebruiker.
+4. **Verifieer succes via `git log --oneline -1`** in een nieuwe korte run_command als je wil bevestigen dat de commit er is — dat is altijd snel.
+5. **`SafeToAutoRun: false`** voor commits en pushes (ze muteren state).
+6. **Lock file cleanup als nodig**:
    ```bash
    rm -f .git/index.lock && git add -A && git commit -m "message" && git push
    ```
 
-### Example
+### Aanpak na de run_command
+
+- Als de output `main -> main` of een commit hash toont: ✅ klaar, vertel de gebruiker en ga verder.
+- Als het naar background gaat: ✅ ook klaar, ga gewoon verder zonder te wachten of pollen.
+- Optioneel: doe ONE snelle `git log --oneline -1` (WaitMsBeforeAsync: 3000, SafeToAutoRun: true) als bevestiging.
+
+### Voorbeeld
 
 ```
 run_command:
   CommandLine: "rm -f .git/index.lock && git add -A && git commit -m 'feat: description' && git push"
   Cwd: /path/to/repo
   SafeToAutoRun: false
-  WaitMsBeforeAsync: 10000
+  WaitMsBeforeAsync: 8000
 ```
 
-### What NOT to do
+Dan eventueel:
+```
+run_command:
+  CommandLine: "git log --oneline -1"
+  SafeToAutoRun: true
+  WaitMsBeforeAsync: 3000
+```
 
-- ❌ `WaitMsBeforeAsync: 5000` → sends to background, then you're stuck polling
-- ❌ Separate `git add`, then `git commit`, then `git push` as three tool calls
-- ❌ Using `command_status` to wait for git operations
+### Wat NIET te doen
+
+- ❌ Na een git-commando `command_status` aanroepen en blijven pollen → dit blokkeert de gebruiker minutenlang
+- ❌ Drie losse tool calls voor add, commit, push
+- ❌ Wachten tot push "klaar" is — het is vuur-en-vergeet
