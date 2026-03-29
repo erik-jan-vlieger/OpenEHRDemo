@@ -577,6 +577,7 @@ LIMIT 10</div>
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
               'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)
             },
             body: JSON.stringify({
@@ -590,10 +591,8 @@ LIMIT 10</div>
           });
 
           if (ehrResp.ok) {
-            // EHRbase geeft 201 zonder body — EHR-ID staat in Location of ETag header
-            const loc = ehrResp.headers.get('Location') || '';
-            const etag = (ehrResp.headers.get('ETag') || '').replace(/"/g, '');
-            state.ehrId = loc.split('/').filter(Boolean).pop() || etag || (await ehrResp.json().catch(() => ({}))).ehr_id?.value;
+            const ehrData = await ehrResp.json().catch(() => ({}));
+            state.ehrId = ehrData.ehr_id?.value;
           } else {
             // Try to get existing EHR
             const text = await ehrResp.text();

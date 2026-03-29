@@ -2,8 +2,6 @@
 flowchart TD
 
 
-   %% MAX 20 CHARS PER LINE — strict
-   %% Bold titles: max 18 chars
 
 
    Start["Start: Patiënt met wond<br/>(Algemeen Wondprotocol)"]
@@ -17,16 +15,13 @@ flowchart TD
 
    Start --> BesluitOncologisch
    BesluitOncologisch -- "Ja" --> InfoOncologisch
-   BesluitOncologisch -- "Nee" --> StartVoorbereiding
+   BesluitOncologisch -- "Nee" --> ActieWerkveld
 
 
    subgraph Voorbereiding [" "]
        direction TB
        VoorbereidingTitel["<b>── VOORBEREIDING ──</b>"]
-       StartVoorbereiding( )
-
-
-       ActieWerkveld["<b>Stap 1: Werkveld</b><br/><b>& Houding</b><br/>──────────────────<br/>• Ondergrond reinigen<br/>• Schoon werkveld<br/>  aanleggen<br/>• Materialen binnen<br/>  handbereik<br/>• Cliënt: comfortabele<br/>  houding, wond<br/>  bereikbaar<br/>• Geen stofvorming<br/>• Onderlegger plaatsen"]
+           ActieWerkveld["<b>Stap 1: Werkveld</b><br/><b>& Houding</b><br/>──────────────────<br/>• Ondergrond reinigen<br/>• Schoon werkveld<br/>  aanleggen<br/>• Materialen binnen<br/>  handbereik<br/>• Cliënt: comfortabele<br/>  houding, wond<br/>  bereikbaar<br/>• Geen stofvorming<br/>• Onderlegger plaatsen"]
 
 
        ActieMaterialen["<b>Stap 2: Materialen</b><br/>──────────────────<br/>• Aangebroken:<br/>  dichtvouwen, plakken,<br/>  in zakje bewaren<br/>• Max <b>14 dagen</b><br/>  na opening<br/>• Datum opening noteren<br/>  op flesjes/zalven/gel<br/>• Let op bewaarplaats:<br/>  koelkast vs kamertemp<br/>• Bewaren in<br/>  afsluitbare bak"]
@@ -41,7 +36,7 @@ flowchart TD
        ActieDesinfectie["<b>Stap 4: Schaar</b><br/><b>& Pincet desinfecteren</b><br/>──────────────────<br/>• Overgiet 3 gaasjes<br/>  alcohol 70%<br/>• Houd schaar bij oog<br/>• Desinfecteer bladen<br/>  met 1e gaasje<br/>• Desinfecteer rest<br/>  met 2e gaasje<br/>• Leg schaar op<br/>  3e gaasje"]
 
 
-       StartVoorbereiding --> ActieWerkveld --> ActieMaterialen
+       ActieWerkveld --> ActieMaterialen
        ActieMaterialen -.-> InfoMaterialen
        ActieMaterialen --> ActieHygiene --> ActieDesinfectie
    end
@@ -111,20 +106,16 @@ flowchart TD
    ActieHandWissel1["<b>Stap 7: Handschoenen</b><br/><b>wisselen</b><br/>──────────────────<br/>Handschoenen → afvalbak<br/>Handen desinfecteren<br/>Nieuwe handschoenen"]
 
 
-   %% ── NIEUW: PIJNMANAGEMENT ──────────────────────────────────
    subgraph Pijnmanagement [" "]
        direction TB
        PijnTitel["<b>── PIJNMANAGEMENT ──</b><br/><b>(Vóór Wondzorg)</b>"]
-       StartPijn( )
-
-
        BesluitPijn{{"Is er pijn?<br/>(ALTIS-score)"}}
 
 
        BesluitPijnType{{"Type toediening?"}}
 
 
-       ActieSystemisch["<b>SYSTEMISCH</b><br/>──────────────────<br/>• Paracetamol<br/>• NSAID<br/>• Oxycodon<br/>• Amitriptyline<br/>• Fentanyl neusspray<br/>• Fentanyl pleisters<br/>• Butrans<br/>──────────────────<br/><small>Wachttijd: 30–60 min</small>"]
+       ActieSystemisch["<b>SYSTEMISCH</b><br/>──────────────────<br/>• Paracetamol<br/>• NSAID<br/>• Oxycodon<br/>• Amitriptyline<br/>• Fentanyl neusspray<br/>• Fentanyl pleisters<br/>• Butrans<br/>──────────────────<br/>Wachttijd: 30–60 min"]
 
 
        ActieLokaal["<b>LOKAAL</b><br/>──────────────────<br/><b>Snel (10 min):</b><br/>• Lidocaïne druppels<br/>• Lidocaïne spray<br/>──────────────────<br/><b>Traag (45 min):</b><br/>• EMLA zalf<br/>• EMLA pleister"]
@@ -133,18 +124,15 @@ flowchart TD
        ActiePijnWacht["<b>CHECK:</b><br/>Pijnstilling ingewerkt?<br/>──────────────────<br/>Start handeling<br/>pas daarna"]
 
 
-       StartPijn --> BesluitPijn
-       BesluitPijn -- "Nee" --> StartTIMEEntry
+       BesluitPijn -- "Nee" --> ActieTissue
        BesluitPijn -- "Ja" --> BesluitPijnType
        BesluitPijnType -- "Systemisch" --> ActieSystemisch --> ActiePijnWacht
        BesluitPijnType -- "Lokaal" --> ActieLokaal --> ActiePijnWacht
-       ActiePijnWacht --> StartTIMEEntry
-       StartTIMEEntry( )
+ActiePijnWacht --> ActieTissue
    end
 
 
-   ActieHandWissel1 --> StartPijn
-   %% ────────────────────────────────────────────────────────────
+   ActieHandWissel1 --> BesluitPijn
 
 
    subgraph TIMEBlok [" "]
@@ -180,7 +168,6 @@ flowchart TD
    end
 
 
-   StartTIMEEntry --> ActieTissue
 
 
    InfoSkinTear["<b>Skin Tear</b><br/>──────────────────<br/>• Siliconen gaas<br/>• Absorberend verband<br/>• Windsel<br/>→ Zakprotocol<br/>  Skin Tear 1"]
@@ -200,16 +187,12 @@ flowchart TD
    subgraph Reiniging [" "]
        direction TB
        ReinigingTitel["<b>── WONDREINIGING ──</b>"]
-       StartReinigen( )
-
-
-       ActieReinigen["<b>Stap 8: Wond reinigen</b><br/>──────────────────<br/>• Lauwwarm water<br/>  (kraan 30 sec lopen)<br/>• Schilfers, korstjes<br/>  en debris verwijderen<br/>  met gaasje/pincet<br/>• Reinig wondbed,<br/>  wondranden én<br/>  omliggende huid<br/>  — mag krachtig!<br/>• Indien nodig:<br/>  spuit of douche"]
+           ActieReinigen["<b>Stap 8: Wond reinigen</b><br/>──────────────────<br/>• Lauwwarm water<br/>  (kraan 30 sec lopen)<br/>• Schilfers, korstjes<br/>  en debris verwijderen<br/>  met gaasje/pincet<br/>• Reinig wondbed,<br/>  wondranden én<br/>  omliggende huid<br/>  — mag krachtig!<br/>• Indien nodig:<br/>  spuit of douche"]
 
 
        InfoReinigingLet["⚠️ <b>Terughoudend bij:</b><br/>──────────────────<br/>• Oncologische ulcera<br/>• Arterieel lijden<br/>  (PAV)<br/>• DM + slechte<br/>  circulatie: zacht!<br/>• Geen voetenbad!<br/><i>'Zachte heelmeesters<br/>maken stinkende<br/>wonden!'</i>"]
 
 
-       StartReinigen --> ActieReinigen
        ActieReinigen -.-> InfoReinigingLet
    end
 
@@ -217,12 +200,11 @@ flowchart TD
    BesluitWCS -- "Zwart" --> WCSZwart
    BesluitWCS -- "Geel" --> WCSGeel
    BesluitWCS -- "Rood" --> WCSRood
-   WCSZwart --> StartReinigen
-   WCSGeel --> StartReinigen
-   WCSRood --> StartReinigen
+   WCSZwart --> ActieReinigen
+   WCSGeel --> ActieReinigen
+   WCSRood --> ActieReinigen
 
 
-   %% ── NIEUW: DEBRIDEMENT VEILIGHEIDSCHECK ────────────────────
    subgraph DebrideCheck [" "]
        direction TB
        DebrideTitel["<b>── DEBRIDEMENT ──</b><br/><b>── CHECK ──</b>"]
@@ -243,23 +225,20 @@ flowchart TD
        ActieVerwijsDebride["<b>DEBRIDEMENT</b><br/>──────────────────<br/>Veilig uitvoerbaar:<br/>Wondverpleegkundige<br/>voert scherp<br/>debridement uit<br/>──────────────────<br/>Verwijzing via<br/>triageformulier"]
 
 
-       BesluitAVitaal -- "Nee" --> StartNaDebride
+       BesluitAVitaal -- "Nee" --> BesluitInfectie
        BesluitAVitaal -- "Ja" --> BesluitDebrideVeilig
        BesluitDebrideVeilig -.-> InfoMaligniteit
-       BesluitDebrideVeilig -- "Contra-indicatie" --> ActieGeenDebride --> StartNaDebride
-       BesluitDebrideVeilig -- "Veilig" --> ActieVerwijsDebride --> StartNaDebride
-       StartNaDebride( )
+       BesluitDebrideVeilig -- "Contra-indicatie" --> ActieGeenDebride --> BesluitInfectie
+       BesluitDebrideVeilig -- "Veilig" --> ActieVerwijsDebride --> BesluitInfectie
    end
 
 
    ActieReinigen --> BesluitAVitaal
-   %% ────────────────────────────────────────────────────────────
 
 
    BesluitInfectie{{"<b>Infectie-</b><br/><b>verschijnselen?</b><br/>──────────────<br/>Roodheid / Warmte<br/>Pus / Zwelling<br/>Koorts / Geur<br/>Pijn toe / Meer vocht"}}
 
 
-   StartNaDebride --> BesluitInfectie
 
 
    BesluitDMErnstig{{"<b>DM + ernstige</b><br/><b>infectie?</b><br/>──────────────<br/>Koorts > 38°C<br/>Roodheid > 2 cm<br/>Pus / fluctuatie<br/>Botcontact wond?"}}
@@ -396,12 +375,6 @@ flowchart TD
    BesluitEscalatie -.-> InfoIndicaties
 
 
-   %% ── STYLING ────────────────────────────────────────────────
-   style StartVoorbereiding width:0px,height:0px
-   style StartReinigen width:0px,height:0px
-   style StartPijn width:0px,height:0px
-   style StartTIMEEntry width:0px,height:0px
-   style StartNaDebride width:0px,height:0px
    style InfoOncologisch fill:#ffeaea,stroke:#cc3333,stroke-dasharray: 5 5
    style InfoMaterialen fill:#eef6ff,stroke:#6699cc,stroke-dasharray: 5 5
    style InfoReinigingLet fill:#fff3e0,stroke:#e6941a,stroke-dasharray: 5 5
@@ -433,6 +406,3 @@ flowchart TD
    style AfrondingTitel fill:none,stroke:none
    style PijnTitel fill:none,stroke:none
    style DebrideTitel fill:none,stroke:none
-
-
-
