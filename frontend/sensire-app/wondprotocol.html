@@ -553,12 +553,8 @@
         'sensire_wound_care/context/setting|code': '227', 'sensire_wound_care/context/setting|value': 'emergency care', 'sensire_wound_care/context/setting|terminology': 'openehr',
       };
 
-      // Wound examination
-      if (dims.l) {
-        comp['sensire_wound_care/wound_examination/length'] = dims.l;
-        comp['sensire_wound_care/wound_examination/width'] = dims.b;
-        comp['sensire_wound_care/wound_examination/depth'] = dims.d;
-      }
+      // Wound examination — afmetingen worden als tekst opgeslagen in clinical_description
+      // (wound_examination/length|width|depth bestaan niet in dit template)
 
       // Health risk / TIME assessment
       comp['sensire_wound_care/health_risk_assessment/health_risk|value'] = 'Wondprotocol beoordeling';
