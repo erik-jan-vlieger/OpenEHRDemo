@@ -626,26 +626,21 @@ LIMIT 10</div>
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
               'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)
             },
             body: JSON.stringify(composition)
           }
         );
 
-        if (compResp.ok || compResp.status === 201 || compResp.status === 204) {
-          const locationHeader = compResp.headers.get('Location') || compResp.headers.get('ETag');
-          const compData = compResp.status !== 204 ? await compResp.json().catch(() => null) : null;
-          state.compositionUid = compData?.uid?.value || locationHeader || 'opgeslagen';
+        if (compResp.ok || compResp.status === 201) {
+          const compData = await compResp.json().catch(() => null);
+          // FLAT JSON response bevat de UID als "templateId/_uid"
+          const templatePrefix = Object.keys(compData || {}).find(k => k.endsWith('/_uid')) || '';
+          state.compositionUid = (compData?.[templatePrefix]) || 'opgeslagen';
 
-          // Haal de opgeslagen compositie op voor de driekolommen-view
-          let savedFlatJson = composition;
-          try {
-            const getResp = await fetch(
-              `${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition/${state.compositionUid}?format=FLAT`,
-              { headers: { 'Accept': 'application/json', 'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`) } }
-            );
-            if (getResp.ok) savedFlatJson = await getResp.json();
-          } catch(e) { /* gebruik lokale compositie als fallback */ }
+          // De response body IS al de opgeslagen compositie — geen extra GET nodig
+          let savedFlatJson = compData || composition;
 
           // Update de data-tab met de daadwerkelijk opgeslagen data
           if (document.getElementById('data-threecol') && wtLookup) {

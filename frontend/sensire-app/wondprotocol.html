@@ -611,11 +611,11 @@
         }
         if (!state.ehrId) throw new Error('Kan geen EHR vinden');
         const c = buildFlatComposition();
-        const r = await fetch(`${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition?format=FLAT&templateId=sensire_wound_care`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)},body:JSON.stringify(c)});
-        if (r.ok||r.status===201) { const d=await r.json().catch(()=>null); state.compositionUid=d?.uid?.value||'opgeslagen';
-          // Update data-tab na opslaan
-          if (document.getElementById('data-threecol') && wtLookup) {
-            try { const getR = await fetch(`${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition/${state.compositionUid}?format=FLAT`,{headers:{'Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`),'Accept':'application/json'}}); if(getR.ok) document.getElementById('data-threecol').innerHTML=renderFlatAsThreeColumns(await getR.json(),wtLookup.lookup,TEMPLATE_ID); } catch(e){}
+        const r = await fetch(`${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition?format=FLAT&templateId=sensire_wound_care`,{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=representation','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)},body:JSON.stringify(c)});
+        if (r.ok||r.status===201) { const d=await r.json().catch(()=>null);
+          const tplKey=Object.keys(d||{}).find(k=>k.endsWith('/_uid'))||''; state.compositionUid=d?.[tplKey]||'opgeslagen';
+          if (document.getElementById('data-threecol') && wtLookup && d) {
+            document.getElementById('data-threecol').innerHTML=renderFlatAsThreeColumns(d,wtLookup.lookup,TEMPLATE_ID);
           }
           rd.innerHTML=`<div class="alert alert--success"><span class="alert__icon">✅</span><div><strong>Compositie opgeslagen!</strong><br>EHR-ID: <code>${state.ehrId}</code><br>UID: <code>${state.compositionUid}</code><br><span style="font-size:0.85rem;">Zie 📋 openEHR Data tab. <a href="monitor.html" target="_blank">Live Monitor →</a></span></div></div>`; btn.textContent='✅ Opgeslagen';
         } else throw new Error(`HTTP ${r.status}: ${(await r.text()).substring(0,200)}`);

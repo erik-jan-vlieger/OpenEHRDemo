@@ -639,17 +639,13 @@ LIMIT 10</div>
 
         if (compResp.ok || compResp.status === 201) {
           const compData = await compResp.json().catch(() => null);
-          state.compositionUid = compData?.uid?.value || 'opgeslagen';
+          // FLAT response bevat UID als "templateId/_uid"
+          const tplKey = Object.keys(compData || {}).find(k => k.endsWith('/_uid')) || '';
+          state.compositionUid = compData?.[tplKey] || 'opgeslagen';
 
-          // Haal de opgeslagen compositie op voor de driekolommen-view
-          if (document.getElementById('data-threecol') && wtLookup) {
-            try {
-              const getR = await fetch(
-                `${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition/${state.compositionUid}?format=FLAT`,
-                { headers: { 'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`), 'Accept': 'application/json' } }
-              );
-              if (getR.ok) document.getElementById('data-threecol').innerHTML = renderFlatAsThreeColumns(await getR.json(), wtLookup.lookup, TEMPLATE_ID);
-            } catch(e) { /* gebruik lokale compositie als fallback */ }
+          // Response body IS de opgeslagen compositie — geen extra GET nodig
+          if (document.getElementById('data-threecol') && wtLookup && compData) {
+            document.getElementById('data-threecol').innerHTML = renderFlatAsThreeColumns(compData, wtLookup.lookup, TEMPLATE_ID);
           }
 
           resultDiv.innerHTML = `<div class="alert alert--success">
