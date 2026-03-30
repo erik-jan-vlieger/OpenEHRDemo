@@ -1,0 +1,273 @@
+import sys
+import re
+import os
+from lxml import etree
+
+def get_node_id_mapping(adlt_content):
+    node_map = {}
+    for m in re.finditer(r'\[(id\d+),\s*(openEHR-[^\]]+)\]', adlt_content):
+        node_map[m.group(1)] = m.group(2)
+    return node_map
+
+def convert_aom2_to_opt14(input_opt_bak, output_opt, adlt_path):
+    print(f"Processing {os.path.basename(input_opt_bak)}...")
+    
+    with open(adlt_path, 'r', encoding='utf-8') as f:
+        mapping = get_node_id_mapping(f.read())
+        
+    tree = etree.parse(input_opt_bak)
+    root = tree.getroot()
+    
+    # STRIP ALL NAMESPACES FOR EASY PROCESSING
+    for el in root.iter():
+        el.tag = el.tag.split('}')[-1]
+        
+    ns2 = 'http://schemas.openehr.org/v1'
+    
+    # --- BUILD TERMINOLOGY DICTIONARY ---
+    lang_el = root.find('.//original_language/code_string')
+    default_lang = lang_el.text if lang_el is not None else 'nl'
+    
+    term_dict = {}
+    id_dict = {}
+    import copy
+    for term in root.findall('terminology') + root.findall('component_terminologies'):
+        arch_id = term.get('archetype_id')
+        base_id = re.sub(r'\.v\d+.*$', '', arch_id)
+        
+        tdefs_for_arch = []
+        lang_block = term.find(f'term_definitions[@language="{default_lang}"]')
+        if lang_block is None:
+            lang_block = term.find('term_definitions')
+            
+        if lang_block is not None:
+            for item in lang_block.findall('items'):
+                code = item.get('id')
+                new_tdef = etree.Element('term_definitions')
+                new_tdef.set('code', code)
+                for child in item:
+                    new_item = etree.SubElement(new_tdef, 'items')
+                    new_item.set('id', child.tag)
+                    new_item.text = child.text
+                tdefs_for_arch.append(new_tdef)
+                if code.startswith('id'):
+                    id_dict[code] = new_tdef
+                
+        term_dict[base_id] = tdefs_for_arch
+
+    def fix_term_id(parent):
+        for term in parent.xpath('.//terminology_id'):
+            if len(term) == 0 and term.text and term.text.strip():
+                val = term.text.strip()
+                if '<value>' not in val:
+                    term.text = ''
+                    vel = etree.Element('value')
+                    vel.text = val
+                    term.append(vel)
+
+    # 1. ROOT
+    new_root = etree.Element('template')
+    
+    # Extract concept
+    arch_id_el = root.find('archetype_id')
+    concept_id = arch_id_el.get('concept_id') if arch_id_el is not None else os.path.basename(input_opt_bak).replace('.opt.bak','').replace('.opt','')
+    
+    # 2. LANGUAGE
+    old_lang = root.find('original_language')
+    if old_lang is not None:
+        lang_el = etree.Element('language')
+        for c in list(old_lang): lang_el.append(c)
+        fix_term_id(lang_el)
+        new_root.append(lang_el)
+        
+    # 3. DESCRIPTION
+    desc_el = root.find('description')
+    if desc_el is not None:
+        # Check lifecycle_state
+        if desc_el.find('lifecycle_state') is None:
+            ls = etree.Element('lifecycle_state')
+            ls.text = 'published'
+            det = desc_el.find('details')
+            if det is not None:
+                desc_el.insert(desc_el.index(det), ls)
+            else:
+                desc_el.append(ls)
+        fix_term_id(desc_el)
+        new_root.append(desc_el)
+        
+    # 4. UID
+    uid_el = etree.Element('uid')
+    vel1 = etree.SubElement(uid_el, 'value')
+    vel1.text = concept_id
+    new_root.append(uid_el)
+    
+    # 5. TEMPLATE_ID
+    tid_el = etree.Element('template_id')
+    vel2 = etree.SubElement(tid_el, 'value')
+    vel2.text = concept_id
+    new_root.append(tid_el)
+    
+    # 6. CONCEPT
+    con_el = etree.Element('concept')
+    con_el.text = concept_id
+    new_root.append(con_el)
+
+    # 7. ADD ALL OTHERS
+    # Only append definition, annotations, and component_ontologies (SNOMED, etc)
+    # terminology and component_terminologies are now exploded into C_ARCHETYPE_ROOT
+    for c in list(root):
+        if c.tag in ['definition', 'annotations', 'component_ontologies']:
+            new_root.append(c)
+
+    # RECURSIVE FIXES
+    
+    # A. occurrences format
+    for occ in new_root.xpath('//occurrences'):
+        # convert attrs to elements
+        for k in ['lower_included', 'upper_included', 'lower_unbounded', 'upper_unbounded']:
+            if k in occ.attrib:
+                nel = etree.Element(k)
+                nel.text = occ.attrib[k]
+                occ.insert(0, nel)
+                del occ.attrib[k]
+        # Reorder
+        children = {c.tag: c for c in occ}
+        for c in list(occ): occ.remove(c)
+        for k in ['lower_included', 'upper_included', 'lower_unbounded', 'upper_unbounded', 'lower', 'upper']:
+            if k in children: occ.append(children[k])
+            
+    # B. rm_type_name, node_id, rm_attribute_name to child elements
+    for c in new_root.xpath('//*'):
+        if c.tag in ['definition', 'children', 'attributes', 'term_definitions']:
+            if c.tag == 'attributes':
+                rm_val = c.get('rm_attribute_name')
+                if rm_val:
+                    rm_el = etree.Element('rm_attribute_name')
+                    rm_el.text = rm_val
+                    c.insert(0, rm_el)
+                    del c.attrib['rm_attribute_name']
+            else:
+                rm_val = c.get('rm_type_name')
+                nid_val = c.get('node_id')
+                if rm_val:
+                    rm_el = etree.Element('rm_type_name')
+                    rm_el.text = rm_val
+                    c.insert(0, rm_el)
+                    del c.attrib['rm_type_name']
+                if nid_val:
+                    nid_el = etree.Element('node_id')
+                    nid_el.text = nid_val
+                    occs = c.findall('occurrences')
+                    idx = c.index(occs[-1]) + 1 if occs else (1 if rm_val else 0)
+                    c.insert(idx, nid_el)
+                    del c.attrib['node_id']
+                    
+    # C. C_ARCHETYPE_ROOT precise structure
+    parent_arch_id_el = tree.getroot().find('parent_archetype_id')
+    parent_arch_id = parent_arch_id_el.text if parent_arch_id_el is not None else concept_id
+    
+    for el in new_root.xpath('//children[@xsi:type="C_ARCHETYPE_ROOT"] | //definition', namespaces={'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}):
+        is_def = (el.tag == 'definition')
+        
+        nid_el = el.find('node_id')
+        nid_val = nid_el.text if nid_el is not None else ""
+        aref = el.find('archetype_ref')
+        arch_val = None
+        if aref is not None:
+            arch_val = aref.text
+            el.remove(aref)
+        
+        if is_def:
+            arch_val = parent_arch_id
+            
+        if not arch_val and nid_val in mapping:
+            arch_val = mapping[nid_val]
+            
+        rm_el = el.find('rm_type_name')
+        occs = el.findall('occurrences')
+        attrs = el.findall('attributes')
+        # Tdefs from original node (if any)
+        tdefs = el.findall('term_definitions')
+        
+        others = [c for c in el if c not in occs and c not in attrs and c not in tdefs and c != nid_el and c != rm_el]
+        
+        for c in list(el): el.remove(c)
+        
+        if rm_el is not None: el.append(rm_el)
+        for o in occs: el.append(o)
+        if nid_el is not None: el.append(nid_el)
+        for a in attrs: el.append(a)
+        
+        if arch_val:
+            ael = etree.Element('archetype_id')
+            vel = etree.SubElement(ael, 'value')
+            vel.text = arch_val
+            el.append(ael)
+            
+        if is_def:
+            tel = etree.Element('template_id')
+            tvel = etree.SubElement(tel, 'value')
+            tvel.text = concept_id
+            el.append(tel)
+            
+        for t in tdefs: el.append(t)
+        
+        # Inject our mapped AOM2 terminology!
+        if arch_val:
+            base_id = re.sub(r'\.v\d+.*$', '', arch_val)
+            if base_id in term_dict:
+                for t in term_dict[base_id]:
+                    el.append(copy.deepcopy(t))
+                    
+            # Inject the specific idX term if node_id starts with id and missing!
+            if nid_val and nid_val.startswith('id') and nid_val in id_dict:
+                # check if we already appended it (from term_dict)
+                found = False
+                for existing in el.findall('term_definitions'):
+                    if existing.get('code') == nid_val:
+                        found = True
+                        break
+                if not found:
+                    el.append(copy.deepcopy(id_dict[nid_val]))
+                    
+        for ot in others: el.append(ot)
+
+    # D. StringExpression -> string_expression
+    for el in new_root.xpath('//stringExpression'):
+        el.tag = 'string_expression'
+        
+    # E. Remove AOM2 specific elements
+    aom2_types = ['binaryOperator', 'modelReference', 'operatorDefBuiltin', 'constraint', 'expressionVariable', 'functionCall', 'unaryOperator', 'expressionLeaf']
+    for t in aom2_types:
+        for ex in new_root.xpath(f'//*[@xsi:type="{t}"]', namespaces={'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}):
+            p = ex.getparent()
+            if p is not None:
+                p.remove(ex)
+                
+    for e in new_root.xpath('//terminology_extracts|//rm_overlay|//rmOverlay'):
+        p = e.getparent()
+        if p is not None: p.remove(e)
+        
+    # F. Map stringExpression attributes back
+    # But string_expression has none?
+    
+    # RE-APPLY NAMESPACES
+    for el in new_root.iter():
+        el.tag = f'{{{ns2}}}{el.tag}'
+        
+    tree._setroot(new_root)
+
+    # Assign correct nsmap at root so the output uses xmlns= instead of explicit prefixes
+    etree.cleanup_namespaces(tree, top_nsmap={None: ns2, 'xsi': 'http://www.w3.org/2001/XMLSchema-instance'})
+    
+    with open(output_opt, 'wb') as f:
+        tree.write(f, encoding='utf-8', xml_declaration=True, pretty_print=False)
+        
+    print("SUCCESS")
+
+if __name__ == '__main__':
+    if len(sys.argv) == 4:
+        convert_aom2_to_opt14(sys.argv[1], sys.argv[2], sys.argv[3])
+    else:
+        print("Usage: python3 full_opt14_lxml.py <input.opt.bak> <output.opt> <input.adlt>")
+        sys.exit(1)
