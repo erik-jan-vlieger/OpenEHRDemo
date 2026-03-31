@@ -31,7 +31,7 @@ echo " EHRbase is ready!"
 
 echo ""
 echo "3. Uploading pre-compiled Fully Populated OPT 1.4s (V5)..."
-opts_dir="sensireopenehr/sensire-openehr/opts"
+opts_dir="opts"
 
 for template in Diabetic_Foot_Assessment_Sensire.v1 Ulcus_Cruris_Assessment_Sensire.v1 Wound_Assessment_Sensire.v1; do
     if [ -f "${opts_dir}/${template}.opt" ]; then
@@ -52,16 +52,16 @@ done
 
 echo ""
 echo "4. Downloading WebTemplates..."
-mkdir -p frontend/src/schemas
+mkdir -p frontend/sensire-app/webtemplates
 for template_id in diabetic_foot_assessment_sensire ulcus_cruris_assessment_sensire wound_assessment_sensire; do
     echo "Fetching WebTemplate for $template_id..."
     curl -s -u ehrbase-user:SuperSecretPassword -X GET "http://localhost:8080/ehrbase/rest/openehr/v1/definition/template/adl1.4/${template_id}" \
-         -H "Accept: application/openehr.wt+json" > "frontend/src/schemas/${template_id}.json"
+         -H "Accept: application/openehr.wt+json" > "frontend/sensire-app/webtemplates/${template_id}_webtemplate.json"
 done
 
 echo ""
 echo "=========================================="
 echo " Environment is Ready!"
 echo " Templates uploaded and WebTemplates downloaded."
-echo " Start the frontend with: npm --prefix frontend run dev"
+echo " Start the frontend with: cd frontend/sensire-app && npm install && npm run dev"
 echo "=========================================="
