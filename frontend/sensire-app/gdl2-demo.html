@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GDL2 CDS Demostratie — Sensire openEHR Demo</title>
+  <meta name="description" content="Demonstratie van Clinical Decision Support via de openEHR GDL2 Editor.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .gdl2-iframe {
+      width: 100%;
+      height: 70vh;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      margin-top: var(--space-xl);
+      background-color: white;
+    }
+    .download-link {
+      display: inline-block;
+      margin-top: var(--space-sm);
+      padding: var(--space-xs) var(--space-md);
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-md);
+      color: #1d4ed8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="app-header__brand">
+        <div>
+          <div class="app-header__logo">🏥 Sensire Wondzorg</div>
+          <div class="app-header__subtitle">openEHR Demo-omgeving</div>
+        </div>
+      </div>
+      <nav class="app-header__nav">
+        <a href="index.html">Home</a>
+        <a href="template-explorer.html">Template Explorer</a>
+        <a href="gdl2-demo.html" class="active">GDL2 CDS Demo</a>
+        <a href="ulcus-cruris.html">Ulcus Cruris</a>
+        <a href="diabetische-voet.html">Diabetische Voet</a>
+        <a href="wondprotocol.html">Wondprotocol</a>
+        <a href="monitor.html">Live Monitor</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="section-header">
+      <h1 class="section-header__title">🤖 GDL2 Beslisondersteuning (CDS)</h1>
+      <p class="section-header__subtitle">Live "White-Box" Clinical Decision Support gebaseerd op de Sensire protocollen. Download hier de regels, en importeer ze centraal in de openEHR evaluatie-engine.</p>
+    </div>
+
+    <div class="alert alert--info" style="margin-bottom: var(--space-xl);">
+      <span class="alert__icon">💡</span>
+      <div>
+        <strong>Hoe werkt deze demonstratie?</strong>
+        <p style="margin-top: var(--space-xs);">
+          Kies hieronder een protocol en download het speciale <code>.gdl2</code> bestand naar je lokale apparaat. Klik daarna op <strong>"Open GDL2 Editor"</strong>. Binnen de Editor (via Upload Project) laad je het bestand in. De GDL2 Editor genereert vervolgens automatisch een testformulier, waarmee je "live" de if/then intelligentie op de achtergrond ziet afvuren ter controle.
+        </p>
+      </div>
+    </div>
+
+    <!-- Rule Downloads -->
+    <div class="protocol-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: var(--space-2xl);">
+      <div class="protocol-card" style="border-left: 4px solid #3b82f6;">
+        <div class="protocol-card__body">
+          <h2 class="protocol-card__title">Ulcus Cruris GDL2</h2>
+          <p class="protocol-card__description">Berekent het compressieadvies (EAI) en screent op absolute/relatieve contra-indicaties bij arterieel vaatlijden.</p>
+          <a href="gdl2/sensire_ulcus_cruris_v2.gdl2" download class="download-link">📥 Download .gdl2-regels</a>
+        </div>
+      </div>
+
+      <div class="protocol-card" style="border-left: 4px solid #10b981;">
+        <div class="protocol-card__body">
+          <h2 class="protocol-card__title">Diabetische Voet GDL2</h2>
+          <p class="protocol-card__description">Triage beslisregels voor acute Charcot of kritieke ischemie (Wagner 4+) verwijzingen.</p>
+          <a href="gdl2/sensire_diabetische_voet_v2.gdl2" download class="download-link">📥 Download .gdl2-regels</a>
+        </div>
+      </div>
+
+      <div class="protocol-card" style="border-left: 4px solid #f59e0b;">
+        <div class="protocol-card__body">
+          <h2 class="protocol-card__title">Wondprotocol GDL2</h2>
+          <p class="protocol-card__description">Maakt de automatische kruising over het wondweefsel, de omliggende huid en exsudaat (WCS Kleurmatrix).</p>
+          <a href="gdl2/sensire_wondverzorging_v2.gdl2" download class="download-link">📥 Download .gdl2-regels</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- The Viewer UI -->
+    <div class="dashboard-section__header" style="margin-top:var(--space-xl); display: flex; justify-content: space-between; align-items: baseline;">
+      <h2 class="dashboard-section__title">GDL2 Editor (Docker port 8082)</h2>
+      <a href="http://localhost:8082/gdl2-editor" target="_blank" style="color: var(--color-accent); font-weight: 500;">Of open in nieuw venster ↗</a>
+    </div>
+
+    <iframe src="http://localhost:8082/gdl2-editor" class="gdl2-iframe" title="GDL2 Editor Environment"></iframe>
+
+    <div style="margin-top: var(--space-xl); padding: var(--space-lg); background: #fdf4ff; border-radius: var(--radius-md); border-left: 4px solid #a855f7;">
+      <div style="font-weight: 600; margin-bottom: var(--space-sm);">Waarom doen we dit zo in de demo?</div>
+      <div style="font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.6;">
+        De interactieve JavaScript webformulieren die je net als Wijkverpleegkundige hebt doorlopen, zijn perfect geoptimaliseerd voor snelheid. Echter, door de logica **ook** wiskundig te verankeren in <em>Guideline Definition Language (GDL2)</em>, is alle klinische intelligentie uit het EPD-systeem gesloopt en via <em>Open Source</em> beschikbaar in ons eigen datacentrum. Als patiëntendata wijzigt (bijvoorbeeld bij binnenkomst via een ketenpartner of labwaarde), kan de openEHR server in een batch duizenden patiënten tegelijk polsen tegen onze eigen set <code>.gdl2</code> bestanden, en signaleren wie acuut aandacht behoeft (transmuraal triageren).
+      </div>
+    </div>
+
+  </main>
+</body>
+</html>

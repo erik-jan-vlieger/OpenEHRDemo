@@ -19,6 +19,7 @@
       <nav class="app-header__nav">
         <a href="index.html" class="active">Home</a>
         <a href="template-explorer.html">Template Explorer</a>
+        <a href="gdl2-demo.html">GDL2 CDS Demo</a>
         <a href="ulcus-cruris.html">Ulcus Cruris</a>
         <a href="diabetische-voet.html">Diabetische Voet</a>
         <a href="wondprotocol.html">Wondprotocol</a>
@@ -128,8 +129,8 @@
     <div class="dashboard-section">
       <div class="dashboard-section__header">
         <div class="dashboard-section__line dashboard-section__line--purple"></div>
-        <div class="dashboard-section__title">Live Monitoring</div>
-        <div class="dashboard-section__subtitle">Zie wat er daadwerkelijk wordt opgeslagen in de openEHR database</div>
+        <div class="dashboard-section__title">Live Monitoring &amp; Validatie</div>
+        <div class="dashboard-section__subtitle">Zie openEHR en interactieve Beslisondersteuning (CDS) direct in actie</div>
       </div>
       <div class="protocol-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
         <a href="monitor.html" class="protocol-card" id="card-monitor">
@@ -140,21 +141,21 @@
             <p class="protocol-card__description">
               Pollt EHRbase elke 4 seconden via AQL. Nieuwe composities verschijnen live met animatie. Klik erop voor de driekolommen-view: openEHR-pad | Nederlands label | waarde.
             </p>
-            <div class="protocol-card__tag" style="background:#dcfce7; color:#15803d;">Live monitoring</div>
+            <div class="protocol-card__tag" style="background:#dcfce7; color:#15803d;">Datalaag</div>
           </div>
         </a>
 
-        <div class="protocol-card" style="cursor: default; border-color: var(--color-border);">
-          <div class="protocol-card__accent" style="background: linear-gradient(90deg, #6366f1, #818cf8);"></div>
+        <a href="gdl2-demo.html" class="protocol-card" id="card-gdl2">
+          <div class="protocol-card__accent" style="background: linear-gradient(90deg, #dc2626, #ef4444);"></div>
           <div class="protocol-card__body">
-            <div class="protocol-card__icon">💡</div>
-            <h2 class="protocol-card__title">Demo-moment</h2>
+            <div class="protocol-card__icon">🤖</div>
+            <h2 class="protocol-card__title">GDL2 CDS Demonstratie</h2>
             <p class="protocol-card__description">
-              Open de Live Monitor op scherm 2. Doorloop een beslisboom op scherm 1 en klik "Opslaan". Binnen enkele seconden verschijnt de compositie op scherm 2 — live bewijs dat de data daadwerkelijk in openEHR-formaat wordt opgeslagen.
+              Test "White-Box" beslisondersteuning via onafhankelijke GDL2-regels op basis van WCS Kleur en EAI drempels in de GDL2 Editor.
             </p>
-            <div class="protocol-card__tag" style="background:#ede9fe; color:#5b21b6;">Aanbevolen</div>
+            <div class="protocol-card__tag" style="background:#fee2e2; color:#b91c1c;">Kennislaag (Regels)</div>
           </div>
-        </div>
+        </a>
       </div>
     </div>
 
