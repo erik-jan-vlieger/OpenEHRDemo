@@ -1280,3 +1280,31 @@ bash ~/ehrbase-demo/scripts/update_template.sh TEMPLATE_ID pad/naar/template.opt
 ---
 
 *Sensire / Instituut Bedrijfskunde — openEHR Demo Blueprint v5.0 — Maart 2026*
+
+---
+
+# DEEL IV — COMPLIANCE EN 100% ZEKERHEIDSGARANTIE
+
+Tot en met v4 leunden we in deze applicatie op het *Trial & Error*-principe: de frontend stuurt een aannemelijke JSON naar EHRbase, en als deze weigert met een HTTP 422, corrigeren we het model. Ook de GDL2-logica werd in JavaScript nagebouwd op basis van menselijke interpretatie.
+
+Om **100% zeker** te zijn van onze integratie introduceert v5.0 een sluitend Verification-framework bestaande uit twee pijlers:
+
+## 1. GDL2 Algoritmische Verificatie (UI Logica)
+
+Omdat we wegens performance- en architectuurredenen geen zware Java-gebaseerde GDL2-engine in de frontend draaien, simuleren we de regels (zoals gepubliceerd in `sensire_ulcus_cruris_v2.gdl2`) in JavaScript (bijv. `getEAIInterpretation(waarde)`).
+Om compliant te zijn:
+- De GDL2 beslisbomen (Truth Tables) worden vastgelegd in een statische unit-test suite (`tests/gdl2_compliance_test.js`).
+- Deze test draait iteratief door alle `min/max` tresholds (bijv. EAI 0.84, 0.85, 0.90) en verifieert of het JavaScript *exact* de uitkomst en SNOMED/lokale codering retourneert die de GDL2 definitie vereist.
+- *Status:* We zijn hierdoor niet langer afhankelijk van interpretatie, de test faalt als men de JS UI logica aanpast zonder de guidelines te respecteren.
+
+## 2. WebTemplate Pre-Flight Compliance (FLAT JSON Logica)
+
+EHRbase valideert de FLAT JSON tegen het onderliggende WebTemplate en OPT. 
+Om compliant te zijn *voordat* data überhaupt de database bereikt:
+- Is een validator test-script toegevoegd (`tests/webtemplate_compliance_test.js`).
+- Dit script leest direct de CKM `.json` webtemplates in.
+- Het gebruikt een recursieve crawler om **alle verplichte velden** (`min >= 1`) in kaart te brengen.
+- Het script leest vervolgens de mappings uit de JavaScript frontend formulieren (`wondprotocol.html`, etc.) en verifieert of alle vastgestelde mandatory paden door de UI worden gevuld (hetzij met UI-waarden, hetzij met default overrides zoals 'Niet beoordeeld').
+- *Status:* Dit voorkomt per definitie elke 422 validatiefout doordat integratielakes in kaart worden gebracht in CI/CD (of in dit geval, bij het runnen van de tests) in plaats van door clinici op de opslaan-knop.
+
+*Deze twee test-suites dienen te allen tijde te 'passen' alvorens wijzigingen in de UI-laag gecommit worden.*
