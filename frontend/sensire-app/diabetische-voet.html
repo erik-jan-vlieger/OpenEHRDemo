@@ -587,6 +587,7 @@ LIMIT 10</div>
       // Problem/Diagnosis
       comp['voetscreening_dm_sensire/probleem_diagnose/naam_van_het_probleem_de_diagnose'] = 'Diabetische voet screening';
       comp['voetscreening_dm_sensire/probleem_diagnose/klinische_beschrijving'] = `DM voetscreening doorlopen. Risicoprofiel: ${risk.label}. Charcot: ${state.answers['charcot'] || 'n.v.t.'}. Wond: ${state.answers['wound-present'] || 'n.v.t.'}.`;
+      comp['voetscreening_dm_sensire/probleem_diagnose/datum_tijd_van_aanvang'] = now;
 
       // Context is already set via ctx/ keys above
 
