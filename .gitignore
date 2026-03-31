@@ -3,21 +3,24 @@ node_modules/
 dist/
 .vite/
 
-# Docker volumes (niet committen)
+# Python caching
+__pycache__/
+.pytest_cache/
+*.pyc
+
+# Docker volumes
 ehrbase_data/
 
 # Environment
 .env
 .env.local
 
-# IDE
+# IDE & OS
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
 
@@ -25,5 +28,20 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# Test runs
+# Test runs & temp files
 test_run/
+test_*.js
+test_*.py
+test_*.json
+test_*.xml
+test_*.opt
+live_wt.json
+webtemplate.json
+
+# Build tools & SDKs
+.gradle/
+build/
+tools/openEHR-SDK/
+tools/openEHR-CLI/
+*.jar
+*.bin
