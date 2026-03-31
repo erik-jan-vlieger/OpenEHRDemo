@@ -520,15 +520,18 @@ LIMIT 10</div>
       }
 
       // Physical Examination (Stemmer)
+      let stemmerResult = 'Niet beoordeeld';
       if (stemmer) {
-        const result = stemmer === 'positive' ? 'Positief (Lymfoedeem vermoed)' : 'Negatief (Veneus oedeem)';
-        comp['ulcus_cruris_consult_sensire/ergebnisse_der_körperlichen_untersuchung/jedes_ereignis/beschreibung'] = `Teken van Stemmer: ${result}`;
-        comp['ulcus_cruris_consult_sensire/ergebnisse_der_körperlichen_untersuchung/jedes_ereignis/time'] = now;
-        clinicalSynopsis += ` Teken van Stemmer: ${result}.`;
+        stemmerResult = stemmer === 'positive' ? 'Positief (Lymfoedeem vermoed)' : 'Negatief (Veneus oedeem)';
       }
+      comp['ulcus_cruris_consult_sensire/ergebnisse_der_körperlichen_untersuchung/jedes_ereignis/beschreibung'] = `Teken van Stemmer: ${stemmerResult}`;
+      comp['ulcus_cruris_consult_sensire/ergebnisse_der_körperlichen_untersuchung/jedes_ereignis/interpretation'] = stemmer ? 'Voltooid' : 'Niet uitgevoerd';
+      comp['ulcus_cruris_consult_sensire/ergebnisse_der_körperlichen_untersuchung/jedes_ereignis/time'] = now;
+      if (stemmer) clinicalSynopsis += ` Teken van Stemmer: ${stemmerResult}.`;
 
-      // Synopsis
+      // Synopsis (Clinical description at0009)
       comp['ulcus_cruris_consult_sensire/klinische_synopsis/synopsis'] = clinicalSynopsis;
+      comp['ulcus_cruris_consult_sensire/probleem_diagnose/klinische_beschrijving'] = clinicalSynopsis;
 
       // Context is already set via ctx/ keys above
 
