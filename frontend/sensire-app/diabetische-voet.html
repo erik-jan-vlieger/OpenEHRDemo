@@ -78,10 +78,10 @@
     const EHRBASE_URL = 'http://localhost:8080/ehrbase/rest';
     const EHRBASE_USER = 'ehrbase-user';
     const EHRBASE_PASS = 'SuperSecretPassword';
-    const TEMPLATE_ID = 'sensire_wound_care';
+    const TEMPLATE_ID = 'diabetic_foot_assessment_sensire';
 
     let wtLookup = null;
-    loadWebTemplate('/webtemplates/sensire_wound_care_webtemplate.json')
+    loadWebTemplate('/webtemplates/diabetic_foot_assessment_sensire_webtemplate.json')
       .then(wt => { wtLookup = wt; })
       .catch(e => console.warn('WebTemplate niet geladen:', e.message));
 
@@ -490,7 +490,7 @@
       dataTabEl.innerHTML = `
         <div class="alert alert--info" style="margin-bottom:var(--space-lg);">
           <span class="alert__icon">📋</span>
-          <div>Onderstaande data wordt opgeslagen als openEHR FLAT JSON compositie. Template: <strong>sensire_wound_care</strong>.<br>
+          <div>Onderstaande data wordt opgeslagen als openEHR FLAT JSON compositie. Template: <strong>${TEMPLATE_ID}</strong>.<br>
           <span style="font-size:0.85rem;">Na opslaan verschijnt hier de bevestigde compositie met vertaalde labels.</span></div>
         </div>
         <div id="data-threecol">${wtLookup ? renderFlatAsThreeColumns(composition, wtLookup.lookup, TEMPLATE_ID) : '<div class="data-display">' + JSON.stringify(composition, null, 2) + '</div>'}</div>
@@ -508,7 +508,7 @@
   c/context/start_time/value as datum
 FROM EHR e
 CONTAINS COMPOSITION c
-WHERE c/name/value = 'sensire_wound_care'
+WHERE c/archetype_details/template_id/value = '${TEMPLATE_ID}'
 ORDER BY c/context/start_time/value DESC
 LIMIT 10</div>
         <button class="btn btn--outline btn--sm" style="margin-top: var(--space-md);" onclick="executeAQL()">▶ Query uitvoeren</button>
@@ -536,17 +536,18 @@ LIMIT 10</div>
       const risk = calculateRiskLevel();
 
       const comp = {
-        'sensire_wound_care/category|code': '433',
-        'sensire_wound_care/category|value': 'event',
-        'sensire_wound_care/category|terminology': 'openehr',
-        'sensire_wound_care/context/start_time': now,
-        'sensire_wound_care/context/setting|code': '227',
-        'sensire_wound_care/context/setting|value': 'emergency care',
-        'sensire_wound_care/context/setting|terminology': 'openehr',
+        'voetscreening_dm_sensire/category|code': '433',
+        'voetscreening_dm_sensire/category|value': 'event',
+        'voetscreening_dm_sensire/category|terminology': 'openehr',
+        'ctx/language': 'nl',
+        'ctx/territory': 'NL',
+        'ctx/composer_name': 'Sensire Wondzorg Demo',
+        'ctx/time': now,
+        'ctx/setting': '227',
       };
 
       // Health risk assessment
-      comp['sensire_wound_care/health_risk_assessment/health_risk|value'] = 'Diabetische voet risicobeoordeling';
+      comp['voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/gesundheitsrisiko'] = 'Diabetische voet risicobeoordeling';
 
       let riskIdx = 0;
       const riskFactors = [
@@ -562,27 +563,32 @@ LIMIT 10</div>
         const val = state.answers[rf.key];
         if (val !== undefined) {
           const isPresent = rf.present(val);
-          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/risk_factor|value`] = rf.label;
-          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|code`] = isPresent ? 'at0018' : 'at0019';
-          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|value`] = isPresent ? 'Present' : 'Absent';
-          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|terminology`] = 'local';
-          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/description`] = rf.desc(val);
-          riskIdx++;
+          if (isPresent) {
+            comp[`voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/risikofaktoren:${riskIdx}/risikofaktor`] = rf.label;
+            comp[`voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/risikofaktoren:${riskIdx}/vorhandensein|code`] = 'at0018';
+            comp[`voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/risikofaktoren:${riskIdx}/vorhandensein|value`] = 'Vorhanden';
+            comp[`voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/risikofaktoren:${riskIdx}/vorhandensein|terminology`] = 'local';
+            comp[`voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/risikofaktoren:${riskIdx}/beschreibung`] = rf.desc(val);
+            riskIdx++;
+          }
         }
       }
 
-      comp['sensire_wound_care/health_risk_assessment/risk_assessment/text_value'] = `${risk.label} (Diabetische Voet screening)`;
+      if (riskIdx === 0) {
+        comp[`voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/risikofaktoren:0/risikofaktor`] = 'Geen bekende risicofactoren';
+        comp[`voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/risikofaktoren:0/vorhandensein|code`] = 'at0018';
+        comp[`voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/risikofaktoren:0/vorhandensein|value`] = 'Vorhanden';
+        comp[`voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/risikofaktoren:0/vorhandensein|terminology`] = 'local';
+        comp[`voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/risikofaktoren:0/beschreibung`] = 'Alle gecontroleerde risicofactoren waren afwezig.';
+      }
+
+      comp['voetscreening_dm_sensire/bewertung_des_gesundheitsrisikos/risikobewertung/text_value'] = `${risk.label} (Diabetische Voet screening)`;
 
       // Problem/Diagnosis
-      comp['sensire_wound_care/problem_diagnosis/problem_diagnosis_name|value'] = 'Diabetische voet screening';
-      comp['sensire_wound_care/problem_diagnosis/clinical_description'] = `DM voetscreening doorlopen. Risicoprofiel: ${risk.label}. Charcot: ${state.answers['charcot'] || 'n.v.t.'}. Wond: ${state.answers['wound-present'] || 'n.v.t.'}.`;
+      comp['voetscreening_dm_sensire/probleem_diagnose/naam_van_het_probleem_de_diagnose'] = 'Diabetische voet screening';
+      comp['voetscreening_dm_sensire/probleem_diagnose/klinische_beschrijving'] = `DM voetscreening doorlopen. Risicoprofiel: ${risk.label}. Charcot: ${state.answers['charcot'] || 'n.v.t.'}. Wond: ${state.answers['wound-present'] || 'n.v.t.'}.`;
 
-      // Composer
-      comp['sensire_wound_care/composer|name'] = 'Sensire Wondzorg Demo';
-      comp['sensire_wound_care/language|code'] = 'nl';
-      comp['sensire_wound_care/language|terminology'] = 'ISO_639-1';
-      comp['sensire_wound_care/territory|code'] = 'NL';
-      comp['sensire_wound_care/territory|terminology'] = 'ISO_3166-1';
+      // Context is already set via ctx/ keys above
 
       return comp;
     }
@@ -628,10 +634,14 @@ LIMIT 10</div>
 
         const composition = buildFlatComposition();
         const compResp = await fetch(
-          `${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition?format=FLAT&templateId=sensire_wound_care`,
+          `${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition?format=FLAT&templateId=${TEMPLATE_ID}`,
           {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`) },
+            headers: { 
+              'Content-Type': 'application/json', 
+              'Prefer': 'return=representation',
+              'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`) 
+            },
             body: JSON.stringify(composition)
           }
         );
@@ -673,7 +683,7 @@ LIMIT 10</div>
         const resp = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`) },
-          body: JSON.stringify({ q: 'SELECT c/uid/value as id, c/name/value as naam, c/context/start_time/value as datum FROM EHR e CONTAINS COMPOSITION c ORDER BY c/context/start_time/value DESC LIMIT 10' })
+          body: JSON.stringify({ q: `SELECT c/uid/value as id, c/name/value as naam, c/context/start_time/value as datum FROM EHR e CONTAINS COMPOSITION c WHERE c/archetype_details/template_id/value = '${TEMPLATE_ID}' ORDER BY c/context/start_time/value DESC LIMIT 10` })
         });
         if (resp.ok) {
           const data = await resp.json();

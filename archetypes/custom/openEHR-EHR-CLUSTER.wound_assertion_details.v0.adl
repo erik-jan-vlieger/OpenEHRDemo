@@ -1,0 +1,176 @@
+archetype (adl_version=1.4; uid=f6a7b8c9-d0e1-2345-fabf-345678901234)
+	openEHR-EHR-CLUSTER.wound_assertion_details.v0
+
+concept
+	[at0000]	-- Wondtype-details
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire / Het Instituut Bedrijfskunde">
+		["email"] = <"info@erik-janvlieger.nl">
+		["date"] = <"2026-03-29">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Extensie op EVALUATION.problem_diagnosis.v1 voor wondspecifieke kenmerken. Geïnspireerd op het CKM Skin & Wound incubator-project (Heather Leslie) maar lokaal geïmplementeerd omdat het origineel niet publiek beschikbaar is.">
+			use = <"Gebruik als genest cluster in het 'Specific details'-slot van EVALUATION.problem_diagnosis.v1, wanneer de diagnose een wond betreft. Legt vast: wondtype, etiologie, datum ontstaan, oncologisch karakter, chronisch/acuut, en recidief-status.">
+			misuse = <"Niet voor wondonderzoeksbevindingen (gebruik CLUSTER.exam_wound). Niet voor wondbehandeling.">
+			keywords = <"wond", "wondtype", "etiologie", "oncologisch", "chronisch", "acuut", "recidief">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Extension to EVALUATION.problem_diagnosis.v1 for wound-specific assertion details.">
+			use = <"Use nested in the 'Specific details' slot of problem_diagnosis when the diagnosis is a wound.">
+			misuse = <"Not for wound examination findings or treatment.">
+			keywords = <"wound", "wound type", "aetiology", "oncological", "chronic", "acute", "recurrence">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+	other_details = <
+		["licence"] = <"Creative Commons Attribution-ShareAlike 4.0">
+		["references"] = <"Geïnspireerd op openEHR CKM Skin & Wound incubator project (Heather Leslie, Ocean Health Systems).">
+		["MD5-CAM-1.0.1"] = <"00000000000000000000000000000000">
+	>
+
+definition
+	CLUSTER[at0000] matches {	-- Wondtype-details
+		items cardinality matches {1..*; unordered} matches {
+			ELEMENT[at0001] matches {	-- Wondtype
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0002,	-- Traumatisch
+							at0003,	-- Chirurgisch
+							at0004,	-- Decubitus
+							at0005,	-- Vasculair (veneus)
+							at0006,	-- Vasculair (arterieel)
+							at0007,	-- Vasculair (gemengd)
+							at0008,	-- Diabetisch voetulcus
+							at0009,	-- Brandwond
+							at0010,	-- Oncologisch
+							at0011]	-- Anders
+						}
+					}
+				}
+			}
+			ELEMENT[at0012] occurrences matches {0..1} matches {	-- Etiologie toelichting
+				value matches {
+					DV_TEXT matches {*}
+				}
+			}
+			ELEMENT[at0013] occurrences matches {0..1} matches {	-- Datum ontstaan
+				value matches {
+					DV_DATE_TIME matches {*}
+				}
+			}
+			ELEMENT[at0014] occurrences matches {0..1} matches {	-- Oncologische wond
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0015,	-- Ja
+							at0016,	-- Nee
+							at0017]	-- Onbekend
+						}
+					}
+				}
+			}
+			ELEMENT[at0018] occurrences matches {0..1} matches {	-- Acuut of chronisch
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0019,	-- Acuut
+							at0020]	-- Chronisch (>2-3 weken)
+						}
+					}
+				}
+			}
+			ELEMENT[at0021] occurrences matches {0..1} matches {	-- Recidief
+				value matches {
+					DV_BOOLEAN matches {
+						value matches {True, False}
+					}
+				}
+			}
+			ELEMENT[at0022] occurrences matches {0..1} matches {	-- Opmerking
+				value matches {
+					DV_TEXT matches {*}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <text = <"Wondtype-details"> description = <"Aanvullende details over type en etiologie van een wond, als extensie op een probleemdiagnose.">>
+				["at0001"] = <text = <"Wondtype"> description = <"Classificatie van het type wond.">>
+				["at0002"] = <text = <"Traumatisch"> description = <"Wond ontstaan door trauma (val, snij, schaaf).">>
+				["at0003"] = <text = <"Chirurgisch"> description = <"Wond ontstaan door chirurgische ingreep.">>
+				["at0004"] = <text = <"Decubitus"> description = <"Drukwond (doorligwond).">>
+				["at0005"] = <text = <"Vasculair (veneus)"> description = <"Wond door veneuze insufficiëntie.">>
+				["at0006"] = <text = <"Vasculair (arterieel)"> description = <"Wond door arteriële insufficiëntie.">>
+				["at0007"] = <text = <"Vasculair (gemengd)"> description = <"Wond door gecombineerde veneuze en arteriële insufficiëntie.">>
+				["at0008"] = <text = <"Diabetisch voetulcus"> description = <"Wond gerelateerd aan diabetes mellitus, typisch aan de voet.">>
+				["at0009"] = <text = <"Brandwond"> description = <"Wond door thermisch, chemisch of elektrisch letsel.">>
+				["at0010"] = <text = <"Oncologisch"> description = <"Wond gerelateerd aan maligniteit (doorgroei, uitwendig tumorverval).">>
+				["at0011"] = <text = <"Anders"> description = <"Ander wondtype, nader te specificeren in toelichting.">>
+				["at0012"] = <text = <"Etiologie toelichting"> description = <"Vrije tekst toelichting op de etiologie of het wondtype.">>
+				["at0013"] = <text = <"Datum ontstaan"> description = <"Datum (en eventueel tijdstip) waarop de wond is ontstaan.">>
+				["at0014"] = <text = <"Oncologische wond"> description = <"Is de wond gerelateerd aan een maligniteit? Bepalend voor het behandeltraject (oncologische wonden zijn geëxcludeerd uit het standaard wondprotocol).">>
+				["at0015"] = <text = <"Ja"> description = <"De wond is oncologisch van aard.">>
+				["at0016"] = <text = <"Nee"> description = <"De wond is niet oncologisch van aard.">>
+				["at0017"] = <text = <"Onbekend"> description = <"Het is (nog) niet bekend of de wond oncologisch is.">>
+				["at0018"] = <text = <"Acuut of chronisch"> description = <"Classificatie van de wond als acuut of chronisch.">>
+				["at0019"] = <text = <"Acuut"> description = <"Recente wond, ontstaan binnen 2-3 weken.">>
+				["at0020"] = <text = <"Chronisch (>2-3 weken)"> description = <"Wond bestaat langer dan 2-3 weken zonder adequate genezing.">>
+				["at0021"] = <text = <"Recidief"> description = <"Betreft het een terugkerende wond op dezelfde locatie?">>
+				["at0022"] = <text = <"Opmerking"> description = <"Aanvullende opmerkingen over de wond-assertie.">>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <text = <"Wound assertion details"> description = <"Additional details about wound type and aetiology, extending a problem diagnosis.">>
+				["at0001"] = <text = <"Wound type"> description = <"Classification of wound type.">>
+				["at0002"] = <text = <"Traumatic"> description = <"Wound caused by trauma.">>
+				["at0003"] = <text = <"Surgical"> description = <"Wound from surgical procedure.">>
+				["at0004"] = <text = <"Pressure ulcer"> description = <"Pressure injury (decubitus).">>
+				["at0005"] = <text = <"Vascular (venous)"> description = <"Wound from venous insufficiency.">>
+				["at0006"] = <text = <"Vascular (arterial)"> description = <"Wound from arterial insufficiency.">>
+				["at0007"] = <text = <"Vascular (mixed)"> description = <"Wound from combined venous and arterial insufficiency.">>
+				["at0008"] = <text = <"Diabetic foot ulcer"> description = <"Wound related to diabetes mellitus.">>
+				["at0009"] = <text = <"Burn"> description = <"Thermal, chemical or electrical burn.">>
+				["at0010"] = <text = <"Oncological"> description = <"Wound related to malignancy.">>
+				["at0011"] = <text = <"Other"> description = <"Other wound type.">>
+				["at0012"] = <text = <"Aetiology comment"> description = <"Free text comment on aetiology.">>
+				["at0013"] = <text = <"Date of onset"> description = <"Date the wound occurred.">>
+				["at0014"] = <text = <"Oncological wound"> description = <"Is the wound related to malignancy?">>
+				["at0015"] = <text = <"Yes"> description = <"The wound is oncological.">>
+				["at0016"] = <text = <"No"> description = <"The wound is not oncological.">>
+				["at0017"] = <text = <"Unknown"> description = <"Not yet known whether oncological.">>
+				["at0018"] = <text = <"Acute or chronic"> description = <"Classification as acute or chronic.">>
+				["at0019"] = <text = <"Acute"> description = <"Recent wound, within 2-3 weeks.">>
+				["at0020"] = <text = <"Chronic (>2-3 weeks)"> description = <"Wound present longer than 2-3 weeks.">>
+				["at0021"] = <text = <"Recurrence"> description = <"Is this a recurrent wound at the same location?">>
+				["at0022"] = <text = <"Comment"> description = <"Additional comments.">>
+			>
+		>
+	>

@@ -1,0 +1,266 @@
+archetype (adl_version=1.4; uid=c3d4e5f6-a7b8-9012-cdef-012345678901)
+	openEHR-EHR-OBSERVATION.monofilament_examination.v0
+
+concept
+	[at0000]	-- Monofilament-onderzoek
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire / Het Instituut Bedrijfskunde">
+		["email"] = <"info@erik-janvlieger.nl">
+		["date"] = <"2026-03-29">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Registratie van de Semmes-Weinstein 10g monofilament-test voor detectie van perifere sensorische neuropathie bij diabetes mellitus. Het archetype bevat een plantaire locatiematrix met per testlocatie een resultaat en een berekende totaalscore.">
+			use = <"Gebruik als zelfstandig OBSERVATION-archetype binnen het template Diabetic_Foot_Assessment_Sensire.v1. De totaalscore levert input voor automatische Sims-berekening via GDL2. Protocol beschrijft het gebruikte instrument en de testmethode.">
+			misuse = <"Niet voor andere sensibiliteitstesten (priktest, vibratietest). Niet voor de interpretatie van het resultaat (gebruik EVALUATION.sims_classification_nl.v0).">
+			keywords = <"monofilament", "Semmes-Weinstein", "neuropathie", "sensibiliteit", "diabetes", "voet", "protectieve sensibiliteit">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Recording of the Semmes-Weinstein 10g monofilament test for detection of peripheral sensory neuropathy in diabetes mellitus.">
+			use = <"Use as standalone OBSERVATION within Diabetic_Foot_Assessment template.">
+			misuse = <"Not for other sensibility tests or interpretation of results.">
+			keywords = <"monofilament", "Semmes-Weinstein", "neuropathy", "sensibility", "diabetes", "foot">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	OBSERVATION[at0000] matches {	-- Monofilament-onderzoek
+		data matches {
+			HISTORY[at0001] matches {	-- Gebeurtenissen
+				events cardinality matches {1..*; unordered} matches {
+					EVENT[at0002] occurrences matches {0..*} matches {	-- Willekeurig moment
+						data matches {
+							ITEM_TREE[at0003] matches {	-- Boom
+								items cardinality matches {0..*; unordered} matches {
+									CLUSTER[at0004] occurrences matches {1..2} matches {	-- Per voet
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0005] matches {	-- Lateraliteit
+												value matches {
+													DV_CODED_TEXT matches {
+														defining_code matches {
+															[local::
+															at0006,	-- Links
+															at0007]	-- Rechts
+														}
+													}
+												}
+											}
+											ELEMENT[at0008] occurrences matches {0..1} matches {	-- Hallux (grote teen)
+												value matches {
+													DV_CODED_TEXT matches {
+														defining_code matches {
+															[local::
+															at0020,	-- Waargenomen
+															at0021]	-- Niet waargenomen
+														}
+													}
+												}
+											}
+											ELEMENT[at0009] occurrences matches {0..1} matches {	-- Metatarsaalkop 1
+												value matches {
+													DV_CODED_TEXT matches {
+														defining_code matches {
+															[local::
+															at0020,	-- Waargenomen
+															at0021]	-- Niet waargenomen
+														}
+													}
+												}
+											}
+											ELEMENT[at0010] occurrences matches {0..1} matches {	-- Metatarsaalkop 3
+												value matches {
+													DV_CODED_TEXT matches {
+														defining_code matches {
+															[local::
+															at0020,	-- Waargenomen
+															at0021]	-- Niet waargenomen
+														}
+													}
+												}
+											}
+											ELEMENT[at0011] occurrences matches {0..1} matches {	-- Metatarsaalkop 5
+												value matches {
+													DV_CODED_TEXT matches {
+														defining_code matches {
+															[local::
+															at0020,	-- Waargenomen
+															at0021]	-- Niet waargenomen
+														}
+													}
+												}
+											}
+											ELEMENT[at0012] occurrences matches {0..1} matches {	-- Middenvoet mediaal
+												value matches {
+													DV_CODED_TEXT matches {
+														defining_code matches {
+															[local::
+															at0020,	-- Waargenomen
+															at0021]	-- Niet waargenomen
+														}
+													}
+												}
+											}
+											ELEMENT[at0013] occurrences matches {0..1} matches {	-- Middenvoet lateraal
+												value matches {
+													DV_CODED_TEXT matches {
+														defining_code matches {
+															[local::
+															at0020,	-- Waargenomen
+															at0021]	-- Niet waargenomen
+														}
+													}
+												}
+											}
+											ELEMENT[at0014] occurrences matches {0..1} matches {	-- Hiel mediaal
+												value matches {
+													DV_CODED_TEXT matches {
+														defining_code matches {
+															[local::
+															at0020,	-- Waargenomen
+															at0021]	-- Niet waargenomen
+														}
+													}
+												}
+											}
+											ELEMENT[at0015] occurrences matches {0..1} matches {	-- Hiel lateraal
+												value matches {
+													DV_CODED_TEXT matches {
+														defining_code matches {
+															[local::
+															at0020,	-- Waargenomen
+															at0021]	-- Niet waargenomen
+														}
+													}
+												}
+											}
+											ELEMENT[at0016] matches {	-- Totaalscore
+												value matches {
+													DV_COUNT matches {
+														magnitude matches {|0..8|}
+													}
+												}
+											}
+											ELEMENT[at0017] occurrences matches {0..1} matches {	-- Protectieve sensibiliteit verloren
+												value matches {
+													DV_BOOLEAN matches {
+														value matches {True, False}
+													}
+												}
+											}
+										}
+									}
+									ELEMENT[at0018] occurrences matches {0..1} matches {	-- Opmerking
+										value matches {
+											DV_TEXT matches {*}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		protocol matches {
+			ITEM_TREE[at0019] matches {	-- Protocol
+				items cardinality matches {0..*; unordered} matches {
+					ELEMENT[at0022] occurrences matches {0..1} matches {	-- Instrument
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0023]	-- Semmes-Weinstein 10g monofilament
+								}
+							}
+						}
+					}
+					ELEMENT[at0024] occurrences matches {0..1} matches {	-- Testmethode
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <text = <"Monofilament-onderzoek"> description = <"Semmes-Weinstein 10g monofilament-test voor detectie van perifere sensorische neuropathie.">>
+				["at0001"] = <text = <"Gebeurtenissen"> description = <"Gebeurtenissen in de tijd.">>
+				["at0002"] = <text = <"Willekeurig moment"> description = <"Standaard, niet nader gespecificeerd moment.">>
+				["at0003"] = <text = <"Boom"> description = <"Boomstructuur.">>
+				["at0004"] = <text = <"Per voet"> description = <"Testresultaten per voet.">>
+				["at0005"] = <text = <"Lateraliteit"> description = <"Linker of rechter voet.">>
+				["at0006"] = <text = <"Links"> description = <"Linkervoet.">>
+				["at0007"] = <text = <"Rechts"> description = <"Rechtervoet.">>
+				["at0008"] = <text = <"Hallux (grote teen)"> description = <"Monofilament-respons op de plantaire zijde van de grote teen.">>
+				["at0009"] = <text = <"Metatarsaalkop 1"> description = <"Monofilament-respons ter hoogte van metatarsaalkop 1.">>
+				["at0010"] = <text = <"Metatarsaalkop 3"> description = <"Monofilament-respons ter hoogte van metatarsaalkop 3.">>
+				["at0011"] = <text = <"Metatarsaalkop 5"> description = <"Monofilament-respons ter hoogte van metatarsaalkop 5.">>
+				["at0012"] = <text = <"Middenvoet mediaal"> description = <"Monofilament-respons mediaal op de middenvoet.">>
+				["at0013"] = <text = <"Middenvoet lateraal"> description = <"Monofilament-respons lateraal op de middenvoet.">>
+				["at0014"] = <text = <"Hiel mediaal"> description = <"Monofilament-respons mediaal op de hiel.">>
+				["at0015"] = <text = <"Hiel lateraal"> description = <"Monofilament-respons lateraal op de hiel.">>
+				["at0016"] = <text = <"Totaalscore"> description = <"Aantal locaties waar het monofilament wél werd waargenomen (0-8 per voet). Score ≤5 wijst op verlies van protectieve sensibiliteit.">>
+				["at0017"] = <text = <"Protectieve sensibiliteit verloren"> description = <"Klinisch oordeel: protectieve sensibiliteit is verloren (score ≤5/8 of klinisch beeld).">>
+				["at0018"] = <text = <"Opmerking"> description = <"Aanvullende opmerkingen bij het monofilament-onderzoek.">>
+				["at0019"] = <text = <"Protocol"> description = <"Protocol van het onderzoek.">>
+				["at0020"] = <text = <"Waargenomen"> description = <"De patiënt voelt het monofilament op deze locatie.">>
+				["at0021"] = <text = <"Niet waargenomen"> description = <"De patiënt voelt het monofilament niet op deze locatie.">>
+				["at0022"] = <text = <"Instrument"> description = <"Gebruikt instrument voor de test.">>
+				["at0023"] = <text = <"Semmes-Weinstein 10g monofilament"> description = <"Standaard Semmes-Weinstein 5.07 (10g) monofilament.">>
+				["at0024"] = <text = <"Testmethode"> description = <"Beschrijving van de toegepaste testmethode.">>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <text = <"Monofilament examination"> description = <"Semmes-Weinstein 10g monofilament test for detection of peripheral sensory neuropathy.">>
+				["at0001"] = <text = <"Events"> description = <"Events in time.">>
+				["at0002"] = <text = <"Any event"> description = <"Default unspecified point in time.">>
+				["at0003"] = <text = <"Tree"> description = <"Tree structure.">>
+				["at0004"] = <text = <"Per foot"> description = <"Test results per foot.">>
+				["at0005"] = <text = <"Laterality"> description = <"Left or right foot.">>
+				["at0006"] = <text = <"Left"> description = <"Left foot.">>
+				["at0007"] = <text = <"Right"> description = <"Right foot.">>
+				["at0008"] = <text = <"Hallux (great toe)"> description = <"Monofilament response at the plantar surface of the great toe.">>
+				["at0009"] = <text = <"Metatarsal head 1"> description = <"Monofilament response at metatarsal head 1.">>
+				["at0010"] = <text = <"Metatarsal head 3"> description = <"Monofilament response at metatarsal head 3.">>
+				["at0011"] = <text = <"Metatarsal head 5"> description = <"Monofilament response at metatarsal head 5.">>
+				["at0012"] = <text = <"Midfoot medial"> description = <"Monofilament response at medial midfoot.">>
+				["at0013"] = <text = <"Midfoot lateral"> description = <"Monofilament response at lateral midfoot.">>
+				["at0014"] = <text = <"Heel medial"> description = <"Monofilament response at medial heel.">>
+				["at0015"] = <text = <"Heel lateral"> description = <"Monofilament response at lateral heel.">>
+				["at0016"] = <text = <"Total score"> description = <"Number of locations where monofilament was perceived (0-8 per foot).">>
+				["at0017"] = <text = <"Protective sensation lost"> description = <"Clinical judgement: protective sensation is lost.">>
+				["at0018"] = <text = <"Comment"> description = <"Additional comments.">>
+				["at0019"] = <text = <"Protocol"> description = <"Examination protocol.">>
+				["at0020"] = <text = <"Perceived"> description = <"Patient feels the monofilament at this location.">>
+				["at0021"] = <text = <"Not perceived"> description = <"Patient does not feel the monofilament at this location.">>
+				["at0022"] = <text = <"Instrument"> description = <"Instrument used for the test.">>
+				["at0023"] = <text = <"Semmes-Weinstein 10g monofilament"> description = <"Standard Semmes-Weinstein 5.07 (10g) monofilament.">>
+				["at0024"] = <text = <"Test method"> description = <"Description of the test method applied.">>
+			>
+		>
+	>

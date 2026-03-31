@@ -1,0 +1,251 @@
+archetype (adl_version=1.4; uid=a1b2c3d4-e5f6-7890-abcd-ef0123456789)
+	openEHR-EHR-CLUSTER.wound_tissue_wcs_nl.v0
+
+concept
+	[at0000]	-- WCS-kleurclassificatie wondbed
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+				["organisation"] = <"Sensire">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire / Het Instituut Bedrijfskunde">
+		["email"] = <"info@erik-janvlieger.nl">
+		["date"] = <"2026-03-29">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Vastleggen van de WCS (Wound Colour Score) kleurclassificatie van het wondbed volgens de Nederlandse Wound Care Society methodiek. Dit cluster registreert de primaire, secundaire en tertiaire weefselkleur en het geschatte percentage per kleur.">
+			use = <"Gebruik als genest cluster binnen CLUSTER.exam_wound in het 'Specific details'-slot. De WCS-classificatie stuurt direct de keuze voor verbandmateriaal en debridementstrategie.">
+			misuse = <"Niet gebruiken als zelfstandig archetype buiten de context van een wondonderzoek.">
+			keywords = <"WCS", "wondkleur", "wondbed", "necrose", "fibrine", "granulatie", "zwart", "geel", "rood", "weefsel">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Recording of the WCS (Wound Colour Score) classification of the wound bed according to Dutch Wound Care Society methodology.">
+			use = <"Use as a nested cluster within CLUSTER.exam_wound in the 'Specific details' slot.">
+			misuse = <"Not to be used as a standalone archetype outside wound examination context.">
+			keywords = <"WCS", "wound colour", "wound bed", "necrosis", "fibrin", "granulation">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+	other_details = <
+		["licence"] = <"Creative Commons Attribution-ShareAlike 4.0">
+		["references"] = <"WCS Wondzorg Classificatie Systeem, Nederlandse Wound Care Society.">
+		["MD5-CAM-1.0.1"] = <"00000000000000000000000000000000">
+	>
+
+definition
+	CLUSTER[at0000] matches {	-- WCS-kleurclassificatie wondbed
+		items cardinality matches {1..*; unordered} matches {
+			ELEMENT[at0001] matches {	-- Primaire wondkleur
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0004,	-- Zwart (necrose)
+							at0005,	-- Geel (fibrine/slough)
+							at0006]	-- Rood (granulatieweefsel)
+						}
+					}
+				}
+			}
+			ELEMENT[at0002] occurrences matches {0..1} matches {	-- Secundaire wondkleur
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0004,	-- Zwart (necrose)
+							at0005,	-- Geel (fibrine/slough)
+							at0006]	-- Rood (granulatieweefsel)
+						}
+					}
+				}
+			}
+			ELEMENT[at0003] occurrences matches {0..1} matches {	-- Tertiaire wondkleur
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0004,	-- Zwart (necrose)
+							at0005,	-- Geel (fibrine/slough)
+							at0006]	-- Rood (granulatieweefsel)
+						}
+					}
+				}
+			}
+			ELEMENT[at0007] occurrences matches {0..1} matches {	-- Percentage zwart weefsel
+				value matches {
+					DV_PROPORTION matches {
+						numerator matches {|0.0..100.0|}
+						type matches {2}
+					}
+				}
+			}
+			ELEMENT[at0008] occurrences matches {0..1} matches {	-- Percentage geel weefsel
+				value matches {
+					DV_PROPORTION matches {
+						numerator matches {|0.0..100.0|}
+						type matches {2}
+					}
+				}
+			}
+			ELEMENT[at0009] occurrences matches {0..1} matches {	-- Percentage rood weefsel
+				value matches {
+					DV_PROPORTION matches {
+						numerator matches {|0.0..100.0|}
+						type matches {2}
+					}
+				}
+			}
+			ELEMENT[at0010] occurrences matches {0..1} matches {	-- Roze (epithelialisatie)
+				value matches {
+					DV_BOOLEAN matches {
+						value matches {True, False}
+					}
+				}
+			}
+			ELEMENT[at0011] occurrences matches {0..1} matches {	-- Percentage roze weefsel
+				value matches {
+					DV_PROPORTION matches {
+						numerator matches {|0.0..100.0|}
+						type matches {2}
+					}
+				}
+			}
+			ELEMENT[at0012] occurrences matches {0..1} matches {	-- Opmerking
+				value matches {
+					DV_TEXT matches {*}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"WCS-kleurclassificatie wondbed">
+					description = <"Classificatie van het wondbed volgens het WCS (Wound Colour Score) systeem van de Nederlandse Wound Care Society.">
+				>
+				["at0001"] = <
+					text = <"Primaire wondkleur">
+					description = <"De overheersende kleur van het wondbed.">
+				>
+				["at0002"] = <
+					text = <"Secundaire wondkleur">
+					description = <"De op één na meest voorkomende kleur in het wondbed, indien sprake van een mengvorm.">
+				>
+				["at0003"] = <
+					text = <"Tertiaire wondkleur">
+					description = <"De derde kleur in het wondbed, indien sprake van een drie-kleurenmengvorm.">
+				>
+				["at0004"] = <
+					text = <"Zwart (necrose)">
+					description = <"Necrotisch, avitaal weefsel. Vereist debridement tenzij gecontra-indiceerd.">
+				>
+				["at0005"] = <
+					text = <"Geel (fibrine/slough)">
+					description = <"Fibrineus beslag of slough. Wijst op stagnerende wondgenezing.">
+				>
+				["at0006"] = <
+					text = <"Rood (granulatieweefsel)">
+					description = <"Gezond granulatieweefsel. Wijst op actieve wondgenezing.">
+				>
+				["at0007"] = <
+					text = <"Percentage zwart weefsel">
+					description = <"Geschat percentage van het wondoppervlak bedekt met necrotisch weefsel.">
+				>
+				["at0008"] = <
+					text = <"Percentage geel weefsel">
+					description = <"Geschat percentage van het wondoppervlak bedekt met fibrineus beslag.">
+				>
+				["at0009"] = <
+					text = <"Percentage rood weefsel">
+					description = <"Geschat percentage van het wondoppervlak bedekt met granulatieweefsel.">
+				>
+				["at0010"] = <
+					text = <"Roze (epithelialisatie)">
+					description = <"Aanwezigheid van roze epithelialisatieweefsel aan de wondranden.">
+				>
+				["at0011"] = <
+					text = <"Percentage roze weefsel">
+					description = <"Geschat percentage van het wondoppervlak met epithelialisatie.">
+				>
+				["at0012"] = <
+					text = <"Opmerking">
+					description = <"Aanvullende opmerkingen over de weefselkleurbeoordeling.">
+				>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <
+					text = <"WCS wound bed colour classification">
+					description = <"Classification of the wound bed according to the WCS (Wound Colour Score) system of the Dutch Wound Care Society.">
+				>
+				["at0001"] = <
+					text = <"Primary wound colour">
+					description = <"The predominant colour of the wound bed.">
+				>
+				["at0002"] = <
+					text = <"Secondary wound colour">
+					description = <"The second most prevalent colour in the wound bed, in case of a mixed wound.">
+				>
+				["at0003"] = <
+					text = <"Tertiary wound colour">
+					description = <"The third colour in the wound bed, in case of a three-colour mixture.">
+				>
+				["at0004"] = <
+					text = <"Black (necrosis)">
+					description = <"Necrotic, devitalised tissue. Requires debridement unless contraindicated.">
+				>
+				["at0005"] = <
+					text = <"Yellow (fibrin/slough)">
+					description = <"Fibrinous coating or slough. Indicates stalling wound healing.">
+				>
+				["at0006"] = <
+					text = <"Red (granulation tissue)">
+					description = <"Healthy granulation tissue. Indicates active wound healing.">
+				>
+				["at0007"] = <
+					text = <"Percentage black tissue">
+					description = <"Estimated percentage of wound surface covered with necrotic tissue.">
+				>
+				["at0008"] = <
+					text = <"Percentage yellow tissue">
+					description = <"Estimated percentage of wound surface covered with fibrinous coating.">
+				>
+				["at0009"] = <
+					text = <"Percentage red tissue">
+					description = <"Estimated percentage of wound surface covered with granulation tissue.">
+				>
+				["at0010"] = <
+					text = <"Pink (epithelialisation)">
+					description = <"Presence of pink epithelialisation tissue at wound edges.">
+				>
+				["at0011"] = <
+					text = <"Percentage pink tissue">
+					description = <"Estimated percentage of wound surface with epithelialisation.">
+				>
+				["at0012"] = <
+					text = <"Comment">
+					description = <"Additional comments about the tissue colour assessment.">
+				>
+			>
+		>
+	>

@@ -1,0 +1,316 @@
+archetype (adl_version=1.4; uid=b2c3d4e5-f6a7-8901-bcde-f01234567890)
+	openEHR-EHR-CLUSTER.exam_diabetic_foot.v0
+
+concept
+	[at0000]	-- Onderzoek diabetische voet
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire / Het Instituut Bedrijfskunde">
+		["email"] = <"info@erik-janvlieger.nl">
+		["date"] = <"2026-03-29">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Gestructureerde registratie van de bevindingen bij inspectie van de diabetische voet. Omvat bilaterale beoordeling van huid, temperatuur, pulsaties, neuropathie-indicatoren, standafwijkingen en Charcot-vermoeden.">
+			use = <"Gebruik als genest cluster binnen OBSERVATION.exam.v1 in het 'Examination findings'-slot. Bedoeld voor gebruik in het template Diabetic_Foot_Assessment_Sensire.v1.">
+			misuse = <"Niet voor de monofilament-test (gebruik OBSERVATION.monofilament_examination.v0) of de Sims-classificatie (gebruik EVALUATION.sims_classification_nl.v0).">
+			keywords = <"diabetische voet", "voetinspectie", "pulsaties", "neuropathie", "Charcot", "eelt", "standsafwijking", "DM">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Structured recording of findings from diabetic foot examination.">
+			use = <"Use as nested cluster within OBSERVATION.exam.v1.">
+			misuse = <"Not for monofilament testing or Sims classification.">
+			keywords = <"diabetic foot", "foot inspection", "pulses", "neuropathy", "Charcot">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	CLUSTER[at0000] matches {	-- Onderzoek diabetische voet
+		items cardinality matches {1..*; unordered} matches {
+			CLUSTER[at0001] occurrences matches {1..2} matches {	-- Per voet
+				items cardinality matches {1..*; unordered} matches {
+					ELEMENT[at0002] matches {	-- Lateraliteit
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0003,	-- Links
+									at0004]	-- Rechts
+								}
+							}
+						}
+					}
+					ELEMENT[at0005] occurrences matches {0..1} matches {	-- Huidkleur
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0006,	-- Normaal
+									at0007,	-- Bleek
+									at0008,	-- Rood
+									at0009]	-- Cyanotisch
+								}
+							}
+						}
+					}
+					ELEMENT[at0010] occurrences matches {0..1} matches {	-- Huidtemperatuur
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0011,	-- Normaal
+									at0012,	-- Koel
+									at0013]	-- Warm
+								}
+							}
+						}
+					}
+					ELEMENT[at0014] occurrences matches {0..1} matches {	-- Temperatuurasymmetrie
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+					ELEMENT[at0015] occurrences matches {0..1} matches {	-- Droge huid
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+					ELEMENT[at0016] occurrences matches {0..1} matches {	-- Eelt aanwezig
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+					ELEMENT[at0017] occurrences matches {0..1} matches {	-- Fissuren aanwezig
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+					ELEMENT[at0018] occurrences matches {0..1} matches {	-- Standsafwijkingen
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0019,	-- Geen
+									at0020,	-- Hallux valgus
+									at0021,	-- Klauwtenen
+									at0022,	-- Hamertenen
+									at0023]	-- Anders
+								}
+							}
+						}
+					}
+					ELEMENT[at0024] occurrences matches {0..1} matches {	-- Beschrijving standsafwijking
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+					ELEMENT[at0025] occurrences matches {0..1} matches {	-- Pulsatie a. dorsalis pedis
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0026,	-- Voelbaar
+									at0027,	-- Zwak voelbaar
+									at0028]	-- Niet voelbaar
+								}
+							}
+						}
+					}
+					ELEMENT[at0029] occurrences matches {0..1} matches {	-- Pulsatie a. tibialis posterior
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0026,	-- Voelbaar
+									at0027,	-- Zwak voelbaar
+									at0028]	-- Niet voelbaar
+								}
+							}
+						}
+					}
+					ELEMENT[at0030] occurrences matches {0..1} matches {	-- Nagelbeoordeling
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0031,	-- Normaal
+									at0032,	-- Verdikt
+									at0033,	-- Mycose
+									at0034]	-- Ingroeiend
+								}
+							}
+						}
+					}
+					ELEMENT[at0035] occurrences matches {0..1} matches {	-- Oedeem
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+					ELEMENT[at0036] occurrences matches {0..1} matches {	-- Wond aanwezig
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+				}
+			}
+			ELEMENT[at0037] occurrences matches {0..1} matches {	-- Schoeisel adequaat
+				value matches {
+					DV_CODED_TEXT matches {
+						defining_code matches {
+							[local::
+							at0038,	-- Adequaat
+							at0039,	-- Inadequaat
+							at0040]	-- Orthopedisch schoeisel aanwezig
+						}
+					}
+				}
+			}
+			ELEMENT[at0041] occurrences matches {0..1} matches {	-- Charcot-vermoeden
+				value matches {
+					DV_BOOLEAN matches {
+						value matches {True, False}
+					}
+				}
+			}
+			ELEMENT[at0042] occurrences matches {0..1} matches {	-- Toelichting Charcot
+				value matches {
+					DV_TEXT matches {*}
+				}
+			}
+			ELEMENT[at0043] occurrences matches {0..1} matches {	-- Opmerking
+				value matches {
+					DV_TEXT matches {*}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <text = <"Onderzoek diabetische voet"> description = <"Gestructureerde bevindingen bij inspectie van de voet bij een patiënt met diabetes mellitus.">>
+				["at0001"] = <text = <"Per voet"> description = <"Bevindingen per individuele voet.">>
+				["at0002"] = <text = <"Lateraliteit"> description = <"Linker of rechter voet.">>
+				["at0003"] = <text = <"Links"> description = <"Linkervoet.">>
+				["at0004"] = <text = <"Rechts"> description = <"Rechtervoet.">>
+				["at0005"] = <text = <"Huidkleur"> description = <"Kleur van de huid van de voet.">>
+				["at0006"] = <text = <"Normaal"> description = <"Normale huidskleur.">>
+				["at0007"] = <text = <"Bleek"> description = <"Bleke huid, passend bij verminderde arteriële doorstroming.">>
+				["at0008"] = <text = <"Rood"> description = <"Roodheid, passend bij ontsteking of afhankelijke rubor.">>
+				["at0009"] = <text = <"Cyanotisch"> description = <"Blauwige verkleuring, passend bij veneuze insufficiëntie.">>
+				["at0010"] = <text = <"Huidtemperatuur"> description = <"Temperatuur van de voethuid bij palpatie.">>
+				["at0011"] = <text = <"Normaal"> description = <"Normale temperatuur.">>
+				["at0012"] = <text = <"Koel"> description = <"Koele voet, passend bij verminderde doorbloeding.">>
+				["at0013"] = <text = <"Warm"> description = <"Warme voet, passend bij ontsteking of Charcot.">>
+				["at0014"] = <text = <"Temperatuurasymmetrie"> description = <"Verschil in temperatuur tussen linker- en rechtervoet. Bij asymmetrie altijd Charcot overwegen.">>
+				["at0015"] = <text = <"Droge huid"> description = <"Aanwezigheid van droge huid als teken van autonome neuropathie.">>
+				["at0016"] = <text = <"Eelt aanwezig"> description = <"Aanwezigheid van eelt als indicator voor verhoogde druk.">>
+				["at0017"] = <text = <"Fissuren aanwezig"> description = <"Aanwezigheid van fissuren (kloven) in de huid.">>
+				["at0018"] = <text = <"Standsafwijkingen"> description = <"Type standsafwijking van de voet of tenen.">>
+				["at0019"] = <text = <"Geen"> description = <"Geen standsafwijkingen.">>
+				["at0020"] = <text = <"Hallux valgus"> description = <"Hallux valgus (scheefstand grote teen).">>
+				["at0021"] = <text = <"Klauwtenen"> description = <"Klauwtenen.">>
+				["at0022"] = <text = <"Hamertenen"> description = <"Hamertenen.">>
+				["at0023"] = <text = <"Anders"> description = <"Andere standsafwijking, nader te specificeren.">>
+				["at0024"] = <text = <"Beschrijving standsafwijking"> description = <"Nadere beschrijving van de standsafwijking.">>
+				["at0025"] = <text = <"Pulsatie a. dorsalis pedis"> description = <"Palpatoire beoordeling van de arteria dorsalis pedis.">>
+				["at0026"] = <text = <"Voelbaar"> description = <"Pulsatie duidelijk voelbaar.">>
+				["at0027"] = <text = <"Zwak voelbaar"> description = <"Pulsatie zwak voelbaar.">>
+				["at0028"] = <text = <"Niet voelbaar"> description = <"Geen pulsatie voelbaar.">>
+				["at0029"] = <text = <"Pulsatie a. tibialis posterior"> description = <"Palpatoire beoordeling van de arteria tibialis posterior.">>
+				["at0030"] = <text = <"Nagelbeoordeling"> description = <"Beoordeling van de teennagels.">>
+				["at0031"] = <text = <"Normaal"> description = <"Normale nagels.">>
+				["at0032"] = <text = <"Verdikt"> description = <"Verdikte nagels.">>
+				["at0033"] = <text = <"Mycose"> description = <"Schimmelinfectie van de nagels.">>
+				["at0034"] = <text = <"Ingroeiend"> description = <"Ingroeiende nagel.">>
+				["at0035"] = <text = <"Oedeem"> description = <"Aanwezigheid van oedeem aan de voet.">>
+				["at0036"] = <text = <"Wond aanwezig"> description = <"Is er een wond aanwezig aan de voet?">>
+				["at0037"] = <text = <"Schoeisel adequaat"> description = <"Beoordeling van het schoeisel van de patiënt.">>
+				["at0038"] = <text = <"Adequaat"> description = <"Schoeisel is passend en beschermend.">>
+				["at0039"] = <text = <"Inadequaat"> description = <"Schoeisel is onvoldoende beschermend of passend.">>
+				["at0040"] = <text = <"Orthopedisch schoeisel aanwezig"> description = <"Patiënt draagt orthopedisch schoeisel.">>
+				["at0041"] = <text = <"Charcot-vermoeden"> description = <"Vermoeden van Charcot-voet (neuro-osteoarthropathie). Rode, warme, gezwollen voet zonder trauma.">>
+				["at0042"] = <text = <"Toelichting Charcot"> description = <"Nadere toelichting bij Charcot-vermoeden.">>
+				["at0043"] = <text = <"Opmerking"> description = <"Aanvullende opmerkingen bij het voetonderzoek.">>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <text = <"Diabetic foot examination"> description = <"Structured findings from examination of the foot in a patient with diabetes mellitus.">>
+				["at0001"] = <text = <"Per foot"> description = <"Findings per individual foot.">>
+				["at0002"] = <text = <"Laterality"> description = <"Left or right foot.">>
+				["at0003"] = <text = <"Left"> description = <"Left foot.">>
+				["at0004"] = <text = <"Right"> description = <"Right foot.">>
+				["at0005"] = <text = <"Skin colour"> description = <"Colour of the skin of the foot.">>
+				["at0006"] = <text = <"Normal"> description = <"Normal skin colour.">>
+				["at0007"] = <text = <"Pale"> description = <"Pale skin.">>
+				["at0008"] = <text = <"Red"> description = <"Redness.">>
+				["at0009"] = <text = <"Cyanotic"> description = <"Cyanotic discolouration.">>
+				["at0010"] = <text = <"Skin temperature"> description = <"Temperature of the foot skin on palpation.">>
+				["at0011"] = <text = <"Normal"> description = <"Normal temperature.">>
+				["at0012"] = <text = <"Cool"> description = <"Cool foot.">>
+				["at0013"] = <text = <"Warm"> description = <"Warm foot.">>
+				["at0014"] = <text = <"Temperature asymmetry"> description = <"Difference in temperature between left and right foot.">>
+				["at0015"] = <text = <"Dry skin"> description = <"Presence of dry skin as sign of autonomic neuropathy.">>
+				["at0016"] = <text = <"Callus present"> description = <"Presence of callus.">>
+				["at0017"] = <text = <"Fissures present"> description = <"Presence of fissures.">>
+				["at0018"] = <text = <"Deformities"> description = <"Type of foot or toe deformity.">>
+				["at0019"] = <text = <"None"> description = <"No deformities.">>
+				["at0020"] = <text = <"Hallux valgus"> description = <"Hallux valgus.">>
+				["at0021"] = <text = <"Claw toes"> description = <"Claw toes.">>
+				["at0022"] = <text = <"Hammer toes"> description = <"Hammer toes.">>
+				["at0023"] = <text = <"Other"> description = <"Other deformity.">>
+				["at0024"] = <text = <"Deformity description"> description = <"Further description of deformity.">>
+				["at0025"] = <text = <"Dorsalis pedis pulse"> description = <"Palpatory assessment of dorsalis pedis artery.">>
+				["at0026"] = <text = <"Palpable"> description = <"Pulse clearly palpable.">>
+				["at0027"] = <text = <"Weakly palpable"> description = <"Pulse weakly palpable.">>
+				["at0028"] = <text = <"Not palpable"> description = <"No pulse palpable.">>
+				["at0029"] = <text = <"Posterior tibial pulse"> description = <"Palpatory assessment of posterior tibial artery.">>
+				["at0030"] = <text = <"Nail assessment"> description = <"Assessment of toenails.">>
+				["at0031"] = <text = <"Normal"> description = <"Normal nails.">>
+				["at0032"] = <text = <"Thickened"> description = <"Thickened nails.">>
+				["at0033"] = <text = <"Mycosis"> description = <"Fungal nail infection.">>
+				["at0034"] = <text = <"Ingrown"> description = <"Ingrown nail.">>
+				["at0035"] = <text = <"Oedema"> description = <"Presence of oedema.">>
+				["at0036"] = <text = <"Wound present"> description = <"Is a wound present on the foot?">>
+				["at0037"] = <text = <"Footwear adequate"> description = <"Assessment of patient's footwear.">>
+				["at0038"] = <text = <"Adequate"> description = <"Footwear is appropriate.">>
+				["at0039"] = <text = <"Inadequate"> description = <"Footwear is insufficient.">>
+				["at0040"] = <text = <"Orthopaedic footwear present"> description = <"Patient wears orthopaedic footwear.">>
+				["at0041"] = <text = <"Charcot suspicion"> description = <"Suspicion of Charcot foot.">>
+				["at0042"] = <text = <"Charcot comment"> description = <"Additional comment on Charcot suspicion.">>
+				["at0043"] = <text = <"Comment"> description = <"Additional comments.">>
+			>
+		>
+	>

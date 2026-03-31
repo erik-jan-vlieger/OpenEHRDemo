@@ -1,0 +1,53 @@
+template (adl_version=2.0.6; rm_release=1.1.0)
+	openEHR-EHR-COMPOSITION.ulcus_cruris_assessment_sensire.v1.0.0
+
+specialize
+	openEHR-EHR-COMPOSITION.encounter.v1
+
+language
+	original_language = <[ISO_639-1::nl]>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire / Het Instituut Bedrijfskunde">
+		["date"] = <"2026-03-29">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Template voor het Ulcus Cruris Protocol van Sensire.">
+			use = <"Gebruik bij onderbeen-/voetulcera.">
+			misuse = <"Niet voor wonden buiten het onderbeen/voet.">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	COMPOSITION[id1] matches {
+		content matches {
+			use_archetype EVALUATION[id2, openEHR-EHR-EVALUATION.problem_diagnosis.v1]
+			use_archetype OBSERVATION[id3, openEHR-EHR-OBSERVATION.exam.v1]
+			use_archetype OBSERVATION[id4, openEHR-EHR-OBSERVATION.ankle_brachial_pressure_index.v0]
+			use_archetype EVALUATION[id5, openEHR-EHR-EVALUATION.clinical_synopsis.v1]
+			use_archetype INSTRUCTION[id6, openEHR-EHR-INSTRUCTION.therapeutic_item_order.v1]
+			use_archetype ACTION[id7, openEHR-EHR-ACTION.procedure.v1]
+			use_archetype INSTRUCTION[id8, openEHR-EHR-INSTRUCTION.service_request.v1]
+			use_archetype INSTRUCTION[id9, openEHR-EHR-INSTRUCTION.care_plan_request.v0]
+		}
+	}
+
+terminology
+	term_definitions = <
+		["nl"] = <
+			["id1"] = <text = <"Ulcus Cruris consult Sensire"> description = <"Contactmoment voor diagnostiek en behandeling van ulcus cruris.">>
+			["id2"] = <text = <"Diagnose"> description = <"UC-diagnose en vaatdiagnose.">>
+			["id3"] = <text = <"Onderzoek"> description = <"Oedeem-onderzoek inclusief Stemmer-test.">>
+			["id4"] = <text = <"ABPI-ratio"> description = <"Berekende enkel-arm drukverhouding.">>
+			["id5"] = <text = <"Klinische samenvatting"> description = <"EAI-interpretatie en afsluiting.">>
+			["id6"] = <text = <"Zwachtelorder"> description = <"Order voor compressietherapie.">>
+			["id7"] = <text = <"Zwachtelen"> description = <"Uitvoering van zwachtelen.">>
+			["id8"] = <text = <"Verwijzing"> description = <"Verwijzing naar wondzorg, vaatchirurg of huisarts.">>
+			["id9"] = <text = <"Nazorgplan"> description = <"Plan voor nazorg en compressie.">>
+		>
+	>

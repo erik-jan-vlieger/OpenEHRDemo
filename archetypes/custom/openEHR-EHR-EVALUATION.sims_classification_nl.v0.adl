@@ -1,0 +1,181 @@
+archetype (adl_version=1.4; uid=d4e5f6a7-b8c9-0123-defa-123456789012)
+	openEHR-EHR-EVALUATION.sims_classification_nl.v0
+
+concept
+	[at0000]	-- Sims-risicoclassificatie
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire / Het Instituut Bedrijfskunde">
+		["email"] = <"info@erik-janvlieger.nl">
+		["date"] = <"2026-03-29">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Registratie van de Sims-risicoclassificatie voor de diabetische voet. Dit Nederlandse risicoclassificatiemodel (categorie 0-3) is gebaseerd op verlies van protectieve sensibiliteit, perifeer arterieel vaatlijden en ulcushistorie. De Sims-score bepaalt direct de frequentie en aard van preventieve podotherapeutische zorg.">
+			use = <"Gebruik als zelfstandig EVALUATION-archetype (klinisch oordeel, geen observatie) in het template Diabetic_Foot_Assessment_Sensire.v1. Invoer komt uit OBSERVATION.monofilament_examination.v0 (PS-verlies) en klinische anamnese (PAV, ulcushistorie). Kan automatisch worden berekend via GDL2.">
+			misuse = <"Niet voor registratie van de individuele onderzoeksbevindingen (gebruik de specifieke OBSERVATION-archetypes). Niet voor Wagner-classificatie van wonden.">
+			keywords = <"Sims", "risicoclassificatie", "diabetische voet", "neuropathie", "preventie", "podotherapie", "voetzorg">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Recording of the Sims risk classification for the diabetic foot.">
+			use = <"Use as standalone EVALUATION within Diabetic_Foot_Assessment template.">
+			misuse = <"Not for individual examination findings or Wagner wound classification.">
+			keywords = <"Sims", "risk classification", "diabetic foot", "neuropathy", "prevention">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	EVALUATION[at0000] matches {	-- Sims-risicoclassificatie
+		data matches {
+			ITEM_TREE[at0001] matches {	-- Boom
+				items cardinality matches {1..*; unordered} matches {
+					ELEMENT[at0002] matches {	-- Sims-categorie
+						value matches {
+							DV_ORDINAL matches {
+								[value, symbol] matches {
+									[{0}, {[local::at0003]}],	-- Categorie 0
+									[{1}, {[local::at0004]}],	-- Categorie 1
+									[{2}, {[local::at0005]}],	-- Categorie 2
+									[{3}, {[local::at0006]}]	-- Categorie 3
+								}
+							}
+						}
+					}
+					ELEMENT[at0007] occurrences matches {0..1} matches {	-- Verlies protectieve sensibiliteit
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+					ELEMENT[at0008] occurrences matches {0..1} matches {	-- Perifeer arterieel vaatlijden
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+					ELEMENT[at0009] occurrences matches {0..1} matches {	-- Standsafwijkingen
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+					ELEMENT[at0010] occurrences matches {0..1} matches {	-- Historie ulcus
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+					ELEMENT[at0011] occurrences matches {0..1} matches {	-- Historie amputatie
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+					ELEMENT[at0012] occurrences matches {0..1} matches {	-- Charcot in voorgeschiedenis
+						value matches {
+							DV_BOOLEAN matches {
+								value matches {True, False}
+							}
+						}
+					}
+					ELEMENT[at0013] occurrences matches {0..1} matches {	-- Aanbevolen controlefrequentie
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+					ELEMENT[at0014] occurrences matches {0..1} matches {	-- Opmerking
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+				}
+			}
+		}
+		protocol matches {
+			ITEM_TREE[at0015] matches {	-- Protocol
+				items cardinality matches {0..*; unordered} matches {
+					ELEMENT[at0016] occurrences matches {0..1} matches {	-- Beoordelaar
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+					ELEMENT[at0017] occurrences matches {0..1} matches {	-- Datum beoordeling
+						value matches {
+							DV_DATE_TIME matches {*}
+						}
+					}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <text = <"Sims-risicoclassificatie"> description = <"Nederlands risicoclassificatiemodel voor de diabetische voet (categorie 0-3) gebaseerd op PS-verlies, PAV, ulcushistorie en andere risicofactoren.">>
+				["at0001"] = <text = <"Boom"> description = <"Boomstructuur.">>
+				["at0002"] = <text = <"Sims-categorie"> description = <"Risicoclassificatie van de diabetische voet volgens Sims.">>
+				["at0003"] = <text = <"Categorie 0 — Geen risicofactoren"> description = <"Intacte protectieve sensibiliteit, geen PAV, geen ulcushistorie. Jaarlijkse controle door huisarts.">>
+				["at0004"] = <text = <"Categorie 1 — Neuropathie"> description = <"Verlies van protectieve sensibiliteit (PS-verlies), geen PAV, geen ulcushistorie. Halfjaarlijkse controle, podotherapie.">>
+				["at0005"] = <text = <"Categorie 2 — Neuropathie + bijkomend risico"> description = <"PS-verlies + PAV en/of standsafwijkingen. Driemaandelijkse controle, specialistische podotherapie.">>
+				["at0006"] = <text = <"Categorie 3 — Ulcus/amputatie in VG"> description = <"Eerder ulcus, amputatie of Charcot in de voorgeschiedenis. Maandelijkse tot zeswekelijkse controle, specialistische multidisciplinaire zorg.">>
+				["at0007"] = <text = <"Verlies protectieve sensibiliteit"> description = <"Protectieve sensibiliteit verloren, vastgesteld met monofilament-test (score ≤5/8).">>
+				["at0008"] = <text = <"Perifeer arterieel vaatlijden"> description = <"Aanwezigheid van perifeer arterieel vaatlijden (PAV), vastgesteld via pulsaties en/of EAI.">>
+				["at0009"] = <text = <"Standsafwijkingen"> description = <"Aanwezigheid van voet- of teenstandafwijkingen die drukpunten veroorzaken.">>
+				["at0010"] = <text = <"Historie ulcus"> description = <"Eerder voetulcus in de voorgeschiedenis.">>
+				["at0011"] = <text = <"Historie amputatie"> description = <"Eerdere (deel)amputatie van de voet of het been.">>
+				["at0012"] = <text = <"Charcot in voorgeschiedenis"> description = <"Charcot-osteoarthropathie in de voorgeschiedenis.">>
+				["at0013"] = <text = <"Aanbevolen controlefrequentie"> description = <"Aanbevolen frequentie van voetcontrole op basis van de Sims-categorie.">>
+				["at0014"] = <text = <"Opmerking"> description = <"Aanvullende opmerkingen bij de Sims-classificatie.">>
+				["at0015"] = <text = <"Protocol"> description = <"Protocol.">>
+				["at0016"] = <text = <"Beoordelaar"> description = <"Naam of rol van de beoordelaar.">>
+				["at0017"] = <text = <"Datum beoordeling"> description = <"Datum en tijd van de beoordeling.">>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <text = <"Sims risk classification"> description = <"Dutch risk classification model for the diabetic foot (category 0-3).">>
+				["at0001"] = <text = <"Tree"> description = <"Tree structure.">>
+				["at0002"] = <text = <"Sims category"> description = <"Risk classification of the diabetic foot according to Sims.">>
+				["at0003"] = <text = <"Category 0 — No risk factors"> description = <"Intact protective sensation, no PAD, no ulcer history.">>
+				["at0004"] = <text = <"Category 1 — Neuropathy"> description = <"Loss of protective sensation, no PAD, no ulcer history.">>
+				["at0005"] = <text = <"Category 2 — Neuropathy + additional risk"> description = <"PS loss + PAD and/or deformities.">>
+				["at0006"] = <text = <"Category 3 — Ulcer/amputation history"> description = <"Prior ulcer, amputation or Charcot history.">>
+				["at0007"] = <text = <"Loss of protective sensation"> description = <"Protective sensation lost, established by monofilament test.">>
+				["at0008"] = <text = <"Peripheral arterial disease"> description = <"Presence of peripheral arterial disease.">>
+				["at0009"] = <text = <"Deformities"> description = <"Presence of foot or toe deformities.">>
+				["at0010"] = <text = <"Ulcer history"> description = <"Prior foot ulcer.">>
+				["at0011"] = <text = <"Amputation history"> description = <"Prior (partial) amputation.">>
+				["at0012"] = <text = <"Charcot history"> description = <"Prior Charcot osteoarthropathy.">>
+				["at0013"] = <text = <"Recommended review frequency"> description = <"Recommended frequency of foot review.">>
+				["at0014"] = <text = <"Comment"> description = <"Additional comments.">>
+				["at0015"] = <text = <"Protocol"> description = <"Protocol.">>
+				["at0016"] = <text = <"Assessor"> description = <"Name or role of assessor.">>
+				["at0017"] = <text = <"Assessment date"> description = <"Date and time of assessment.">>
+			>
+		>
+	>

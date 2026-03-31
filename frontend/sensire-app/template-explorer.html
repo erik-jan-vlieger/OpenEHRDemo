@@ -219,10 +219,22 @@
     let webTemplateData = null;
 
     async function init() {
-      try {
-        webTemplateData = await loadWebTemplate('/webtemplates/sensire_wound_care_webtemplate.json');
-      } catch (e) {
-        console.warn('WebTemplate niet geladen:', e);
+      webTemplateData = { lookup: {} };
+      const templates = [
+        'wound_assessment_sensire',
+        'diabetic_foot_assessment_sensire',
+        'ulcus_cruris_assessment_sensire'
+      ];
+      
+      for (const tpl of templates) {
+        try {
+          const wt = await loadWebTemplate(`/webtemplates/${tpl}_webtemplate.json`);
+          if (wt && wt.lookup) {
+            Object.assign(webTemplateData.lookup, wt.lookup);
+          }
+        } catch (e) {
+          console.warn(`WebTemplate ${tpl} niet geladen:`, e);
+        }
       }
 
       renderTree();

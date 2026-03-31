@@ -1,0 +1,58 @@
+apply plugin: 'java'
+
+group = 'nl.sensire.openehr'
+version = '1.0.0'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.nedap.healthcare.archie:archie-utils:3.17.0'
+    implementation 'com.nedap.healthcare.archie:openehr-rm:3.17.0'
+    implementation 'com.nedap.healthcare.archie:aom:3.17.0'
+    implementation 'com.nedap.healthcare.archie:tools:3.17.0'
+
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.9'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
+    implementation 'org.slf4j:slf4j-simple:2.0.16'
+}
+
+task generateOPT(type: JavaExec) {
+    group = 'openehr'
+    description = 'Generate Operational Templates (OPT) from ADL archetypes and OET templates'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'nl.sensire.openehr.OPTGenerator'
+    args = [
+        '--archetypes', "${projectDir}/../archetypes",
+        '--templates', "${projectDir}/../templates",
+        '--output', "${projectDir}/../opts"
+    ]
+}
+
+task validateArchetypes(type: JavaExec) {
+    group = 'openehr'
+    description = 'Validate all ADL archetypes'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'nl.sensire.openehr.ArchetypeValidator'
+    args = ["${projectDir}/../archetypes"]
+}
+
+task applyConstraints(type: JavaExec) {
+    group = 'openehr'
+    description = 'Apply occurrence constraints to generated OPT files'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'nl.sensire.openehr.ConstraintApplicator'
+    args = [
+        '--opts', "${projectDir}/../opts",
+        '--constraints', "${projectDir}/../constraints"
+    ]
+}
+
+task downloadCKM(type: Exec) {
+    group = 'openehr'
+    description = 'Download required international archetypes from openEHR CKM GitHub'
+    commandLine 'bash', "${projectDir}/scripts/download_ckm_archetypes.sh"
+}

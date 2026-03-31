@@ -79,11 +79,11 @@
     const EHRBASE_URL = 'http://localhost:8080/ehrbase/rest';
     const EHRBASE_USER = 'ehrbase-user';
     const EHRBASE_PASS = 'SuperSecretPassword';
-    const TEMPLATE_ID = 'sensire_wound_care';
+    const TEMPLATE_ID = 'ulcus_cruris_assessment_sensire';
 
     // WebTemplate lookup (geladen bij startup)
     let wtLookup = null;
-    loadWebTemplate('/webtemplates/sensire_wound_care_webtemplate.json')
+    loadWebTemplate('/webtemplates/ulcus_cruris_assessment_sensire_webtemplate.json')
       .then(wt => { wtLookup = wt; })
       .catch(e => console.warn('WebTemplate niet geladen:', e.message));
 
@@ -442,34 +442,28 @@
 
       adviceTab.innerHTML = adviceHTML;
 
-      // ── Data Tab ── (driekolommen-view via WebTemplate)
+      // ── Data Tab ──
       const composition = buildFlatComposition();
-      const dataTabEl = document.getElementById('tab-data');
-      dataTabEl.innerHTML = `
+      document.getElementById('tab-data').innerHTML = `
         <div class="alert alert--info" style="margin-bottom:var(--space-lg);">
           <span class="alert__icon">📋</span>
-          <div>Onderstaande data wordt opgeslagen als openEHR FLAT JSON compositie in EHRbase. Template: <strong>sensire_wound_care</strong>.<br>
-          <span style="font-size:0.85rem;">Na opslaan verschijnt hier de bevestigde compositie met vertaalde labels uit het WebTemplate.</span></div>
+          <div>Onderstaande data wordt opgeslagen als openEHR FLAT JSON compositie in EHRbase. Template: <strong>${TEMPLATE_ID}</strong>.<br>
+          <span style="font-size:0.85rem;">Hier zie je exact welke parameters worden gegenereerd en gestuurd o.b.v. de UI keuzes.</span></div>
         </div>
-        <div id="data-threecol">${wtLookup ? renderFlatAsThreeColumns(composition, wtLookup.lookup, TEMPLATE_ID) : '<div class="data-display">' + JSON.stringify(composition, null, 2) + '</div>'}</div>
-      `;
+        <div id="data-threecol">${wtLookup ? renderFlatAsThreeColumns(composition, wtLookup.lookup, TEMPLATE_ID) : '<div class="data-display">' + JSON.stringify(composition, null, 2) + '</div>'}</div>`;
 
       // ── AQL Tab ──
-      document.getElementById('tab-aql').innerHTML = `
-        <div class="alert alert--info">
-          <span class="alert__icon">🔍</span>
-          <div>Na opslaan kun je deze AQL query uitvoeren om de data terug te halen. Dit bewijst dat de data onafhankelijk van de applicatie bevraagbaar is.</div>
-        </div>
+      document.getElementById('tab-aql').innerHTML = `<div class="alert alert--info"><span class="alert__icon">🔍</span><div>De AQL query haalt alle UI simulaties (compositions) asynchroon op.</div></div>
         <div class="data-display">SELECT
   c/uid/value as compositie_id,
   c/name/value as naam,
   c/context/start_time/value as datum
 FROM EHR e
-CONTAINS COMPOSITION c
-WHERE c/name/value = 'sensire_wound_care'
+CONTAINS COMPOSITION c [openEHR-EHR-COMPOSITION.encounter.v1]
+WHERE c/archetype_details/template_id/value = '${TEMPLATE_ID}'
 ORDER BY c/context/start_time/value DESC
 LIMIT 10</div>
-        <button class="btn btn--outline btn--sm" style="margin-top: var(--space-md);" onclick="executeAQL()">▶ Query uitvoeren</button>
+        <button class="btn btn--outline btn--sm" style="margin-top:var(--space-md);" onclick="executeAQL()">▶ Query uitvoeren</button>
         <div id="aql-result" style="margin-top: var(--space-md);"></div>
       `;
 
@@ -497,67 +491,46 @@ LIMIT 10</div>
       const stagnation = state.answers['stagnation'];
 
       const comp = {
-        'sensire_wound_care/category|code': '433',
-        'sensire_wound_care/category|value': 'event',
-        'sensire_wound_care/category|terminology': 'openehr',
-        'sensire_wound_care/context/start_time': now,
-        'sensire_wound_care/context/setting|code': '227',
-        'sensire_wound_care/context/setting|value': 'emergency care',
-        'sensire_wound_care/context/setting|terminology': 'openehr',
+        'ulcus_cruris_consult_sensire/category|code': '433',
+        'ulcus_cruris_consult_sensire/category|value': 'event',
+        'ulcus_cruris_consult_sensire/category|terminology': 'openehr',
+        'ctx/language': 'nl',
+        'ctx/territory': 'NL',
+        'ctx/composer_name': 'Sensire Wondzorg Demo',
+        'ctx/time': now,
+        'ctx/setting': '227',
       };
 
-      // Health risk assessment
-      comp['sensire_wound_care/health_risk_assessment/health_risk|value'] = 'Ulcus Cruris risicobeoordeling';
-      comp['sensire_wound_care/health_risk_assessment/health_risk|code'] = 'local_at_ulcus';
-      comp['sensire_wound_care/health_risk_assessment/health_risk|terminology'] = 'local';
-
-      // Risk factors
-      let riskIdx = 0;
-
-      if (eaiKnown === 'yes' && eaiValue !== undefined) {
-        const interp = getEAIInterpretation(eaiValue);
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/risk_factor|value`] = 'Enkel-Arm Index (EAI)';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|code`] = 'at0018';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|value`] = 'Present';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|terminology`] = 'local';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/description`] = `EAI: ${eaiValue.toFixed(2)} — ${interp.label}. ${interp.compression}`;
-        riskIdx++;
-      }
-
-      if (stemmer) {
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/risk_factor|value`] = 'Teken van Stemmer';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|code`] = stemmer === 'positive' ? 'at0018' : 'at0019';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|value`] = stemmer === 'positive' ? 'Present' : 'Absent';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|terminology`] = 'local';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/description`] = stemmer === 'positive' ? 'Positief — lymfoedeem vermoed' : 'Negatief — veneus oedeem';
-        riskIdx++;
-      }
-
+      // Problem / Diagnosis
+      comp['ulcus_cruris_consult_sensire/probleem_diagnose/naam_van_het_probleem_de_diagnose'] = 'Ulcus Cruris';
       if (stagnation === 'stagnant') {
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/risk_factor|value`] = 'Wondstagnatie';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|code`] = 'at0018';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|value`] = 'Present';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/presence|terminology`] = 'local';
-        comp[`sensire_wound_care/health_risk_assessment/risk_factors:${riskIdx}/description`] = 'Wond > 2-3 weken zonder verbetering — Vakgroep Wond ingeschakeld';
-        riskIdx++;
+        comp['ulcus_cruris_consult_sensire/probleem_diagnose/course_description_en'] = 'Stagnatie wond > 2-3 weken zonder verbetering — Vakgroep Wond ingeschakeld';
       }
 
-      // Risk assessment summary
+      // EAI (Ankle Brachial Pressure Index)
+      let clinicalSynopsis = `Ulcus Cruris protocol doorlopen. Oedeem: ${state.answers['oedema'] || 'n.v.t.'}.`;
       if (eaiKnown === 'yes' && eaiValue !== undefined) {
+        comp['ulcus_cruris_consult_sensire/ankle_brachial_pressure_index/any_event/ankle-brachial_pressure_index|numerator'] = parseFloat(eaiValue);
+        comp['ulcus_cruris_consult_sensire/ankle_brachial_pressure_index/any_event/ankle-brachial_pressure_index|denominator'] = 1;
+        comp['ulcus_cruris_consult_sensire/ankle_brachial_pressure_index/any_event/ankle-brachial_pressure_index|type'] = 1; // 1 = pk_unitary
         const interp = getEAIInterpretation(eaiValue);
-        comp['sensire_wound_care/health_risk_assessment/risk_assessment/text_value'] = interp.compression;
+        comp['ulcus_cruris_consult_sensire/ankle_brachial_pressure_index/any_event/comment'] = `Interpretatie: ${interp.label}. Aanbevolen: ${interp.compression}`;
+        comp['ulcus_cruris_consult_sensire/ankle_brachial_pressure_index/any_event/time'] = now;
+        clinicalSynopsis += ` EAI gemeten: ${eaiValue.toFixed(2)}.`;
       }
 
-      // Problem/Diagnosis
-      comp['sensire_wound_care/problem_diagnosis/problem_diagnosis_name|value'] = 'Ulcus Cruris';
-      comp['sensire_wound_care/problem_diagnosis/clinical_description'] = `Ulcus Cruris protocol doorlopen. Oedeem: ${state.answers['oedema'] || 'n.v.t.'}. Stemmer: ${stemmer || 'n.v.t.'}. EAI: ${eaiValue ? eaiValue.toFixed(2) : 'niet gemeten'}.`;
+      // Physical Examination (Stemmer)
+      if (stemmer) {
+        const result = stemmer === 'positive' ? 'Positief (Lymfoedeem vermoed)' : 'Negatief (Veneus oedeem)';
+        comp['ulcus_cruris_consult_sensire/ergebnisse_der_körperlichen_untersuchung/jedes_ereignis/beschreibung'] = `Teken van Stemmer: ${result}`;
+        comp['ulcus_cruris_consult_sensire/ergebnisse_der_körperlichen_untersuchung/jedes_ereignis/time'] = now;
+        clinicalSynopsis += ` Teken van Stemmer: ${result}.`;
+      }
 
-      // Composer
-      comp['sensire_wound_care/composer|name'] = 'Sensire Wondzorg Demo';
-      comp['sensire_wound_care/language|code'] = 'nl';
-      comp['sensire_wound_care/language|terminology'] = 'ISO_639-1';
-      comp['sensire_wound_care/territory|code'] = 'NL';
-      comp['sensire_wound_care/territory|terminology'] = 'ISO_3166-1';
+      // Synopsis
+      comp['ulcus_cruris_consult_sensire/klinische_synopsis/synopsis'] = clinicalSynopsis;
+
+      // Context is already set via ctx/ keys above
 
       return comp;
     }
@@ -620,7 +593,7 @@ LIMIT 10</div>
         // Step 2: Post composition
         const composition = buildFlatComposition();
         const compResp = await fetch(
-          `${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition?format=FLAT&templateId=sensire_wound_care`,
+          `${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition?format=FLAT&templateId=${TEMPLATE_ID}`,
           {
             method: 'POST',
             headers: {
@@ -687,7 +660,7 @@ LIMIT 10</div>
             'Authorization': 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)
           },
           body: JSON.stringify({
-            q: `SELECT c/uid/value as compositie_id, c/name/value as naam, c/context/start_time/value as datum FROM EHR e CONTAINS COMPOSITION c ORDER BY c/context/start_time/value DESC LIMIT 10`
+            q: `SELECT c/uid/value as compositie_id, c/name/value as naam, c/context/start_time/value as datum FROM EHR e CONTAINS COMPOSITION c WHERE c/archetype_details/template_id/value = '${TEMPLATE_ID}' ORDER BY c/context/start_time/value DESC LIMIT 10`
           })
         });
 

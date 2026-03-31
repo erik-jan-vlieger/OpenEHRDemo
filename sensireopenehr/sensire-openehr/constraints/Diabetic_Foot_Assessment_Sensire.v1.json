@@ -1,0 +1,74 @@
+{
+  "template_id": "Diabetic_Foot_Assessment_Sensire.v1",
+  "description": "Constraints voor het Diabetische Voet Protocol",
+  "constraints": [
+    {
+      "_comment": "=== DM-DIAGNOSE ===",
+      "archetype": "openEHR-EHR-EVALUATION.problem_diagnosis",
+      "rules": [
+        { "path": "/data[at0001]/items[at0002]", "occurrences": "1..1", "label": "Probleemnaam DM (verplicht)" },
+        { "path": "/data[at0001]/items[at0003]", "occurrences": "0..0", "label": "Datum klinisch erkend (niet nodig)" },
+        { "path": "/data[at0001]/items[at0005]", "occurrences": "0..0", "label": "Ernst (niet nodig)" }
+      ]
+    },
+    {
+      "_comment": "=== ANAMNESE ===",
+      "archetype": "openEHR-EHR-OBSERVATION.story",
+      "rules": [
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]", "occurrences": "1..1", "label": "Verhaal (verplicht)" }
+      ]
+    },
+    {
+      "_comment": "=== RISICOFACTOREN ===",
+      "archetype": "openEHR-EHR-EVALUATION.health_risk",
+      "rules": [
+        { "path": "/data[at0001]/items[at0002]", "occurrences": "1..1", "label": "Gezondheidsrisico (verplicht)" },
+        { "path": "/data[at0001]/items[at0016]", "occurrences": "1..*", "label": "Risicofactor (minimaal 1)" }
+      ]
+    },
+    {
+      "_comment": "=== HbA1c ===",
+      "archetype": "openEHR-EHR-OBSERVATION.laboratory_test_result",
+      "rules": [
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0005]", "occurrences": "1..1", "label": "Testnaam HbA1c (verplicht)" }
+      ]
+    },
+    {
+      "_comment": "=== MONOFILAMENT-TEST (alle locaties verplicht) ===",
+      "archetype": "openEHR-EHR-OBSERVATION.monofilament_examination",
+      "rules": [
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]", "occurrences": "1..2", "label": "Per voet (min 1, max 2)" },
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0005]", "occurrences": "1..1", "label": "Lateraliteit (verplicht)" },
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0008]", "occurrences": "1..1", "label": "Hallux (verplicht)" },
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0009]", "occurrences": "1..1", "label": "Metatarsaalkop 1 (verplicht)" },
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0010]", "occurrences": "1..1", "label": "Metatarsaalkop 3 (verplicht)" },
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0011]", "occurrences": "1..1", "label": "Metatarsaalkop 5 (verplicht)" },
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0012]", "occurrences": "1..1", "label": "Middenvoet mediaal (verplicht)" },
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0013]", "occurrences": "1..1", "label": "Middenvoet lateraal (verplicht)" },
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0014]", "occurrences": "1..1", "label": "Hiel mediaal (verplicht)" },
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0015]", "occurrences": "1..1", "label": "Hiel lateraal (verplicht)" },
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0016]", "occurrences": "1..1", "label": "Totaalscore (verplicht)" },
+        { "path": "/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0017]", "occurrences": "1..1", "label": "PS verloren ja/nee (verplicht)" }
+      ]
+    },
+    {
+      "_comment": "=== SIMS-CLASSIFICATIE (verplicht) ===",
+      "archetype": "openEHR-EHR-EVALUATION.sims_classification_nl",
+      "rules": [
+        { "path": "/data[at0001]/items[at0002]", "occurrences": "1..1", "label": "Sims-categorie (verplicht)" },
+        { "path": "/data[at0001]/items[at0007]", "occurrences": "1..1", "label": "PS-verlies (verplicht)" },
+        { "path": "/data[at0001]/items[at0008]", "occurrences": "1..1", "label": "PAV (verplicht)" },
+        { "path": "/data[at0001]/items[at0010]", "occurrences": "1..1", "label": "Historie ulcus (verplicht)" },
+        { "path": "/data[at0001]/items[at0011]", "occurrences": "1..1", "label": "Historie amputatie (verplicht)" },
+        { "path": "/data[at0001]/items[at0013]", "occurrences": "1..1", "label": "Controlefrequentie (verplicht)" }
+      ]
+    },
+    {
+      "_comment": "=== VERWIJZING ===",
+      "archetype": "openEHR-EHR-INSTRUCTION.service_request",
+      "rules": [
+        { "path": "/activities[at0001]/description[at0009]/items[at0121]", "occurrences": "1..1", "label": "Service naam (verplicht)" }
+      ]
+    }
+  ]
+}

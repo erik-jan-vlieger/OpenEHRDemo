@@ -1,0 +1,17 @@
+{
+  "wondconsult_sensire/category|code": "433",
+  "wondconsult_sensire/category|value": "event",
+  "wondconsult_sensire/category|terminology": "openehr",
+  "wondconsult_sensire/context/start_time": "2023-11-20T10:00:00Z",
+  "wondconsult_sensire/context/setting|code": "227",
+  "wondconsult_sensire/context/setting|value": "emergency care",
+  "wondconsult_sensire/context/setting|terminology": "openehr",
+  "wondconsult_sensire/ergebnisse_der_körperlichen_untersuchung/jedes_ereignis/beschreibung": "Wondprotocol doorlopen. Weefsel: red. Exsudaat: dry. Infectie: no. DM: nee. Afmeting: 2x3x1 cm.",
+  "wondconsult_sensire/ergebnisse_der_körperlichen_untersuchung/jedes_ereignis/time": "2023-11-20T10:00:00Z",
+  "wondconsult_sensire/probleem_diagnose/naam_van_het_probleem_de_diagnose": "Wondzorg (Algemeen Wondprotocol)",
+  "wondconsult_sensire/composer|name": "Sensire Wondzorg Demo",
+  "wondconsult_sensire/language|code": "nl",
+  "wondconsult_sensire/language|terminology": "ISO_639-1",
+  "wondconsult_sensire/territory|code": "NL",
+  "wondconsult_sensire/territory|terminology": "ISO_3166-1"
+}

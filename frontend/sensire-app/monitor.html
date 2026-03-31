@@ -155,27 +155,31 @@ LIMIT 10</div>
     const EHRBASE_USER = 'ehrbase-user';
     const EHRBASE_PASS = 'SuperSecretPassword';
     const POLL_INTERVAL = 4000;
-    const TEMPLATE_ID = 'sensire_wound_care';
-
     let knownUids = new Set();
     let newThisSession = 0;
     let pollTimer = null;
     let isPolling = false;
-    let webTemplateLookup = null;
+    let webTemplateCache = {};
     let selectedComposition = null;
 
     function authHeader() {
       return 'Basic ' + btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`);
     }
 
-    async function init() {
-      // Laad WebTemplate lookup
+    async function getWebTemplate(templateId) {
+      if (!templateId) return null;
+      if (webTemplateCache[templateId]) return webTemplateCache[templateId];
       try {
-        const wt = await loadWebTemplate('/webtemplates/sensire_wound_care_webtemplate.json');
-        webTemplateLookup = wt;
+        const val = await loadWebTemplate(`/webtemplates/${templateId}_webtemplate.json`);
+        webTemplateCache[templateId] = val;
+        return val;
       } catch (e) {
-        console.warn('WebTemplate niet geladen:', e.message);
+        console.warn(`WebTemplate ${templateId} niet geladen:`, e.message);
+        return null;
       }
+    }
+
+    async function init() {
 
       // Start polling
       await poll();
@@ -194,7 +198,7 @@ LIMIT 10</div>
             'Authorization': authHeader()
           },
           body: JSON.stringify({
-            q: `SELECT e/ehr_id/value AS ehr_id, c/uid/value AS composition_id, c/name/value AS formulier, c/context/start_time/value AS tijdstip, c/composer/name AS behandelaar FROM EHR e CONTAINS COMPOSITION c ORDER BY c/context/start_time/value DESC LIMIT 10`
+            q: `SELECT e/ehr_id/value AS ehr_id, c/uid/value AS composition_id, c/name/value AS formulier, c/archetype_details/template_id/value AS template_id, c/context/start_time/value AS tijdstip, c/composer/name AS behandelaar FROM EHR e CONTAINS COMPOSITION c ORDER BY c/context/start_time/value DESC LIMIT 10`
           })
         });
 
@@ -242,7 +246,7 @@ LIMIT 10</div>
       const newUids = new Set(rows.map(r => r[1]));
 
       list.innerHTML = rows.map(row => {
-        const [ehrId, uid, name, tijdstip, behandelaar] = row;
+        const [ehrId, uid, name, templateId, tijdstip, behandelaar] = row;
         const isNew = !knownUids.has(uid);
         if (isNew) newThisSession++;
 
@@ -255,11 +259,11 @@ LIMIT 10</div>
 
         return `
           <div class="composition-item ${isNew && knownUids.size > 0 ? 'composition-item--new' : ''} ${isSelected ? 'composition-item--selected' : ''}"
-               onclick="loadDetail('${ehrId}', '${uid}', '${escapeJs(name)}', '${timeStr} ${dateStr}')"
+               onclick="loadDetail('${ehrId}', '${uid}', '${escapeJs(name)}', '${templateId}', '${timeStr} ${dateStr}')"
                id="comp-${uid.replace(/[^a-zA-Z0-9]/g, '_')}">
             <div class="composition-item__icon">${protocolIcon}</div>
             <div class="composition-item__meta">
-              <div class="composition-item__title">${escapeHtmlVal(name || TEMPLATE_ID)}</div>
+              <div class="composition-item__title">${escapeHtmlVal(name || templateId)}</div>
               <div class="composition-item__uid">${uid}</div>
             </div>
             <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
@@ -283,7 +287,7 @@ LIMIT 10</div>
       return '📋';
     }
 
-    async function loadDetail(ehrId, uid, name, timeStr) {
+    async function loadDetail(ehrId, uid, name, templateId, timeStr) {
       selectedComposition = { ehrId, uid };
 
       document.getElementById('detail-empty').style.display = 'none';
@@ -317,8 +321,9 @@ LIMIT 10</div>
         document.getElementById('detail-raw-content').textContent = JSON.stringify(flatJson, null, 2);
 
         // Translated tab
-        if (webTemplateLookup) {
-          const html = renderFlatAsThreeColumns(flatJson, webTemplateLookup.lookup, TEMPLATE_ID);
+        const wtLookup = await getWebTemplate(templateId);
+        if (wtLookup) {
+          const html = renderFlatAsThreeColumns(flatJson, wtLookup.lookup, templateId);
           document.getElementById('detail-translated-content').innerHTML = html;
         } else {
           document.getElementById('detail-translated-content').innerHTML =

@@ -111,9 +111,9 @@ curl -sf -u "$EHRBASE_USER:$EHRBASE_PASS" "$EHRBASE_URL" | head -5
 echo ""
 
 # ────────────────────────────────────────────────────────────
-# Stap 4: Template uploaden
+# Stap 4: Templates uploaden
 # ────────────────────────────────────────────────────────────
-info "Template sensire_wound_care uploaden naar EHRbase..."
+info "Sensire templates (v5) uploaden naar EHRbase..."
 bash scripts/upload-template.sh
 
 # ────────────────────────────────────────────────────────────

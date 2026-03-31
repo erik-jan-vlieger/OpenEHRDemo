@@ -8,30 +8,34 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 EHRBASE_URL="http://localhost:8080/ehrbase/rest/openehr/v1/definition/template/adl1.4"
 EHRBASE_USER="ehrbase-user"
 EHRBASE_PASS="SuperSecretPassword"
-TEMPLATE_FILE="$PROJECT_DIR/templates/sensire_wound_care.opt"
+OPT_DIR="$PROJECT_DIR/opts"
 
-if [ ! -f "$TEMPLATE_FILE" ]; then
-    echo "❌ Template bestand niet gevonden: $TEMPLATE_FILE"
+if [ ! -d "$OPT_DIR" ]; then
+    echo "❌ Template map niet gevonden: $OPT_DIR"
     exit 1
 fi
 
-echo "📤 Template uploaden: sensire_wound_care.opt"
+for TEMPLATE_FILE in "$OPT_DIR"/*.opt; do
+    [ -e "$TEMPLATE_FILE" ] || continue
+    FILENAME=$(basename "$TEMPLATE_FILE")
+    echo "📤 Template uploaden: $FILENAME"
 
-HTTP_CODE=$(curl -s -o /tmp/upload_response.txt -w "%{http_code}" \
-    -X POST "$EHRBASE_URL" \
-    -u "$EHRBASE_USER:$EHRBASE_PASS" \
-    -H "Content-Type: application/xml" \
-    --data-binary "@$TEMPLATE_FILE")
+    HTTP_CODE=$(curl -s -o /tmp/upload_response.txt -w "%{http_code}" \
+        -X POST "$EHRBASE_URL" \
+        -u "$EHRBASE_USER:$EHRBASE_PASS" \
+        -H "Content-Type: application/xml" \
+        --data-binary "@$TEMPLATE_FILE")
 
-if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "204" ]; then
-    echo "✅ Template succesvol geüpload (HTTP $HTTP_CODE)"
-elif [ "$HTTP_CODE" = "409" ]; then
-    echo "ℹ️  Template bestaat al (HTTP 409 — Conflict). Dat is prima."
-else
-    echo "❌ Upload mislukt (HTTP $HTTP_CODE)"
-    cat /tmp/upload_response.txt
-    exit 1
-fi
+    if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "204" ]; then
+        echo "✅ Template succesvol geüpload (HTTP $HTTP_CODE)"
+    elif [ "$HTTP_CODE" = "409" ]; then
+        echo "ℹ️  Template bestaat al (HTTP 409 — Conflict). Dat is prima."
+    else
+        echo "❌ Upload mislukt (HTTP $HTTP_CODE)"
+        cat /tmp/upload_response.txt
+        exit 1
+    fi
+done
 
 # Verificatie: toon alle templates
 echo ""

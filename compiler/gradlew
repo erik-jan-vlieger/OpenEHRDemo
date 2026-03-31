@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# Gradle Wrapper for Sensire OpenEHR project
+# Self-contained: does not require gradle-wrapper.jar
+#
+
+set -e
+
+APP_HOME="$(cd "$(dirname "$0")" && pwd -P)"
+
+GRADLE_USER_HOME="${GRADLE_USER_HOME:-$HOME/.gradle}"
+DIST_URL="https://services.gradle.org/distributions/gradle-8.7-bin.zip"
+GRADLE_VERSION="gradle-8.7"
+DIST_DIR="$GRADLE_USER_HOME/wrapper/dists/$GRADLE_VERSION"
+GRADLE_BIN="$DIST_DIR/$GRADLE_VERSION/bin/gradle"
+
+# Find Java
+if [ -n "$JAVA_HOME" ]; then
+    JAVA_CMD="$JAVA_HOME/bin/java"
+else
+    JAVA_CMD="java"
+fi
+
+if ! command -v "$JAVA_CMD" >/dev/null 2>&1; then
+    echo "ERROR: JAVA_HOME is not set and 'java' is not in PATH." >&2
+    exit 1
+fi
+
+# Download and extract Gradle if needed
+if [ ! -x "$GRADLE_BIN" ]; then
+    ZIP_FILE="$GRADLE_USER_HOME/wrapper/dists/$GRADLE_VERSION-bin.zip"
+    mkdir -p "$GRADLE_USER_HOME/wrapper/dists"
+
+    if [ ! -f "$ZIP_FILE" ]; then
+        echo "Downloading $DIST_URL ..."
+        if command -v curl >/dev/null 2>&1; then
+            curl -fL -o "$ZIP_FILE" "$DIST_URL"
+        elif command -v wget >/dev/null 2>&1; then
+            wget -O "$ZIP_FILE" "$DIST_URL"
+        else
+            echo "ERROR: Neither curl nor wget found." >&2
+            exit 1
+        fi
+    fi
+
+    echo "Extracting to $DIST_DIR ..."
+    mkdir -p "$DIST_DIR"
+    unzip -q -o "$ZIP_FILE" -d "$DIST_DIR"
+    chmod +x "$GRADLE_BIN"
+fi
+
+exec "$GRADLE_BIN" "$@"

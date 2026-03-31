@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="openEHR/v1/Template">
+  <id>734c04aa-adfe-4fdc-9629-ab2b325034a0</id>
+  <name>Diabetic_Foot_Assessment_Sensire.v1</name>
+  <description>
+    <lifecycle_state>Initial</lifecycle_state>
+    <details>
+      <purpose>Template voor voetscreening en -inspectie bij DM-patiënten.</purpose>
+      <use />
+      <misuse />
+    </details>
+    <other_details>
+      <item>
+        <key>MetaDataSet:Sample Set </key>
+        <value>Template metadata sample set </value>
+      </item>
+      <item>
+        <key>Acknowledgements</key>
+        <value />
+      </item>
+      <item>
+        <key>Business Process Level</key>
+        <value />
+      </item>
+      <item>
+        <key>Care setting</key>
+        <value />
+      </item>
+      <item>
+        <key>Client group</key>
+        <value />
+      </item>
+      <item>
+        <key>Clinical Record Element</key>
+        <value />
+      </item>
+      <item>
+        <key>Copyright</key>
+        <value />
+      </item>
+      <item>
+        <key>Issues</key>
+        <value />
+      </item>
+      <item>
+        <key>Owner</key>
+        <value />
+      </item>
+      <item>
+        <key>Sign off</key>
+        <value />
+      </item>
+      <item>
+        <key>Speciality</key>
+        <value />
+      </item>
+      <item>
+        <key>User roles</key>
+        <value />
+      </item>
+    </other_details>
+  </description>
+  <definition xsi:type="COMPOSITION" archetype_id="openEHR-EHR-COMPOSITION.encounter.v1" concept_name="Encounter">
+    <Item xsi:type="EVALUATION" archetype_id="openEHR-EHR-EVALUATION.problem_diagnosis.v1" concept_name="Evaluation" path="/content" />
+    <Item xsi:type="OBSERVATION" archetype_id="openEHR-EHR-OBSERVATION.story.v1" concept_name="Observation" path="/content" />
+    <Item xsi:type="EVALUATION" archetype_id="openEHR-EHR-EVALUATION.health_risk.v1" concept_name="Evaluation" path="/content" />
+    <Item xsi:type="OBSERVATION" archetype_id="openEHR-EHR-OBSERVATION.laboratory_test_result.v1" concept_name="Observation" path="/content" />
+    <Item xsi:type="OBSERVATION" archetype_id="openEHR-EHR-OBSERVATION.exam.v1" concept_name="Observation" path="/content" />
+    <Item xsi:type="OBSERVATION" archetype_id="openEHR-EHR-OBSERVATION.monofilament_examination.v0" concept_name="Observation" path="/content" />
+    <Item xsi:type="OBSERVATION" archetype_id="openEHR-EHR-OBSERVATION.diabetic_wound_wagner.v0" concept_name="Observation" path="/content" />
+    <Item xsi:type="EVALUATION" archetype_id="openEHR-EHR-EVALUATION.sims_classification_nl.v0" concept_name="Evaluation" path="/content" />
+    <Item xsi:type="INSTRUCTION" archetype_id="openEHR-EHR-INSTRUCTION.service_request.v1" concept_name="Instruction" path="/content" />
+    <Item xsi:type="ACTION" archetype_id="openEHR-EHR-ACTION.health_education.v1" concept_name="Action" path="/content" />
+    <Item xsi:type="INSTRUCTION" archetype_id="openEHR-EHR-INSTRUCTION.care_plan_request.v0" concept_name="Instruction" path="/content" />
+  </definition>
+</template>

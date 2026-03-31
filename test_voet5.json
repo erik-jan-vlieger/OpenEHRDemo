@@ -1,0 +1,9 @@
+{
+  "ctx/language": "nl",
+  "ctx/territory": "NL",
+  "ctx/composer_name": "Sensire Wondzorg Demo",
+  "voetscreening_dm_sensire/category|code": "433",
+  "voetscreening_dm_sensire/category|value": "event",
+  "voetscreening_dm_sensire/category|terminology": "openehr",
+  "voetscreening_dm_sensire/probleem_diagnose/naam_van_het_probleem_de_diagnose": "Diabetische Voet"
+}

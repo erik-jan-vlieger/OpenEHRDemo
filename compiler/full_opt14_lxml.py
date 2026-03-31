@@ -24,6 +24,13 @@ def convert_aom2_to_opt14(input_opt_bak, output_opt, adlt_path):
         
     ns2 = 'http://schemas.openehr.org/v1'
     
+    # 1. Extract Concept and Parent Arch ID first
+    arch_id_el = root.find('archetype_id')
+    concept_id = arch_id_el.get('concept_id') if arch_id_el is not None else os.path.basename(input_opt_bak).replace('.opt.bak','').replace('.opt','')
+    
+    parent_arch_id_el = root.find('parent_archetype_id')
+    parent_arch_id = parent_arch_id_el.text if parent_arch_id_el is not None else concept_id
+
     # --- BUILD TERMINOLOGY DICTIONARY ---
     lang_el = root.find('.//original_language/code_string')
     default_lang = lang_el.text if lang_el is not None else 'nl'
@@ -33,6 +40,8 @@ def convert_aom2_to_opt14(input_opt_bak, output_opt, adlt_path):
     import copy
     for term in root.findall('terminology') + root.findall('component_terminologies'):
         arch_id = term.get('archetype_id')
+        if not arch_id:
+            arch_id = parent_arch_id
         base_id = re.sub(r'\.v\d+.*$', '', arch_id)
         
         tdefs_for_arch = []
@@ -66,11 +75,11 @@ def convert_aom2_to_opt14(input_opt_bak, output_opt, adlt_path):
                     term.append(vel)
 
     # 1. ROOT
-    new_root = etree.Element('template')
-    
-    # Extract concept
-    arch_id_el = root.find('archetype_id')
-    concept_id = arch_id_el.get('concept_id') if arch_id_el is not None else os.path.basename(input_opt_bak).replace('.opt.bak','').replace('.opt','')
+    new_root = etree.Element(f'{{{ns2}}}template', nsmap={
+        None: ns2, 
+        'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+        'xs': 'http://www.w3.org/2001/XMLSchema'
+    })
     
     # 2. LANGUAGE
     old_lang = root.find('original_language')
@@ -141,27 +150,136 @@ def convert_aom2_to_opt14(input_opt_bak, output_opt, adlt_path):
         if c.tag in ['definition', 'children', 'attributes', 'term_definitions']:
             if c.tag == 'attributes':
                 rm_val = c.get('rm_attribute_name')
+                if rm_val == 'category':
+                    c.getparent().remove(c)
+                    continue
+
                 if rm_val:
                     rm_el = etree.Element('rm_attribute_name')
                     rm_el.text = rm_val
                     c.insert(0, rm_el)
                     del c.attrib['rm_attribute_name']
+
+                # Inject existence (required by OPT 1.4)
+                ext_el = etree.Element('existence')
+                for k, v in [('lower_included','true'), ('upper_included','true'), 
+                             ('lower_unbounded','false'), ('upper_unbounded','false')]:
+                    el2 = etree.SubElement(ext_el, k)
+                    el2.text = v
+                lel = etree.SubElement(ext_el, 'lower')
+                lel.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                if rm_val in ['category', 'language', 'territory', 'composer']:
+                    lel.text = '1'
+                else:
+                    lel.text = '0'
+                uel = etree.SubElement(ext_el, 'upper')
+                uel.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                uel.text = '1'
+                c.insert(1, ext_el)
+
+                is_mult = c.find('is_multiple')
+                if is_mult is not None:
+                    if is_mult.text and is_mult.text.strip().lower() == 'true':
+                        c.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'C_MULTIPLE_ATTRIBUTE')
+                    else:
+                        c.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'C_SINGLE_ATTRIBUTE')
+                    c.remove(is_mult)
+                
+                # OPT 1.4 schema strictly requires cardinality to be AFTER children
+                card_el = c.find('cardinality')
+                if card_el is not None:
+                    c.remove(card_el)
+                    c.append(card_el)
             else:
                 rm_val = c.get('rm_type_name')
                 nid_val = c.get('node_id')
-                if rm_val:
+
+                # Inject defaults for primitives missing AOM2 attributes
+                if c.tag == 'children':
+                    t = c.get('{http://www.w3.org/2001/XMLSchema-instance}type')
+                    if not rm_val:
+                        if t == 'C_STRING': rm_val = 'STRING'
+                        elif t == 'C_INTEGER': rm_val = 'INTEGER'
+                        elif t == 'C_BOOLEAN': rm_val = 'BOOLEAN'
+                        elif t == 'C_TERMINOLOGY_CODE': rm_val = 'CODE_PHRASE'
+                        elif t == 'C_DATE_TIME': rm_val = 'DATE_TIME'
+                        elif t == 'C_DATE': rm_val = 'DATE'
+                        elif t == 'C_TIME': rm_val = 'TIME'
+                        elif t == 'C_DURATION': rm_val = 'DURATION'
+                        elif t == 'C_REAL': rm_val = 'REAL'
+                    
+                    if nid_val is None:
+                        nid_val = ''
+
+                # MUST PUT THESE AS FIRST CHILDREN in exact C_OBJECT sequence
+                pos = 0
+                if rm_val is not None:
                     rm_el = etree.Element('rm_type_name')
                     rm_el.text = rm_val
-                    c.insert(0, rm_el)
-                    del c.attrib['rm_type_name']
-                if nid_val:
+                    c.insert(pos, rm_el)
+                    pos += 1
+                    if 'rm_type_name' in c.attrib: del c.attrib['rm_type_name']
+                
+                occ = c.find('occurrences')
+                if occ is None and c.tag in ['children', 'definition']:
+                    occ = etree.Element('occurrences')
+                    for k, v in [('lower_included','true'), ('upper_included','true'), 
+                                 ('lower_unbounded','false'), ('upper_unbounded','false')]:
+                        el2 = etree.SubElement(occ, k)
+                        el2.text = v
+                    lel = etree.SubElement(occ, 'lower')
+                    lel.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                    lel.text = '1'
+                    uel = etree.SubElement(occ, 'upper')
+                    uel.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                    uel.text = '1'
+                    c.insert(pos, occ)
+                    pos += 1
+                elif occ is not None:
+                    c.remove(occ)
+                    c.insert(pos, occ)
+                    pos += 1
+
+                if nid_val is not None:
                     nid_el = etree.Element('node_id')
                     nid_el.text = nid_val
-                    occs = c.findall('occurrences')
-                    idx = c.index(occs[-1]) + 1 if occs else (1 if rm_val else 0)
-                    c.insert(idx, nid_el)
-                    del c.attrib['node_id']
+                    c.insert(pos, nid_el)
+                    pos += 1
+                    if 'node_id' in c.attrib: del c.attrib['node_id']
                     
+                if c.tag == 'children':
+                    t = c.get('{http://www.w3.org/2001/XMLSchema-instance}type')
+                    if t == 'C_TERMINOLOGY_CODE':
+                        constraint_tag = c.find('constraint')
+                        if constraint_tag is not None:
+                            val = constraint_tag.text or ""
+                            if val.startswith('ac'):
+                                c.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'CONSTRAINT_REF')
+                                constraint_tag.tag = 'reference'
+                            elif val.startswith('[') and '::' in val:
+                                c.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'C_CODE_PHRASE')
+                                term, code = val.strip('[]').split('::')
+                                c.remove(constraint_tag)
+                                tid = etree.Element('terminology_id')
+                                tval = etree.SubElement(tid, 'value')
+                                tval.text = term
+                                c.append(tid)
+                                clist = etree.Element('code_list')
+                                clist.text = code
+                                c.append(clist)
+                            else:
+                                c.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'C_CODE_PHRASE')
+                                c.remove(constraint_tag)
+                                tid = etree.Element('terminology_id')
+                                tval = etree.SubElement(tid, 'value')
+                                tval.text = 'local'
+                                c.append(tid)
+                                clist = etree.Element('code_list')
+                                clist.text = val
+                                c.append(clist)
+                    if not t:
+                        c.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'C_COMPLEX_OBJECT')
+
     # C. C_ARCHETYPE_ROOT precise structure
     parent_arch_id_el = tree.getroot().find('parent_archetype_id')
     parent_arch_id = parent_arch_id_el.text if parent_arch_id_el is not None else concept_id
@@ -189,13 +307,17 @@ def convert_aom2_to_opt14(input_opt_bak, output_opt, adlt_path):
         # Tdefs from original node (if any)
         tdefs = el.findall('term_definitions')
         
-        others = [c for c in el if c not in occs and c not in attrs and c not in tdefs and c != nid_el and c != rm_el]
+        others = [c for c in el if c not in occs and c not in attrs and c not in tdefs and c.tag != 'node_id' and c.tag != 'rm_type_name']
         
         for c in list(el): el.remove(c)
         
         if rm_el is not None: el.append(rm_el)
         for o in occs: el.append(o)
-        if nid_el is not None: el.append(nid_el)
+        if nid_el is not None:
+            xsi_type = el.get('{http://www.w3.org/2001/XMLSchema-instance}type')
+            if xsi_type == 'C_ARCHETYPE_ROOT' or xsi_type == 'ns2:C_ARCHETYPE_ROOT' or is_def:
+                nid_el.text = 'at0000'
+            el.append(nid_el)
         for a in attrs: el.append(a)
         
         if arch_val:
@@ -212,23 +334,40 @@ def convert_aom2_to_opt14(input_opt_bak, output_opt, adlt_path):
             
         for t in tdefs: el.append(t)
         
-        # Inject our mapped AOM2 terminology!
         if arch_val:
-            base_id = re.sub(r'\.v\d+.*$', '', arch_val)
-            if base_id in term_dict:
-                for t in term_dict[base_id]:
-                    el.append(copy.deepcopy(t))
+            if is_def:
+                # Include both the template terminology and the parent archetype terminology
+                # The template overrides at0000, so we skip at0000 from the parent
+                base_key = re.sub(r'\.v\d+.*$', '', parent_arch_id)
+                if base_key in term_dict:
+                    for t in term_dict[base_key]:
+                        if t.get('code') != 'at0000':
+                            el.append(copy.deepcopy(t))
+                
+                # Append the template terminology
+                for k in term_dict.keys():
+                    if concept_id in k or k.endswith(concept_id):
+                        for t in term_dict[k]:
+                            el.append(copy.deepcopy(t))
+                        break
+            else:
+                base_id = re.sub(r'\.v\d+.*$', '', arch_val)
+                if base_id and base_id in term_dict:
+                    for t in term_dict[base_id]:
+                        el.append(copy.deepcopy(t))
                     
             # Inject the specific idX term if node_id starts with id and missing!
             if nid_val and nid_val.startswith('id') and nid_val in id_dict:
                 # check if we already appended it (from term_dict)
                 found = False
                 for existing in el.findall('term_definitions'):
-                    if existing.get('code') == nid_val:
+                    if existing.get('code') == 'at0000':
                         found = True
                         break
                 if not found:
-                    el.append(copy.deepcopy(id_dict[nid_val]))
+                    new_tdef = copy.deepcopy(id_dict[nid_val])
+                    new_tdef.set('code', 'at0000')
+                    el.append(new_tdef)
                     
         for ot in others: el.append(ot)
 
@@ -251,9 +390,18 @@ def convert_aom2_to_opt14(input_opt_bak, output_opt, adlt_path):
     # F. Map stringExpression attributes back
     # But string_expression has none?
     
+    # CLEANUP: Remove empty attributes (which lacked children due to attributeTuples in AOM2)
+    # as OPT 1.4 parser in EHRbase requires them to be omitted if unconstrained.
+    for el in list(new_root.iter('attributes')):
+        if len(list(el.iter('children'))) == 0:
+            p = el.getparent()
+            if p is not None:
+                p.remove(el)
+
     # RE-APPLY NAMESPACES
     for el in new_root.iter():
-        el.tag = f'{{{ns2}}}{el.tag}'
+        if '}' not in el.tag:
+            el.tag = f'{{{ns2}}}{el.tag}'
         
     tree._setroot(new_root)
 

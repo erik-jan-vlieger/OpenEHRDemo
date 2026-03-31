@@ -87,10 +87,10 @@
     const EHRBASE_URL = 'http://localhost:8080/ehrbase/rest';
     const EHRBASE_USER = 'ehrbase-user';
     const EHRBASE_PASS = 'SuperSecretPassword';
-    const TEMPLATE_ID = 'sensire_wound_care';
+    const TEMPLATE_ID = 'wound_assessment_sensire';
 
     let wtLookup = null;
-    loadWebTemplate('/webtemplates/sensire_wound_care_webtemplate.json')
+    loadWebTemplate('/webtemplates/wound_assessment_sensire_webtemplate.json')
       .then(wt => { wtLookup = wt; })
       .catch(e => console.warn('WebTemplate niet geladen:', e.message));
 
@@ -515,12 +515,12 @@
       // Data tab (driekolommen-view via WebTemplate)
       const composition = buildFlatComposition();
       document.getElementById('tab-data').innerHTML = `
-        <div class="alert alert--info" style="margin-bottom:var(--space-lg);"><span class="alert__icon">📋</span><div>openEHR FLAT JSON compositie — template: <strong>sensire_wound_care</strong>.<br><span style="font-size:0.85rem;">Na opslaan verschijnt hier de bevestigde compositie met vertaalde labels.</span></div></div>
+        <div class="alert alert--info" style="margin-bottom:var(--space-lg);"><span class="alert__icon">📋</span><div>openEHR FLAT JSON compositie — template: <strong>${TEMPLATE_ID}</strong>.<br><span style="font-size:0.85rem;">Na opslaan verschijnt hier de bevestigde compositie met vertaalde labels.</span></div></div>
         <div id="data-threecol">${wtLookup ? renderFlatAsThreeColumns(composition, wtLookup.lookup, TEMPLATE_ID) : '<div class="data-display">' + JSON.stringify(composition, null, 2) + '</div>'}</div>`;
 
       // AQL tab
       document.getElementById('tab-aql').innerHTML = `<div class="alert alert--info"><span class="alert__icon">🔍</span><div>AQL query om alle wondzorg composities op te halen.</div></div>
-        <div class="data-display">SELECT\n  c/uid/value as compositie_id,\n  c/name/value as naam,\n  c/context/start_time/value as datum\nFROM EHR e\nCONTAINS COMPOSITION c\nWHERE c/name/value = 'sensire_wound_care'\nORDER BY c/context/start_time/value DESC\nLIMIT 10</div>
+        <div class="data-display">SELECT\n  c/uid/value as compositie_id,\n  c/name/value as naam,\n  c/context/start_time/value as datum\nFROM EHR e\nCONTAINS COMPOSITION c [openEHR-EHR-COMPOSITION.encounter.v1]\nWHERE c/archetype_details/template_id/value = '${TEMPLATE_ID}'\nORDER BY c/context/start_time/value DESC\nLIMIT 10</div>
         <button class="btn btn--outline btn--sm" style="margin-top:var(--space-md);" onclick="executeAQL()">▶ Query uitvoeren</button>
         <div id="aql-result" style="margin-top:var(--space-md);"></div>`;
 
@@ -548,49 +548,50 @@
       const infection = state.answers['infection'] || 'no';
 
       const comp = {
-        'sensire_wound_care/category|code': '433', 'sensire_wound_care/category|value': 'event', 'sensire_wound_care/category|terminology': 'openehr',
-        'sensire_wound_care/context/start_time': now,
-        'sensire_wound_care/context/setting|code': '227', 'sensire_wound_care/context/setting|value': 'emergency care', 'sensire_wound_care/context/setting|terminology': 'openehr',
+        'wondconsult_sensire/category|code': '433',
+        'wondconsult_sensire/category|value': 'event',
+        'wondconsult_sensire/category|terminology': 'openehr',
+        'ctx/language': 'nl',
+        'ctx/territory': 'NL',
+        'ctx/composer_name': 'Sensire Wondzorg Demo',
+        'ctx/time': now,
+        'ctx/setting': '227',
       };
 
-      // Wound examination — afmetingen worden als tekst opgeslagen in clinical_description
-      // (wound_examination/length|width|depth bestaan niet in dit template)
+      // Physical Examination for dimensions and TIME components (synopsis style)
+      let klinische_synopsis = `Wondprotocol doorlopen. Weefsel: ${tissue}. Exsudaat: ${moisture}. Infectie: ${infection}. DM: ${state.answers['diabetes-check']||'nee'}.`;
+      if (dims.l) {
+        klinische_synopsis += ` Afmeting: ${dims.l}×${dims.b}×${dims.d} cm.`;
+      }
 
-      // Health risk / TIME assessment
-      comp['sensire_wound_care/health_risk_assessment/health_risk|value'] = 'Wondprotocol beoordeling';
-      let ri = 0;
-      const factors = [
-        { key: 'tissue', label: 'TIME-T: Weefseltype', desc: v => ({red:'Rood (vitaal)',yellow:'Geel (fibrine/slough)',black:'Zwart (necrose)',mixed:'Gemengd'}[v]||v) },
-        { key: 'infection', label: 'TIME-I: Infectie', desc: v => ({no:'Geen infectietekenen',mild:'Milde infectietekenen',severe:'Ernstige infectie'}[v]||v) },
-        { key: 'moisture', label: 'TIME-M: Exsudaat', desc: v => ({dry:'Droog',moist:'Vochtig',wet:'Nat'}[v]||v) },
-        { key: 'edge', label: 'TIME-E: Wondranden', desc: v => ({healthy:'Vitaal',macerated:'Verweekt',undermined:'Ondermijningen',['dry-crusty']:'Droog/korstig',callus:'Callus'}[v]||v) },
-        { key: 'pain', label: 'Pijnmanagement', desc: v => ({none:'Geen pijn',systemic:'Systemische pijnstilling','local-fast':'Lokaal snel (lidocaïne)','local-slow':'Lokaal langzaam (EMLA)'}[v]||v) },
-        { key: 'debridement', label: 'Debridement', desc: v => v === 'safe' ? 'Veilig uitvoerbaar' : 'Contra-geïndiceerd' },
-        { key: 'stagnation', label: 'Wondstagnatie', desc: v => ({improving:'Verbeterend',stable:'Stabiel',stagnant:'Stagnatie > 2-3 weken'}[v]||v) },
-      ];
-
-      for (const f of factors) {
-        const v = state.answers[f.key];
-        if (v !== undefined) {
-          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${ri}/risk_factor|value`] = f.label;
-          comp[`sensire_wound_care/health_risk_assessment/risk_factors:${ri}/description`] = f.desc(v);
-          ri++;
-        }
+      // Pain assessment (synopsis)
+      if (state.answers['pain']) {
+        const pdesc = {none:'Geen pijn',systemic:'Systemisch','local-fast':'Lokaal snel','local-slow':'Lokaal langzaam'}[state.answers['pain']];
+        klinische_synopsis += ` Pijnmanagement: ${pdesc}.`;
       }
 
       // Dressing advice
       if (tissue && moisture) {
         const advice = getMatrixAdvice(tissue === 'mixed' ? 'mixed' : tissue, moisture);
-        comp['sensire_wound_care/health_risk_assessment/risk_assessment/text_value'] = `Verbandadvies: ${advice.dressing}. Doel: ${advice.goal}`;
+        klinische_synopsis += ` Verbandadvies: ${advice.dressing}. Doel: ${advice.goal}.`;
+        
+        // Instruction for medical device (ordinering_av_medisinsk_utstyr)
+        comp['wondconsult_sensire/ordinering_av_medisinsk_utstyr/ordinering/utstyrsnavn'] = advice.dressing;
+        comp['wondconsult_sensire/ordinering_av_medisinsk_utstyr/ordinering/terapeutisk_hensikt'] = advice.goal;
+        comp['wondconsult_sensire/ordinering_av_medisinsk_utstyr/ordinering/startdato_tid'] = now;
       }
 
-      // Problem/Diagnosis
-      comp['sensire_wound_care/problem_diagnosis/problem_diagnosis_name|value'] = 'Wondzorg (Algemeen Wondprotocol)';
-      comp['sensire_wound_care/problem_diagnosis/clinical_description'] = `Wondprotocol doorlopen. Afmeting: ${dims.l||'?'}×${dims.b||'?'}×${dims.d||'?'} cm. Weefsel: ${tissue}. Exsudaat: ${moisture}. Infectie: ${infection}. DM: ${state.answers['diabetes-check']||'nee'}.`;
+      comp['wondconsult_sensire/ergebnisse_der_körperlichen_untersuchung/jedes_ereignis/beschreibung'] = klinische_synopsis;
+      comp['wondconsult_sensire/ergebnisse_der_körperlichen_untersuchung/jedes_ereignis/time'] = now;
 
-      comp['sensire_wound_care/composer|name'] = 'Sensire Wondzorg Demo';
-      comp['sensire_wound_care/language|code'] = 'nl'; comp['sensire_wound_care/language|terminology'] = 'ISO_639-1';
-      comp['sensire_wound_care/territory|code'] = 'NL'; comp['sensire_wound_care/territory|terminology'] = 'ISO_3166-1';
+      // Problem/Diagnosis
+      comp['wondconsult_sensire/probleem_diagnose/naam_van_het_probleem_de_diagnose'] = 'Wondzorg (Algemeen Wondprotocol)';
+      if (state.answers['stagnation'] === 'stagnant') {
+        comp['wondconsult_sensire/probleem_diagnose/course_description_en'] = 'Stagnatie wond > 2-3 weken zonder verbetering — Vakgroep Wond ingeschakeld';
+      }
+
+      // Context is already set via ctx/ keys above
+      
       return comp;
     }
 
@@ -606,7 +607,7 @@
         }
         if (!state.ehrId) throw new Error('Kan geen EHR vinden');
         const c = buildFlatComposition();
-        const r = await fetch(`${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition?format=FLAT&templateId=sensire_wound_care`,{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=representation','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)},body:JSON.stringify(c)});
+        const r = await fetch(`${EHRBASE_URL}/openehr/v1/ehr/${state.ehrId}/composition?format=FLAT&templateId=${TEMPLATE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=representation','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)},body:JSON.stringify(c)});
         if (r.ok||r.status===201) { const d=await r.json().catch(()=>null);
           const tplKey=Object.keys(d||{}).find(k=>k.endsWith('/_uid'))||''; state.compositionUid=d?.[tplKey]||'opgeslagen';
           if (document.getElementById('data-threecol') && wtLookup && d) {
@@ -620,7 +621,7 @@
     async function executeAQL() {
       const rd = document.getElementById('aql-result'); rd.innerHTML='<p style="color:var(--color-text-secondary);">⏳ Uitvoeren...</p>';
       try {
-        const r = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)},body:JSON.stringify({q:'SELECT c/uid/value as id, c/name/value as naam, c/context/start_time/value as datum FROM EHR e CONTAINS COMPOSITION c ORDER BY c/context/start_time/value DESC LIMIT 10'})});
+        const r = await fetch(`${EHRBASE_URL}/openehr/v1/query/aql`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(`${EHRBASE_USER}:${EHRBASE_PASS}`)},body:JSON.stringify({q:`SELECT c/uid/value as id, c/name/value as naam, c/context/start_time/value as datum FROM EHR e CONTAINS COMPOSITION c WHERE c/archetype_details/template_id/value = '${TEMPLATE_ID}' ORDER BY c/context/start_time/value DESC LIMIT 10`})});
         if(r.ok){const d=await r.json();rd.innerHTML=`<div class="alert alert--success"><span class="alert__icon">✅</span><div><strong>${d.rows?.length||0} compositie(s)</strong></div></div><div class="data-display">${JSON.stringify(d,null,2)}</div>`;}
         else throw new Error(`HTTP ${r.status}`);
       } catch(e){rd.innerHTML=`<div class="alert alert--danger"><span class="alert__icon">❌</span><div>${e.message}</div></div>`;}

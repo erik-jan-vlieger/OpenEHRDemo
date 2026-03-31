@@ -1,0 +1,59 @@
+template (adl_version=2.0.6; rm_release=1.1.0)
+	openEHR-EHR-COMPOSITION.diabetic_foot_assessment_sensire.v1.0.0
+
+specialize
+	openEHR-EHR-COMPOSITION.encounter.v1
+
+language
+	original_language = <[ISO_639-1::nl]>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire / Het Instituut Bedrijfskunde">
+		["date"] = <"2026-03-29">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Template voor voetscreening en -inspectie bij DM-patiënten.">
+			use = <"Gebruik bij elk contactmoment met een DM-patiënt waarbij voetinspectie geïndiceerd is.">
+			misuse = <"Niet voor wondbehandeling zelf.">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	COMPOSITION[id1] matches {
+		content matches {
+			use_archetype EVALUATION[id2, openEHR-EHR-EVALUATION.problem_diagnosis.v1]
+			use_archetype OBSERVATION[id3, openEHR-EHR-OBSERVATION.story.v1]
+			use_archetype EVALUATION[id4, openEHR-EHR-EVALUATION.health_risk.v1]
+			use_archetype OBSERVATION[id5, openEHR-EHR-OBSERVATION.laboratory_test_result.v1]
+			use_archetype OBSERVATION[id6, openEHR-EHR-OBSERVATION.exam.v1]
+			use_archetype OBSERVATION[id7, openEHR-EHR-OBSERVATION.monofilament_examination.v0]
+			use_archetype OBSERVATION[id8, openEHR-EHR-OBSERVATION.diabetic_wound_wagner.v0]
+			use_archetype EVALUATION[id9, openEHR-EHR-EVALUATION.sims_classification_nl.v0]
+			use_archetype INSTRUCTION[id10, openEHR-EHR-INSTRUCTION.service_request.v1]
+			use_archetype ACTION[id11, openEHR-EHR-ACTION.health_education.v1]
+			use_archetype INSTRUCTION[id12, openEHR-EHR-INSTRUCTION.care_plan_request.v0]
+		}
+	}
+
+terminology
+	term_definitions = <
+		["nl"] = <
+			["id1"] = <text = <"Voetscreening DM Sensire"> description = <"Contactmoment voor diabetische voetscreening.">>
+			["id2"] = <text = <"DM-diagnose"> description = <"Diabetes mellitus als comorbiditeit.">>
+			["id3"] = <text = <"Anamnese"> description = <"Anamnese diabetische voet.">>
+			["id4"] = <text = <"Risicofactoren DM voet"> description = <"Risicobeoordeling.">>
+			["id5"] = <text = <"HbA1c"> description = <"Meest recente HbA1c-waarde.">>
+			["id6"] = <text = <"Voetinspectie"> description = <"Bilateraal lichamelijk onderzoek van de voeten.">>
+			["id7"] = <text = <"Monofilament-test"> description = <"Semmes-Weinstein 10g monofilament-test.">>
+			["id8"] = <text = <"Wagner-classificatie"> description = <"Wagner-gradering van diabetisch voetulcus.">>
+			["id9"] = <text = <"Sims-risicoclassificatie"> description = <"Sims-classificatie (categorie 0-3).">>
+			["id10"] = <text = <"Verwijzing"> description = <"Verwijzing naar arts of wondprotocol.">>
+			["id11"] = <text = <"DM-voorlichting"> description = <"Gezondheidsvoorlichting voetzorg.">>
+			["id12"] = <text = <"Preventief voetzorgplan"> description = <"Zorgplan voor preventieve voetzorg.">>
+		>
+	>
