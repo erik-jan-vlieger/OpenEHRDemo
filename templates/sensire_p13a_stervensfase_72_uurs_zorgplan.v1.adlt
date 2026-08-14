@@ -1,0 +1,70 @@
+template (adl_version=2.0.6; rm_release=1.1.0)
+	openEHR-EHR-COMPOSITION.sensire_p13a_stervensfase_72_uurs_zorgplan.v1.0.0
+
+specialize
+	openEHR-EHR-COMPOSITION.encounter.v1
+
+language
+	original_language = <[ISO_639-1::nl]>
+
+description
+	original_author = <
+		["name"] = <"Sensire Speciele Beslisondersteuning">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-14">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Zorgpad P13a (Stervensfase — 72-uurs zorgplan) Sensire">
+			use = <"Ondersteuning van klinische besluitvorming in de wijkverpleging.">
+			misuse = <"Niet buiten VVT context.">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	COMPOSITION[id1] matches {
+		content matches {
+			use_archetype EVALUATION[id2, openEHR-EHR-EVALUATION.problem_diagnosis.v1]
+			use_archetype OBSERVATION[id3, openEHR-EHR-OBSERVATION.story.v1]
+			use_archetype EVALUATION[id4, openEHR-EHR-EVALUATION.clinical_synopsis.v1]
+			use_archetype ACTION[id5, openEHR-EHR-ACTION.medication.v1]
+			use_archetype ACTION[id6, openEHR-EHR-ACTION.procedure.v1]
+			use_archetype INSTRUCTION[id7, openEHR-EHR-INSTRUCTION.service_request.v1]
+		}
+	}
+
+terminology
+	term_definitions = <
+		["nl"] = <
+				["id1"] = <
+					text = <"P13a - Stervensfase — 72-uurs zorgplan">
+					description = <"Cliënt bevindt zich in de stervensfase of vertoont signalen van een naderend overlijden; inzet van het 72-uurs comfortbeleid.">
+				>
+				["id2"] = <
+					text = <"Probleem of Diagnose">
+					description = <"Primaire aandoening of indicatie van het zorgpad.">
+				>
+				["id3"] = <
+					text = <"Anamnese & Bevindingen">
+					description = <"Klinisch verhaal en observaties van client/verpleegkundige.">
+				>
+				["id4"] = <
+					text = <"Klinische Synopsis & Besluit">
+					description = <"Conclusie en besluitvorming volgend uit het zorgpad.">
+				>
+				["id5"] = <
+					text = <"Medicatietoediening">
+					description = <"Toediening of aanpassing van medicatie.">
+				>
+				["id6"] = <
+					text = <"Interventie / Handeling">
+					description = <"Verpleegkundige acties en handelingen.">
+				>
+				["id7"] = <
+					text = <"Escalatie / Verwijzing">
+					description = <"Overleg of order aan arts of specialist.">
+				>
+		>
+	>

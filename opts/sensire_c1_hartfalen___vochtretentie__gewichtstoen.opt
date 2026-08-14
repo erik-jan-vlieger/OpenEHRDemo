@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='utf-8'?>
+<template xmlns="http://schemas.openehr.org/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <language>
+    <terminology_id name="ISO_639-1"/>
+    <code_string>nl</code_string>
+  </language>
+  <is_controlled>false</is_controlled>
+  <guid>1979e559-e2fe-4677-9bec-d54dc29ecbe1</guid>
+  <template_id>
+    <value>sensire_c1_hartfalen___vochtretentie__gewichtstoen</value>
+  </template_id>
+  <concept>C1 — Hartfalen — vochtretentie &amp; gewichtstoename</concept>
+  <definition xsi:type="C_COMPLEX_OBJECT">
+    <rm_type_name>COMPOSITION</rm_type_name>
+    <occurrences>
+      <lower_included>true</lower_included>
+      <upper_included>true</upper_included>
+      <lower_unbounded>false</lower_unbounded>
+      <upper_unbounded>false</upper_unbounded>
+      <lower>1</lower>
+      <upper>1</upper>
+    </occurrences>
+    <node_id>openEHR-EHR-COMPOSITION.encounter.v1</node_id>
+    <archetype_id>
+      <value>openEHR-EHR-COMPOSITION.encounter.v1</value>
+    </archetype_id>
+    <attributes xsi:type="C_MULTIPLE_ATTRIBUTE">
+      <rm_attribute_name>content</rm_attribute_name>
+      <cardinality>
+        <lower_included>true</lower_included>
+        <lower_unbounded>false</lower_unbounded>
+        <upper_unbounded>true</upper_unbounded>
+        <lower>0</lower>
+      </cardinality>
+      <children xsi:type="C_ARCHETYPE_ROOT">
+        <rm_type_name>EVALUATION</rm_type_name>
+        <occurrences>
+          <lower_included>true</lower_included>
+          <upper_included>true</upper_included>
+          <lower_unbounded>false</lower_unbounded>
+          <upper_unbounded>false</upper_unbounded>
+          <lower>0</lower>
+          <upper>1</upper>
+        </occurrences>
+        <node_id>openEHR-EHR-EVALUATION.problem_diagnosis.v1</node_id>
+        <archetype_id>
+          <value>openEHR-EHR-EVALUATION.problem_diagnosis.v1</value>
+        </archetype_id>
+      </children>
+      <children xsi:type="C_ARCHETYPE_ROOT">
+        <rm_type_name>OBSERVATION</rm_type_name>
+        <occurrences>
+          <lower_included>true</lower_included>
+          <upper_included>true</upper_included>
+          <lower_unbounded>false</lower_unbounded>
+          <upper_unbounded>false</upper_unbounded>
+          <lower>0</lower>
+          <upper>1</upper>
+        </occurrences>
+        <node_id>openEHR-EHR-OBSERVATION.story.v1</node_id>
+        <archetype_id>
+          <value>openEHR-EHR-OBSERVATION.story.v1</value>
+        </archetype_id>
+      </children>
+      <children xsi:type="C_ARCHETYPE_ROOT">
+        <rm_type_name>EVALUATION</rm_type_name>
+        <occurrences>
+          <lower_included>true</lower_included>
+          <upper_included>true</upper_included>
+          <lower_unbounded>false</lower_unbounded>
+          <upper_unbounded>false</upper_unbounded>
+          <lower>0</lower>
+          <upper>1</upper>
+        </occurrences>
+        <node_id>openEHR-EHR-EVALUATION.clinical_synopsis.v1</node_id>
+        <archetype_id>
+          <value>openEHR-EHR-EVALUATION.clinical_synopsis.v1</value>
+        </archetype_id>
+      </children>
+      <children xsi:type="C_ARCHETYPE_ROOT">
+        <rm_type_name>ACTION</rm_type_name>
+        <occurrences>
+          <lower_included>true</lower_included>
+          <upper_included>true</upper_included>
+          <lower_unbounded>false</lower_unbounded>
+          <upper_unbounded>false</upper_unbounded>
+          <lower>0</lower>
+          <upper>1</upper>
+        </occurrences>
+        <node_id>openEHR-EHR-ACTION.procedure.v1</node_id>
+        <archetype_id>
+          <value>openEHR-EHR-ACTION.procedure.v1</value>
+        </archetype_id>
+      </children>
+      <children xsi:type="C_ARCHETYPE_ROOT">
+        <rm_type_name>INSTRUCTION</rm_type_name>
+        <occurrences>
+          <lower_included>true</lower_included>
+          <upper_included>true</upper_included>
+          <lower_unbounded>false</lower_unbounded>
+          <upper_unbounded>false</upper_unbounded>
+          <lower>0</lower>
+          <upper>1</upper>
+        </occurrences>
+        <node_id>openEHR-EHR-INSTRUCTION.service_request.v1</node_id>
+        <archetype_id>
+          <value>openEHR-EHR-INSTRUCTION.service_request.v1</value>
+        </archetype_id>
+      </children>
+    </attributes>
+  </definition>
+  <ontology>
+    <term_definitions language="nl">
+      <items code="at0000">
+        <items id="text">C1 — Hartfalen — vochtretentie &amp; gewichtstoename</items>
+        <items id="description">Scope wijkverpleegkundige: het regelmatig monitoren van gewicht en overvullingsverschijnselen, instrueren van zelfmanagement/flexibel diureticumbeleid, en tijdig escaleren bij verslechtering. De medicatiewijziging zelf wordt door de arts geïnitieerd of vooraf vastgelegd in een individueel behandelplan.</items>
+      </items>
+    </term_definitions>
+  </ontology>
+</template>

@@ -151,7 +151,75 @@ def convert_aom2_to_opt14(input_opt_bak, output_opt, adlt_path):
             if c.tag == 'attributes':
                 rm_val = c.get('rm_attribute_name')
                 if rm_val == 'category':
-                    c.getparent().remove(c)
+                    c.clear()
+                    c.attrib.clear()
+                    c.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'C_SINGLE_ATTRIBUTE')
+                    etree.SubElement(c, 'rm_attribute_name').text = 'category'
+                    
+                    ext = etree.SubElement(c, 'existence')
+                    etree.SubElement(ext, 'lower_included').text = 'true'
+                    etree.SubElement(ext, 'upper_included').text = 'true'
+                    etree.SubElement(ext, 'lower_unbounded').text = 'false'
+                    etree.SubElement(ext, 'upper_unbounded').text = 'false'
+                    l = etree.SubElement(ext, 'lower')
+                    l.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                    l.text = '1'
+                    u = etree.SubElement(ext, 'upper')
+                    u.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                    u.text = '1'
+                    
+                    ch = etree.SubElement(c, 'children')
+                    ch.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'C_COMPLEX_OBJECT')
+                    etree.SubElement(ch, 'rm_type_name').text = 'DV_CODED_TEXT'
+                    
+                    occ = etree.SubElement(ch, 'occurrences')
+                    etree.SubElement(occ, 'lower_included').text = 'true'
+                    etree.SubElement(occ, 'upper_included').text = 'true'
+                    etree.SubElement(occ, 'lower_unbounded').text = 'false'
+                    etree.SubElement(occ, 'upper_unbounded').text = 'false'
+                    ol = etree.SubElement(occ, 'lower')
+                    ol.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                    ol.text = '1'
+                    ou = etree.SubElement(occ, 'upper')
+                    ou.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                    ou.text = '1'
+                    
+                    etree.SubElement(ch, 'node_id')
+                    
+                    attr2 = etree.SubElement(ch, 'attributes')
+                    attr2.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'C_SINGLE_ATTRIBUTE')
+                    etree.SubElement(attr2, 'rm_attribute_name').text = 'defining_code'
+                    
+                    ext2 = etree.SubElement(attr2, 'existence')
+                    etree.SubElement(ext2, 'lower_included').text = 'true'
+                    etree.SubElement(ext2, 'upper_included').text = 'true'
+                    etree.SubElement(ext2, 'lower_unbounded').text = 'false'
+                    etree.SubElement(ext2, 'upper_unbounded').text = 'false'
+                    l2 = etree.SubElement(ext2, 'lower')
+                    l2.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                    l2.text = '1'
+                    u2 = etree.SubElement(ext2, 'upper')
+                    u2.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                    u2.text = '1'
+                    
+                    ch2 = etree.SubElement(attr2, 'children')
+                    ch2.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'C_TERMINOLOGY_CODE')
+                    etree.SubElement(ch2, 'rm_type_name').text = 'CODE_PHRASE'
+                    
+                    occ2 = etree.SubElement(ch2, 'occurrences')
+                    etree.SubElement(occ2, 'lower_included').text = 'true'
+                    etree.SubElement(occ2, 'upper_included').text = 'true'
+                    etree.SubElement(occ2, 'lower_unbounded').text = 'false'
+                    etree.SubElement(occ2, 'upper_unbounded').text = 'false'
+                    ol2 = etree.SubElement(occ2, 'lower')
+                    ol2.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                    ol2.text = '1'
+                    ou2 = etree.SubElement(occ2, 'upper')
+                    ou2.set('{http://www.w3.org/2001/XMLSchema-instance}type', 'xs:int')
+                    ou2.text = '1'
+                    
+                    etree.SubElement(ch2, 'node_id')
+                    etree.SubElement(ch2, 'constraint').text = '[openehr::433]'
                     continue
 
                 if rm_val:

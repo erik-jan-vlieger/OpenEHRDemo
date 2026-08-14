@@ -43,5 +43,6 @@ webtemplate.json
 build/
 tools/openEHR-SDK/
 tools/openEHR-CLI/
+archetypes/ckm-mirror/
 *.jar
 *.bin
