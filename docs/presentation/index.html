@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sensire openEHR Ecosysteem &amp; Runtime Architectuur</title>
+<style>
+  :root {
+    --primary: #123466;
+    --brand: #e8830c;
+    --dark: #212529;
+    --muted: #6c757d;
+    --bg-light: #f8f9fa;
+    --surface: #ffffff;
+    --accent-bg: #eef4ff;
+    --border: #d0ddeb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0b1c36;
+    color: var(--dark);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  .deck-container {
+    width: 100vw;
+    max-width: 1400px;
+    height: 56.25vw; /* 16:9 ratio */
+    max-height: 787px;
+    position: relative;
+    background: var(--surface);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 40px 60px;
+    display: none;
+    flex-direction: column;
+    background: var(--surface);
+  }
+  .slide.active { display: flex; }
+  
+  /* Slide 1: Cover */
+  .slide-cover {
+    background: var(--primary);
+    color: white;
+    justify-content: center;
+    border-left: 16px solid var(--brand);
+  }
+  .slide-cover .category {
+    font-size: 14px;
+    font-weight: 750;
+    letter-spacing: 2px;
+    color: var(--brand);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .slide-cover h1 {
+    font-size: 42px;
+    line-height: 1.2;
+    margin-bottom: 18px;
+  }
+  .slide-cover p {
+    font-size: 20px;
+    color: #c4d7ed;
+    max-width: 900px;
+    line-height: 1.5;
+    margin-bottom: 30px;
+  }
+  .slide-cover .meta {
+    font-size: 14px;
+    color: #8faecf;
+  }
+
+  /* Slide Header */
+  .slide-header {
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--brand);
+    padding-bottom: 12px;
+  }
+  .slide-header .cat {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--brand);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .slide-header h2 {
+    font-size: 24px;
+    color: var(--primary);
+    font-weight: 750;
+  }
+
+  /* Slide Content */
+  .slide-body {
+    flex: 1;
+    display: grid;
+    gap: 20px;
+  }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-rows { display: flex; flex-direction: column; gap: 14px; }
+
+  .card {
+    background: var(--bg-light);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+  }
+  .card.highlight {
+    background: var(--accent-bg);
+    border-color: var(--brand);
+  }
+  .card h3 {
+    font-size: 16px;
+    color: var(--primary);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .card p, .card ul {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--dark);
+  }
+  .card ul {
+    padding-left: 18px;
+  }
+  .card li { margin-bottom: 6px; }
+
+  /* Controls */
+  .controls {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: white;
+    font-size: 14px;
+  }
+  .btn-nav {
+    background: var(--brand);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .btn-nav:hover { background: #d07507; }
+</style>
+</head>
+<body>
+
+<div class="deck-container">
+
+  <!-- SLIDE 1 -->
+  <div class="slide slide-cover active">
+    <div class="category">Sensire Digitale Innovatie · Architectuurboard</div>
+    <h1>openEHR Ecosysteem &amp; Runtime Architectuur</h1>
+    <p>Semantische Fabriek, Contract-First Decoupling en Runtime Roadmap naar EHRbase CDR.</p>
+    <div class="meta">Auteur: Digitale Innovatie &amp; openEHR Werkgroep | Status: Definitief Architectuurvoorstel</div>
+  </div>
+
+  <!-- SLIDE 2 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="cat">Executive Summary</div>
+      <h2>Drie Pijlers voor een Duurzaam Gezondheidsplatform</h2>
+    </div>
+    <div class="slide-body grid-3">
+      <div class="card">
+        <h3>1. Data &amp; App Scheiding</h3>
+        <p>Klinische gegevens worden gestandaardiseerd opgeslagen in een leveranciersonafhankelijk Clinical Data Repository (openEHR CDR). Geen vendor lock-in in applicatiesilo's.</p>
+      </div>
+      <div class="card">
+        <h3>2. Contract-First &amp; Decoupled</h3>
+        <p>Semantiek (archetypes, OPT 1.4 XML) wordt autonoom gecompileerd. Applicaties consumeren zuivere, snelle JSON-contracten zonder runtime Java-ballast.</p>
+      </div>
+      <div class="card">
+        <h3>3. Zero-Burden voor de Zorg</h3>
+        <p>Zowel wijkverpleegkundigen als zorgpad-redacteuren behouden hun vertrouwde functionele interface. De openEHR-transformatie verloopt 100% automatisch.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="cat">Ecosysteem Architectuur</div>
+      <h2>Het 3-Lagenmodel: Scheiding van Inhoud, Semantiek &amp; Presentatie</h2>
+    </div>
+    <div class="slide-body grid-rows">
+      <div class="card">
+        <h3>LAAG 1: AUTEURS &amp; KLINISCHE BRONNEN</h3>
+        <p>• <b>SensireSpecieleBeslisOndersteuning</b>: 164 zorgpaden, ReAble flows, actieve dagelijkse redactie.<br/>• <b>Sensii Wijkverpleegkundig EPD</b>: 58 surveys, Omaha-systematiek, SFP-beslismotor.</p>
+      </div>
+      <div class="card highlight">
+        <h3>LAAG 2: DE SEMANTISCHE FABRIEK (OpenEHRDemo)</h3>
+        <p>• 730+ CKM &amp; 7 Custom Nederlandse Archetypes (Gordon, GFI, Omaha, Regietrede, VAG)<br/>• Compilatiestraat: Archie Java Flattener + full_opt14_lxml.py (299 gevalideerde OPTs)<br/>• Exporteert contracten: <code>sensii_openehr_contract.json</code> &amp; <code>carepaths_openehr_contract.json</code></p>
+      </div>
+      <div class="card">
+        <h3>LAAG 3: PRESENTATIE &amp; RUNTIME PERSISTENTIE</h3>
+        <p>• Live openEHR Inspector &amp; Data-Twin in Sensii Doorloop<br/>• Lens 6: openEHR Blueprint &amp; AQL Query Lab in Meta-Visualisaties<br/>• Runtime FLAT JSON Mapper &amp; REST client naar EHRbase CDR (<code>/ehr/{ehr_id}/composition</code>)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="cat">Semantiek &amp; Modellen</div>
+      <h2>De 7 Custom Archetypes voor de Wijkverpleging</h2>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card">
+        <h3>Groningen Frailty Indicator (GFI) [OBS]</h3>
+        <p>15 items over 4 domeinen (fysiek, cognitief, sociaal, psychisch), somscore 0-15, cutoff &ge; 4 (SNOMED 225544003).</p>
+      </div>
+      <div class="card">
+        <h3>Regietrede &amp; Zelfredzaamheid [OBS]</h3>
+        <p>Inschaling van 5 eigen regietreden met vergelijking motoradvies vs professional vs cliënt.</p>
+      </div>
+      <div class="card">
+        <h3>Omaha System Probleem &amp; Zorgplan [EVAL]</h3>
+        <p>42 aandachtsgebieden, 4 actiesoorten, 76 actievlakken en KBS-streefscores (Kennis, Gedrag, Status).</p>
+      </div>
+      <div class="card">
+        <h3>11 Gezondheidspatronen van Gordon [OBS]</h3>
+        <p>Gestructureerde functionele anamnese volgens de 11 verpleegkundige patronen van Marjory Gordon.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="cat">Pipeline &amp; Terminologie</div>
+      <h2>Compilatiestraat &amp; 5-Staps Terminologiecascade</h2>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card">
+        <h3>⚙️ Geautomatiseerde Compilatie</h3>
+        <ul>
+          <li><b>ADLT Templates:</b> Definieert RM-structuur en slots.</li>
+          <li><b>Nedap Archie Java Flattener:</b> Valideert en expandeert.</li>
+          <li><b>Python full_opt14_lxml.py:</b> Injecteert namespaces &amp; types.</li>
+          <li><b>299 Gevalideerde OPT 1.4 XML's:</b> Gereed voor EHRbase.</li>
+        </ul>
+      </div>
+      <div class="card highlight">
+        <h3>📚 5-Staps Terminologiecascade</h3>
+        <ul>
+          <li><b>1. Nictiz ZIBs:</b> Primaire bron voor landelijke uitwisseling.</li>
+          <li><b>2. SNOMED CT NL:</b> Klinische terminologie &amp; concepten.</li>
+          <li><b>3. openEHR CKM:</b> Officiële internationale value-sets.</li>
+          <li><b>4. V&amp;VN &amp; Omaha NL:</b> Beroepsstandaarden wijkverpleging.</li>
+          <li><b>5. Zorgpad Fallback:</b> Sensire-specifieke terminologie.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="cat">Distributie</div>
+      <h2>Contract-First Data Distributie</h2>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card">
+        <h3>📦 sensii_openehr_contract.json (39.5 KB)</h3>
+        <p>• Mapt alle 58 surveys op de 5 templates en 7 custom archetypes.<br/>• Bevat exacte RM node-paden (at00xx codes) voor elk formulier.<br/>• Bevat kant-en-klare AQL sample queries.<br/>• Bevat dynamische triggers tussen Omaha en de 164 zorgpaden.<br/>• Bevat SHA256 integriteits-checksum.</p>
+      </div>
+      <div class="card">
+        <h3>📦 carepaths_openehr_contract.json</h3>
+        <p>• Bevat het register van alle 164 zorgpaden (regulier &amp; ReAble).<br/>• Mapt elk zorgpad op zijn gecompileerde OPT 1.4 XML bestand.<br/>• Definieert de ReAble-status (inclusief ACTION.health_education).<br/>• Dient als basis voor de Fase 2 openEHR badge in de WebViewer.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="cat">Visualisaties</div>
+      <h2>Visualisatie &amp; Inspectie: Het Dual-Perspectief</h2>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card">
+        <h3>👩‍⚕️ De Doorloop: Live openEHR Inspector</h3>
+        <p>• <b>Klinisch:</b> Rustig en herkenbaar dossier (Gordon, Omaha KBS, GFI, regietrede).<br/>• <b>Technisch:</b> Live data-twin met RM-klasse, archetype ID, FLAT JSON payload en AQL-query.<br/>• <b>Sync Pulse:</b> Directe validatie-indicatie.</p>
+      </div>
+      <div class="card">
+        <h3>🧬 Meta-Visualisaties: Lens 6</h3>
+        <p>• <b>Dekkingsgraad Dashboard:</b> 100% dekking over 58 formulieren.<br/>• <b>Template-Hiërarchie:</b> Visuele compositieboom.<br/>• <b>Live AQL Tester:</b> Realtime query tester voor analisten.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="cat">Runtime Implementatie</div>
+      <h2>Runtime Roadmap: 4 Stappen naar EHRbase CDR</h2>
+    </div>
+    <div class="slide-body grid-rows">
+      <div class="card">
+        <h3>1. EHRbase Server &amp; OPT Upload</h3>
+        <p>EHRbase instance inrichten. De 5 OPT 1.4 XML bestanden registreren via <code>POST /rest/openehr/v1/definition/template/adl1.4</code>.</p>
+      </div>
+      <div class="card">
+        <h3>2. WebTemplate FLAT JSON Mapper</h3>
+        <p>Lichtgewicht Python helper (<code>sensii_openehr_mapper.py</code>) die formulierantwoorden omzet naar FLAT JSON.</p>
+      </div>
+      <div class="card">
+        <h3>3. EHRbase REST API Client</h3>
+        <p>HTTP POST client die de payload verzendt naar <code>/ehr/{ehr_id}/composition</code> met Bearer token.</p>
+      </div>
+      <div class="card">
+        <h3>4. Audit, Versioning &amp; AQL</h3>
+        <p>EHRbase valideert tegen de OPT, slaat onveranderlijk op met ObjectVersionID en stelt data direct beschikbaar voor AQL.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="cat">Adoptie Zorgpaden</div>
+      <h2>Adoptiestrategie Speciële Beslisondersteuning (Fase 2)</h2>
+    </div>
+    <div class="slide-body grid-rows">
+      <div class="card">
+        <h3>FASE 1: ZERO-TOUCH (Actueel)</h3>
+        <p>• Redacteurs blijven 100% werken zoals nu (Markdown/Mermaids/JSON).<br/>• OpenEHRDemo genereert de openEHR templates volledig autonoom op de achtergrond.<br/>• Geen enkele verstoring van het dagelijkse zorgpaden-onderhoud.</p>
+      </div>
+      <div class="card highlight">
+        <h3>FASE 2: PASSIEVE INFORMATIEVE BADGE (Aanbevolen Stap)</h3>
+        <p>• In de WebViewer verschijnt een subtiele badge: <code>[ 🧬 openEHR Template Beschikbaar ]</code>.<br/>• Klikken opent een inspectie-popup met template-ID, archetypes en AQL snippet.<br/>• Volledig optioneel en niet-blokkerend voor redacteurs.</p>
+      </div>
+      <div class="card">
+        <h3>FASE 3: OPT-IN AI ASSISTENT (Toekomst)</h3>
+        <p>• Vrijwillige AI-assistent die bij het toevoegen van een nieuwe stap suggesties doet voor Omaha of SNOMED termen.<br/>• Altijd adviserend, nooit dwingend.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="cat">Besluitvorming</div>
+      <h2>Voorgestelde Besluiten voor het Architectuurboard</h2>
+    </div>
+    <div class="slide-body grid-rows">
+      <div class="card highlight">
+        <h3>1. Goedkeuring Ecosysteem Architectuur</h3>
+        <p>Het 3-lagenmodel met contract-first scheiding tussen Semantische Fabriek (OpenEHRDemo) en consumenten-applicaties vaststellen als Sensire enterprise standaard.</p>
+      </div>
+      <div class="card highlight">
+        <h3>2. Goedkeuring Fase 2 in Speciële Beslisondersteuning</h3>
+        <p>Inrichten van de passieve, niet-verstorende openEHR inspectie-badge in de WebViewer conform het geleverde JSON-contract.</p>
+      </div>
+      <div class="card highlight">
+        <h3>3. Goedkeuring Runtime Pilot EHRbase</h3>
+        <p>Starten van een gecontroleerde pilot om de Sensii Doorloop via FLAT JSON composities live weg te schrijven naar een dedicated EHRbase CDR instance.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="controls">
+  <button class="btn-nav" onclick="prevSlide()">◀ Vorige</button>
+  <span id="slide-num">Slide 1 / 10</span>
+  <button class="btn-nav" onclick="nextSlide()">Volgende ▶</button>
+</div>
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const numElem = document.getElementById('slide-num');
+
+  function update() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    numElem.textContent = `Slide ${current + 1} / ${slides.length}`;
+  }
+  function nextSlide() {
+    if (current < slides.length - 1) { current++; update(); }
+  }
+  function prevSlide() {
+    if (current > 0) { current--; update(); }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+</script>
+
+</body>
+</html>
