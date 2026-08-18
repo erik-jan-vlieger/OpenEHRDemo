@@ -1,0 +1,61 @@
+template (adl_version=2.0.6; rm_release=1.1.0)
+	openEHR-EHR-COMPOSITION.sensire_sensii_verpleegkundig_proces_integraal.v1.0.0
+
+specialize
+	openEHR-EHR-COMPOSITION.encounter.v1
+
+language
+	original_language = <[ISO_639-1::nl]>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Integraal Sensii Verpleegkundig Proces — Overkoepelende openEHR compositie die het complete verpleegkundige proces omvat van Triage en Verpleegkundig Adviesgesprek (Hoofdstuk 1), via Gordon Anamnese, GFI en Omaha Probleemselectie (Hoofdstuk 2), tot Zorgplan, Actievlakken, Financiering en Evaluatie (Hoofdstuk 3 & 4).">
+			use = <"Gebruik als holistisch primair dossierportret van de cliënt in de wijkverpleging, waarop speciële zorgpaden als modulaire modules aansluiten.">
+			keywords = <"Sensii", "integraal dossier", "verpleegkundig proces", "Omaha System", "Gordon patronen", "GFI", "regietrede", "zorgplan", "wijkverpleging">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	COMPOSITION[id1] matches {
+		content matches {
+			use_archetype EVALUATION[id2, openEHR-EHR-EVALUATION.triage_nursing_nl.v0]
+			use_archetype EVALUATION[id3, openEHR-EHR-EVALUATION.nursing_vag_nl.v0]
+			use_archetype OBSERVATION[id4, openEHR-EHR-OBSERVATION.nursing_gordon_patterns_nl.v0]
+			use_archetype OBSERVATION[id5, openEHR-EHR-OBSERVATION.groningen_frailty_indicator_nl.v0]
+			use_archetype OBSERVATION[id6, openEHR-EHR-OBSERVATION.self_management_regietrede_nl.v0]
+			use_archetype EVALUATION[id7, openEHR-EHR-EVALUATION.omaha_assessment_nl.v0]
+			use_archetype INSTRUCTION[id8, openEHR-EHR-INSTRUCTION.care_plan_request.v0]
+			use_archetype ACTION[id9, openEHR-EHR-ACTION.care_plan.v0]
+			use_archetype ADMIN_ENTRY[id10, openEHR-EHR-ADMIN_ENTRY.care_funding_delivery_nl.v0]
+			use_archetype ACTION[id11, openEHR-EHR-ACTION.health_education.v1]
+			use_archetype EVALUATION[id12, openEHR-EHR-EVALUATION.goal.v1]
+			use_archetype EVALUATION[id13, openEHR-EHR-EVALUATION.clinical_synopsis.v1]
+		}
+	}
+
+terminology
+	term_definitions = <
+		["nl"] = <
+			["id1"] = <text = <"Sensii Integraal Verpleegkundig Proces"> description = <"Het integrale overkoepelende wijkverpleegkundige proces conform Sensii.">>
+			["id2"] = <text = <"Wijkverpleegkundige Triage"> description = <"Triage, passendheid en zorgrelatie.">>
+			["id3"] = <text = <"Verpleegkundig Adviesgesprek (VAG)"> description = <"Hulpvraag, persoonlijke kracht en mantelzorgdraagkracht.">>
+			["id4"] = <text = <"11 Gezondheidspatronen van Gordon"> description = <"Systematische anamnese van functionele gezondheidspatronen.">>
+			["id5"] = <text = <"GFI Kwetsbaarheidsmeting"> description = <"Groningen Frailty Indicator score.">>
+			["id6"] = <text = <"Regietrede en Zelfredzaamheid"> description = <"Eigen regie inschaling en KBS baseline.">>
+			["id7"] = <text = <"Omaha Problemen & Zorgplan"> description = <"Geprioriteerde aandachtsgebieden, doelen en actievlakken.">>
+			["id8"] = <text = <"Zorgplaninstructies"> description = <"Aanvraag en specificatie van verpleegkundige zorgacties.">>
+			["id9"] = <text = <"Zorgplanuitvoering"> description = <"Operationele status van het zorgplan.">>
+			["id10"] = <text = <"Financiering & Leveringsvorm"> description = <"Financieringskader (Zvw/Wlz/Wmo), uren/minuten en leveringsvorm.">>
+			["id11"] = <text = <"Voorlichting & Zelfzorgtraining"> description = <"Educatie, adviezen en instructie.">>
+			["id12"] = <text = <"Cliëntdoelen en Wensen"> description = <"Persoonlijke doelen en streefwaarden.">>
+			["id13"] = <text = <"Verpleegkundige Synthese & Evaluatie"> description = <"Klinisch redeneren, synthese en periodieke evaluatie.">>
+		>
+	>

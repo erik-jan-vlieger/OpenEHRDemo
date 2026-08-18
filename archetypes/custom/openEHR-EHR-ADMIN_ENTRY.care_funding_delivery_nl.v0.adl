@@ -1,0 +1,269 @@
+archetype (adl_version=1.4; uid=f7a8b9c0-a1b2-3456-defa-ef7890123456)
+	openEHR-EHR-ADMIN_ENTRY.care_funding_delivery_nl.v0
+
+concept
+	[at0000]	-- Zorgfinanciering en leveringsvorm
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Vastleggen van de financieringsvorm, wettelijk kader (Zvw, Wlz, Wmo), leveringsvorm (ZIN, PGB, VPT, MPT) en omvang van de toegekende zorg in uren/minuten conform het Sensii verpleegkundig proces.">
+			use = <"Gebruik in Hoofdstuk 3 (Organiseren van zorg) om de administratieve en financiële randvoorwaarden van het zorgplan formeel vast te leggen.">
+			keywords = <"financiering", "leveringsvorm", "Zvw", "Wlz", "Wmo", "ZIN", "PGB", "Sensii", "wijkverpleging">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Recording healthcare funding framework, delivery method, and allocated care duration in home care.">
+			use = <"Used to document administrative and legal funding boundaries of the nursing care plan.">
+			keywords = <"funding", "care delivery", "reimbursement", "home care">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	ADMIN_ENTRY[at0000] matches {	-- Zorgfinanciering en leveringsvorm
+		data matches {
+			ITEM_TREE[at0001] matches {	-- Boom
+				items cardinality matches {1..*; unordered} matches {
+					ELEMENT[at0002] matches {	-- Wettelijk financieringskader
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0003, 	-- Zorgverzekeringswet (Zvw - Wijkverpleging)
+									at0004, 	-- Wet langdurige zorg (Wlz)
+									at0005, 	-- Wet maatschappelijke ondersteuning (Wmo)
+									at0006, 	-- Jeugdwet
+									at0007]	-- Particulier / Zelfbekostigd
+								}
+							}
+						}
+					}
+					ELEMENT[at0008] occurrences matches {0..1} matches {	-- Leveringsvorm
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0009, 	-- Zorg in Natura (ZIN)
+									at0010, 	-- Persoonsgebonden budget (PGB)
+									at0011, 	-- Volledig Pakket Thuis (VPT)
+									at0012, 	-- Modulair Pakket Thuis (MPT)
+									at0013]	-- Combinatie ZIN en PGB
+								}
+							}
+						}
+					}
+					ELEMENT[at0014] occurrences matches {0..1} matches {	-- Geplande zorgduur per week (minuten)
+						value matches {
+							DV_COUNT matches {
+								magnitude matches {|0..10000|}
+							}
+						}
+					}
+					ELEMENT[at0015] occurrences matches {0..1} matches {	-- Inzet beeldschermzorg / eHealth
+						value matches {
+							DV_BOOLEAN matches {*}
+						}
+					}
+					ELEMENT[at0016] occurrences matches {0..1} matches {	-- Wlz-indicatieprofiel / Zorgzwaartepakket (ZZP)
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+					ELEMENT[at0017] occurrences matches {0..1} matches {	-- Financiële consequenties voor cliënt
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+					ELEMENT[at0018] occurrences matches {0..1} matches {	-- Toelichting financiering
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Zorgfinanciering en leveringsvorm">
+					description = <"Vastlegging van de financieringsstroom en leveringsvoorwaarden.">
+				>
+				["at0001"] = <
+					text = <"Boom">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Wettelijk financieringskader">
+					description = <"De wettelijke grondslag voor de zorgfinanciering.">
+				>
+				["at0003"] = <
+					text = <"Zorgverzekeringswet (Zvw - Wijkverpleging)">
+					description = <"Zorgverzekeringswet, geen eigen bijdrage.">
+				>
+				["at0004"] = <
+					text = <"Wet langdurige zorg (Wlz)">
+					description = <"Langdurige intensieve zorg, eigen bijdrage CAK van toepassing.">
+				>
+				["at0005"] = <
+					text = <"Wet maatschappelijke ondersteuning (Wmo)">
+					description = <"Gemeentelijke ondersteuning/begeleiding.">
+				>
+				["at0006"] = <
+					text = <"Jeugdwet">
+					description = <"Zorg voor jeugdigen onder 18 jaar.">
+				>
+				["at0007"] = <
+					text = <"Particulier / Zelfbekostigd">
+					description = <"Door cliënt zelf gefinancierd.">
+				>
+				["at0008"] = <
+					text = <"Leveringsvorm">
+					description = <"De wijze waarop de zorg geleverd en gecontracteerd wordt.">
+				>
+				["at0009"] = <
+					text = <"Zorg in Natura (ZIN)">
+					description = <"Directe levering door de gecontracteerde zorgaanbieder.">
+				>
+				["at0010"] = <
+					text = <"Persoonsgebonden budget (PGB)">
+					description = <"Budget waarmee de cliënt zelf zorg inkoopt.">
+				>
+				["at0011"] = <
+					text = <"Volledig Pakket Thuis (VPT)">
+					description = <"Wlz-zorg thuis inclusief maaltijden en welzijn.">
+				>
+				["at0012"] = <
+					text = <"Modulair Pakket Thuis (MPT)">
+					description = <"Wlz-zorg thuis in losse modules.">
+				>
+				["at0013"] = <
+					text = <"Combinatie ZIN en PGB">
+					description = <"Deels natura, deels PGB.">
+				>
+				["at0014"] = <
+					text = <"Geplande zorgduur per week (minuten)">
+					description = <"Totaal aantal geïndiceerde minuten directe en indirecte zorg per week.">
+				>
+				["at0015"] = <
+					text = <"Inzet beeldschermzorg / eHealth">
+					description = <"Wordt digitale/hybride zorg of beeldschermcontact ingezet?">
+				>
+				["at0016"] = <
+					text = <"Wlz-indicatieprofiel / Zorgzwaartepakket (ZZP)">
+					description = <"Bijv. VV-4, VV-5, VV-6.">
+				>
+				["at0017"] = <
+					text = <"Financiële consequenties voor cliënt">
+					description = <"Informatie over eventuele CAK-eigen bijdrage of kosten.">
+				>
+				["at0018"] = <
+					text = <"Toelichting financiering">
+					description = <"Toelichting op de toewijzing.">
+				>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <
+					text = <"Care Funding and Delivery Method">
+					description = <"Documentation of legal funding framework and delivery modalities.">
+				>
+				["at0001"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Legal funding framework">
+					description = <"Statutory funding scheme.">
+				>
+				["at0003"] = <
+					text = <"Health Insurance Act (Zvw)">
+					description = <"Zvw community nursing.">
+				>
+				["at0004"] = <
+					text = <"Long-term Care Act (Wlz)">
+					description = <"Long-term care.">
+				>
+				["at0005"] = <
+					text = <"Social Support Act (Wmo)">
+					description = <"Municipal social support.">
+				>
+				["at0006"] = <
+					text = <"Youth Act">
+					description = <"Youth care.">
+				>
+				["at0007"] = <
+					text = <"Private / Self-funded">
+					description = <"Private.">
+				>
+				["at0008"] = <
+					text = <"Delivery modality">
+					description = <"Care delivery mechanism.">
+				>
+				["at0009"] = <
+					text = <"Care in Kind (ZIN)">
+					description = <"In kind.">
+				>
+				["at0010"] = <
+					text = <"Personal Health Budget (PGB)">
+					description = <"Personal budget.">
+				>
+				["at0011"] = <
+					text = <"Full Home Package (VPT)">
+					description = <"VPT.">
+				>
+				["at0012"] = <
+					text = <"Modular Home Package (MPT)">
+					description = <"MPT.">
+				>
+				["at0013"] = <
+					text = <"Combination ZIN and PGB">
+					description = <"Combination.">
+				>
+				["at0014"] = <
+					text = <"Planned care duration per week (minutes)">
+					description = <"Allocated care minutes per week.">
+				>
+				["at0015"] = <
+					text = <"Digital care / eHealth deployment">
+					description = <"Digital care flag.">
+				>
+				["at0016"] = <
+					text = <"Care profile / Package code">
+					description = <"Profile code.">
+				>
+				["at0017"] = <
+					text = <"Financial implications for client">
+					description = <"Co-payment explanation.">
+				>
+				["at0018"] = <
+					text = <"Funding comment">
+					description = <"Comment.">
+				>
+			>
+		>
+	>

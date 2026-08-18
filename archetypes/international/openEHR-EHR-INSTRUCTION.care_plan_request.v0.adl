@@ -1,4 +1,4 @@
-﻿archetype (adl_version=1.4; uid=f5e8b3e2-a22c-454d-b39c-c5ff2adc7875)
+archetype (adl_version=1.4; uid=f5e8b3e2-a22c-454d-b39c-c5ff2adc7875)
 	openEHR-EHR-INSTRUCTION.care_plan_request.v0
 
 concept
@@ -14,6 +14,12 @@ language
 				["email"] = <"contato@coreconsulting.com.br">
 			>
 			accreditation = <"Hospital Alemão Oswaldo Cruz (HAOC)">
+		>
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			author = <
+				["name"] = <"Sensire / OpenEHR Nederland">
+			>
 		>
 	>
 description
@@ -39,6 +45,13 @@ description
 			keywords = <"care", "plan">
 			misuse = <"">
 			copyright = <"© Australian Digital Health Agency, openEHR Foundation">
+		>
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Voor het vastleggen van de opdracht of instructie voor het plannen, initiëren en uitvoeren van een zorgplan of ReAblement-traject als geheel.">
+			use = <"Gebruik voor het vastleggen van de opdracht of instructie voor het plannen, starten en uitvoeren van een zorgplan of ReAblement-traject.">
+			keywords = <"zorgplan", "aanvraag", "zorgpad", "reablement", "behandelplan", "opdracht">
+			misuse = <"">
 		>
 	>
 	lifecycle_state = <"in_development">
@@ -197,6 +210,51 @@ ontology
 				["at0021"] = <
 					text = <"*Cluster(en)">
 					description = <"**(en)">
+				>
+			>
+		>
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Zorgplan aanvraag">
+					description = <"Opdracht of afspraak voor het opstellen, inrichten en uitvoeren van een samenhangend zorgplan of ReAblement-traject om een specifiek doel of behandeluitkomst te bereiken.">
+				>
+				["at0001"] = <
+					text = <"Activiteit">
+					description = <"Huidige activiteit of zorgplantaak.">
+				>
+				["at0004"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0007"] = <
+					text = <"Beschrijving">
+					description = <"Beschrijving van de scope, het doel, de intentie en de voorgestelde activiteiten van het zorgplan.">
+				>
+				["at0011"] = <
+					text = <"Indicatie">
+					description = <"Klinische indicatie of zorgvraag voor het zorgplan.">
+					comment = <"Bijvoorbeeld: een gestelde diagnose, functieverlies of een specifiek cliëntdoel.">
+				>
+				["at0017"] = <
+					text = <"Zorgplannaam">
+					description = <"Identificatie of naam van het zorgplan / zorgpad.">
+				>
+				["at0018"] = <
+					text = <"Ingangsdatum">
+					description = <"Beoogde ingangsdatum of startdatum van het zorgplan.">
+				>
+				["at0019"] = <
+					text = <"Opmerking">
+					description = <"Aanvullende toelichting over de zorgplanaanvraag die niet elders past.">
+				>
+				["at0020"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0021"] = <
+					text = <"Uitbreiding">
+					description = <"Aanvullende gestructureerde informatie vereist voor lokale context of afstemming met standaarden (zoals ZIBs of FHIR).">
 				>
 			>
 		>

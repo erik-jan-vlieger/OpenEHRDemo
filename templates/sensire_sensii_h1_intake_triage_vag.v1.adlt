@@ -1,0 +1,49 @@
+template (adl_version=2.0.6; rm_release=1.1.0)
+	openEHR-EHR-COMPOSITION.sensire_sensii_h1_intake_triage_vag.v1.0.0
+
+specialize
+	openEHR-EHR-COMPOSITION.encounter.v1
+
+language
+	original_language = <[ISO_639-1::nl]>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Sensii Hoofdstuk 1: Wie deze cliënt is — Vastleggen van wijkverpleegkundige triage, het Verpleegkundig Adviesgesprek (VAG), het levensverhaal, behoeften en wensen, en de baseline inschatting van eigen regie.">
+			use = <"Gebruik bij de eerste intake en triagefase binnen het Sensii verpleegkundig proces.">
+			keywords = <"Sensii", "intake", "triage", "VAG", "adviesgesprek", "eigen regie", "levensverhaal", "wijkverpleging">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	COMPOSITION[id1] matches {
+		content matches {
+			use_archetype EVALUATION[id2, openEHR-EHR-EVALUATION.triage_nursing_nl.v0]
+			use_archetype EVALUATION[id3, openEHR-EHR-EVALUATION.nursing_vag_nl.v0]
+			use_archetype OBSERVATION[id4, openEHR-EHR-OBSERVATION.self_management_regietrede_nl.v0]
+			use_archetype OBSERVATION[id5, openEHR-EHR-OBSERVATION.story.v1]
+			use_archetype EVALUATION[id6, openEHR-EHR-EVALUATION.goal.v1]
+			use_archetype EVALUATION[id7, openEHR-EHR-EVALUATION.clinical_synopsis.v1]
+		}
+	}
+
+terminology
+	term_definitions = <
+		["nl"] = <
+			["id1"] = <text = <"Sensii Hoofdstuk 1: Wie deze cliënt is"> description = <"Intake, triage en verpleegkundig adviesgesprek (VAG).">>
+			["id2"] = <text = <"Wijkverpleegkundige Triage"> description = <"Beoordeling passendheid, urgentie en type zorgrelatie.">>
+			["id3"] = <text = <"Verpleegkundig Adviesgesprek (VAG)"> description = <"Hulpvraag, persoonlijke kracht, netwerkkracht en draagkracht vs lasten.">>
+			["id4"] = <text = <"Start Regietrede & KBS"> description = <"Inschatting van eigen regie, start Kennis en Gedrag scores.">>
+			["id5"] = <text = <"Levensverhaal & Verdieping"> description = <"Levensloop, context en wat voor de cliënt van betekenis is (Langer thuis route).">>
+			["id6"] = <text = <"Behoeften en Wensen"> description = <"Persoonlijke doelen en streefwaarden van de cliënt.">>
+			["id7"] = <text = <"Conclusie VAG"> description = <"Verpleegkundige synthese en advies voor de anamnesefase.">>
+		>
+	>

@@ -1,0 +1,310 @@
+archetype (adl_version=1.4; uid=f2a3b4c5-e6f7-8901-bcde-fa2345678901)
+	openEHR-EHR-OBSERVATION.self_management_regietrede_nl.v0
+
+concept
+	[at0000]	-- Regietrede en zelfredzaamheid
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Vastleggen van de regietrede (mate van eigen regie, zelfredzaamheid en draagkracht/draaglast) van de cliënt en diens netwerk, zoals gehanteerd binnen het Sensii verpleegkundig proces.">
+			use = <"Wordt gebruikt tijdens het Verpleegkundig Adviesgesprek (VAG), de Anamnese en de Evaluatie om de mate van regievoering in te schalen (treden 1 t/m 5), inclusief het vergelijken van het geautomatiseerde voorstel van de motor, het professioneel oordeel en het cliëntperspectief.">
+			keywords = <"regietrede", "eigen regie", "zelfredzaamheid", "draagkracht", "draaglast", "Sensii", "wijkverpleging">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Recording the self-management step (regietrede) measuring the client's ability for self-direction, coping, and resilience.">
+			use = <"Used in nursing consultation, assessment and evaluation to determine levels 1-5 of self-management.">
+			keywords = <"self-management", "autonomy", "nursing", "home care">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	OBSERVATION[at0000] matches {	-- Regietrede en zelfredzaamheid
+		data matches {
+			HISTORY[at0001] matches {	-- Event Series
+				events cardinality matches {1..*; unordered} matches {
+					EVENT[at0002] occurrences matches {0..*} matches {	-- Elk evenement
+						data matches {
+							ITEM_TREE[at0003] matches {	-- Boom
+								items cardinality matches {0..*; unordered} matches {
+									ELEMENT[at0004] occurrences matches {0..1} matches {	-- Gekozen regietrede
+										value matches {
+											1|[local::at0005],	-- Trede 1: Geen eigen regie / Volledige regieovername
+											2|[local::at0006],	-- Trede 2: Beperkte eigen regie / Continue sturing nodig
+											3|[local::at0007],	-- Trede 3: Gedeeltelijke eigen regie / Ondersteuning bij regievoering
+											4|[local::at0008],	-- Trede 4: Grotendeels eigen regie / Incidentele bijsturing
+											5|[local::at0009] 	-- Trede 5: Volledige eigen regie / Zelfstandig met netwerk
+										}
+									}
+									ELEMENT[at0010] occurrences matches {0..1} matches {	-- Voorgestelde regietrede (Sensii)
+										value matches {
+											1|[local::at0005],
+											2|[local::at0006],
+											3|[local::at0007],
+											4|[local::at0008],
+											5|[local::at0009]
+										}
+									}
+									ELEMENT[at0011] occurrences matches {0..1} matches {	-- Professioneel oordeel wijkverpleegkundige
+										value matches {
+											1|[local::at0005],
+											2|[local::at0006],
+											3|[local::at0007],
+											4|[local::at0008],
+											5|[local::at0009]
+										}
+									}
+									ELEMENT[at0012] occurrences matches {0..1} matches {	-- Cliëntperspectief op regietrede
+										value matches {
+											1|[local::at0005],
+											2|[local::at0006],
+											3|[local::at0007],
+											4|[local::at0008],
+											5|[local::at0009]
+										}
+									}
+									ELEMENT[at0013] occurrences matches {0..1} matches {	-- Akkoord met voorstel
+										value matches {
+											DV_BOOLEAN matches {*}
+										}
+									}
+									ELEMENT[at0014] occurrences matches {0..1} matches {	-- Draagkracht vs Draaglast balans
+										value matches {
+											DV_CODED_TEXT matches {
+												defining_code matches {
+													[local::
+													at0015, 	-- Draagkracht ruim voldoende (in balans)
+													at0016, 	-- Draagkracht onder druk (dreigend uit balans)
+													at0017]	-- Draaglast overschrijdt draagkracht (ernstig overbelast)
+												}
+											}
+										}
+									}
+									ELEMENT[at0018] occurrences matches {0..1} matches {	-- Start Gedrag score
+										value matches {
+											DV_COUNT matches {
+												magnitude matches {|1..5|}
+											}
+										}
+									}
+									ELEMENT[at0019] occurrences matches {0..1} matches {	-- Start Kennis score
+										value matches {
+											DV_COUNT matches {
+												magnitude matches {|1..5|}
+											}
+										}
+									}
+									ELEMENT[at0020] occurrences matches {0..1} matches {	-- Onderbouwing en toelichting
+										value matches {
+											DV_TEXT matches {*}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Regietrede en zelfredzaamheid">
+					description = <"Inschaling van de mate van eigen regie en zelfmanagement.">
+				>
+				["at0001"] = <
+					text = <"Event Series">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Elk evenement">
+					description = <"Tijdstip van inschaling.">
+				>
+				["at0003"] = <
+					text = <"Boom">
+					description = <"@ internal @">
+				>
+				["at0004"] = <
+					text = <"Gekozen regietrede">
+					description = <"De definitief vastgestelde regietrede in het zorgdossier.">
+				>
+				["at0005"] = <
+					text = <"Trede 1: Geen eigen regie / Volledige regieovername">
+					description = <"Cliënt is niet in staat tot eigen regie; volledige overname noodzakelijk.">
+				>
+				["at0006"] = <
+					text = <"Trede 2: Beperkte eigen regie / Continue sturing nodig">
+					description = <"Cliënt heeft beperkt inzicht of vermogen; structurele sturing nodig.">
+				>
+				["at0007"] = <
+					text = <"Trede 3: Gedeeltelijke eigen regie / Ondersteuning bij regievoering">
+					description = <"Cliënt kan delen zelfstandig, maar heeft ondersteuning nodig bij complexe zaken.">
+				>
+				["at0008"] = <
+					text = <"Trede 4: Grotendeels eigen regie / Incidentele bijsturing">
+					description = <"Cliënt voert grotendeels zelf de regie; heeft incidenteel advies of hulp nodig.">
+				>
+				["at0009"] = <
+					text = <"Trede 5: Volledige eigen regie / Zelfstandig met netwerk">
+					description = <"Cliënt en netwerk voeren zelfstandig en optimaal de regie.">
+				>
+				["at0010"] = <
+					text = <"Voorgestelde regietrede (Sensii)">
+					description = <"De door de beslismotor berekende regietrede.">
+				>
+				["at0011"] = <
+					text = <"Professioneel oordeel wijkverpleegkundige">
+					description = <"Het oordeel van de verpleegkundige op basis van klinisch redeneren.">
+				>
+				["at0012"] = <
+					text = <"Cliëntperspectief op regietrede">
+					description = <"Hoe de cliënt of diens naaste de eigen regie inschat.">
+				>
+				["at0013"] = <
+					text = <"Akkoord met voorstel">
+					description = <"Is de verpleegkundige het eens met het geautomatiseerde advies?">
+				>
+				["at0014"] = <
+					text = <"Draagkracht vs Draaglast balans">
+					description = <"De balans tussen draagkracht van cliënt/netwerk en de zorglast.">
+				>
+				["at0015"] = <
+					text = <"Draagkracht ruim voldoende (in balans)">
+					description = <"Draagkracht is groter dan of gelijk aan de lasten.">
+				>
+				["at0016"] = <
+					text = <"Draagkracht onder druk (dreigend uit balans)">
+					description = <"Kwetsbare balans; risico op overbelasting van cliënt of mantelzorg.">
+				>
+				["at0017"] = <
+					text = <"Draaglast overschrijdt draagkracht (ernstig overbelast)">
+					description = <"Overbelasting; acute verlichting of overname nodig.">
+				>
+				["at0018"] = <
+					text = <"Start Gedrag score">
+					description = <"Baseline score op de Omaha Gedragsschaal (1-5).">
+				>
+				["at0019"] = <
+					text = <"Start Kennis score">
+					description = <"Baseline score op de Omaha Kennisschaal (1-5).">
+				>
+				["at0020"] = <
+					text = <"Onderbouwing en toelichting">
+					description = <"Toelichting op de gekozen regietrede of afwijking van het advies.">
+				>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <
+					text = <"Self-management step (Regietrede)">
+					description = <"Assessment of patient autonomy and self-management capability.">
+				>
+				["at0001"] = <
+					text = <"Event Series">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Any event">
+					description = <"Timing.">
+				>
+				["at0003"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0004"] = <
+					text = <"Selected self-management level">
+					description = <"Final established self-management level in care plan.">
+				>
+				["at0005"] = <
+					text = <"Level 1: No self-management / Full takeover required">
+					description = <"Client unable to direct own care.">
+				>
+				["at0006"] = <
+					text = <"Level 2: Limited self-management / Continuous direction needed">
+					description = <"Continuous guidance required.">
+				>
+				["at0007"] = <
+					text = <"Level 3: Partial self-management / Support in coordination">
+					description = <"Can handle routine items, needs support with complex issues.">
+				>
+				["at0008"] = <
+					text = <"Level 4: Substantial self-management / Occasional advice">
+					description = <"Largely autonomous with occasional coaching.">
+				>
+				["at0009"] = <
+					text = <"Level 5: Full self-management / Autonomous with network">
+					description = <"Fully autonomous with informal network.">
+				>
+				["at0010"] = <
+					text = <"Suggested level (Sensii engine)">
+					description = <"Engine calculation.">
+				>
+				["at0011"] = <
+					text = <"Professional nursing judgment">
+					description = <"Clinical reasoning judgment.">
+				>
+				["at0012"] = <
+					text = <"Client perspective">
+					description = <"Client self-assessment.">
+				>
+				["at0013"] = <
+					text = <"Agree with suggestion">
+					description = <"Agreement with engine.">
+				>
+				["at0014"] = <
+					text = <"Capacity vs burden balance">
+					description = <"Balance between resilience and burden.">
+				>
+				["at0015"] = <
+					text = <"Resilience adequate (balanced)">
+					description = <"In balance.">
+				>
+				["at0016"] = <
+					text = <"Resilience under pressure">
+					description = <"At risk of overload.">
+				>
+				["at0017"] = <
+					text = <"Burden exceeds capacity (overloaded)">
+					description = <"Severe overload.">
+				>
+				["at0018"] = <
+					text = <"Baseline Behavior score">
+					description = <"Baseline score (1-5).">
+				>
+				["at0019"] = <
+					text = <"Baseline Knowledge score">
+					description = <"Baseline score (1-5).">
+				>
+				["at0020"] = <
+					text = <"Rationale and comment">
+					description = <"Clinical rationale.">
+				>
+			>
+		>
+	>

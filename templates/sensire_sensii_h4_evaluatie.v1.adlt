@@ -1,0 +1,47 @@
+template (adl_version=2.0.6; rm_release=1.1.0)
+	openEHR-EHR-COMPOSITION.sensire_sensii_h4_evaluatie.v1.0.0
+
+specialize
+	openEHR-EHR-COMPOSITION.encounter.v1
+
+language
+	original_language = <[ISO_639-1::nl]>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Sensii Hoofdstuk 4: Evaluatie van zorg — Cyclische herbeoordeling van Omaha aandachtsgebieden, KBS scores (Kennis, Gedrag, Status), regietrede evaluatie, hermeting GFI kwetsbaarheid en evaluatie van behoeften en wensen.">
+			use = <"Gebruik bij periodieke of tussentijdse evaluatiemomenten binnen het Sensii verpleegkundig proces.">
+			keywords = <"Sensii", "evaluatie", "KBS herbeoordeling", "regietrede evaluatie", "GFI hermeting", "zorgopbrengst", "wijkverpleging">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	COMPOSITION[id1] matches {
+		content matches {
+			use_archetype EVALUATION[id2, openEHR-EHR-EVALUATION.omaha_assessment_nl.v0]
+			use_archetype OBSERVATION[id3, openEHR-EHR-OBSERVATION.self_management_regietrede_nl.v0]
+			use_archetype OBSERVATION[id4, openEHR-EHR-OBSERVATION.groningen_frailty_indicator_nl.v0]
+			use_archetype EVALUATION[id5, openEHR-EHR-EVALUATION.goal.v1]
+			use_archetype EVALUATION[id6, openEHR-EHR-EVALUATION.clinical_synopsis.v1]
+		}
+	}
+
+terminology
+	term_definitions = <
+		["nl"] = <
+			["id1"] = <text = <"Sensii Hoofdstuk 4: Evaluatie van zorg"> description = <"Periodieke zorgplan- en doelenevaluatie binnen het verpleegkundig proces.">>
+			["id2"] = <text = <"Evaluatie Omaha Aandachtsgebieden"> description = <"Herbeoordeling van KBS scores (Kennis, Gedrag, Status) ten opzichte van streefdoelen.">>
+			["id3"] = <text = <"Evaluatie Regietrede"> description = <"Evaluatie van groei in eigen regie en zelfredzaamheid.">>
+			["id4"] = <text = <"Hermeting GFI Kwetsbaarheid"> description = <"Herhaalde meting van de Groningen Frailty Indicator.">>
+			["id5"] = <text = <"Evaluatie Behoeften en Wensen"> description = <"Herziening van persoonlijke doelen en cliënttevredenheid.">>
+			["id6"] = <text = <"Evaluatiesynthese en Vervolgbesluit"> description = <"Verpleegkundige eindconclusie over continuering, bijstelling of afsluiting van de zorg.">>
+		>
+	>

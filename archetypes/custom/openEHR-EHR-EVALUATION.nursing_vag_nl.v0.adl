@@ -1,0 +1,363 @@
+archetype (adl_version=1.4; uid=f6a7b8c9-f0a1-2345-defa-de6789012345)
+	openEHR-EHR-EVALUATION.nursing_vag_nl.v0
+
+concept
+	[at0000]	-- Verpleegkundig Adviesgesprek (VAG)
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Vastleggen van de uitkomsten van het Verpleegkundig Adviesgesprek (VAG) conform Sensii, waarin samen met de cliënt en diens netwerk de hulpvraag, eigen regie, persoonlijke kracht, netwerkkracht en ordening van lasten worden geëxploreerd.">
+			use = <"Gebruik in Hoofdstuk 1 van het Sensii verpleegkundig proces ter voorbereiding op gerichte anamnese en zorgindicatie.">
+			keywords = <"VAG", "adviesgesprek", "hulpvraag", "eigen regie", "persoonlijke kracht", "netwerkkracht", "Sensii">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Recording the outcomes of the nursing consultation (VAG) exploring patient needs, autonomy, resilience, and network strength.">
+			use = <"Used in Phase 1 of home care nursing process.">
+			keywords = <"consultation", "autonomy", "resilience", "informal network">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	EVALUATION[at0000] matches {	-- Verpleegkundig Adviesgesprek (VAG)
+		data matches {
+			ITEM_TREE[at0001] matches {	-- Boom
+				items cardinality matches {1..*; unordered} matches {
+					ELEMENT[at0002] matches {	-- Hulpvraag van de cliënt
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+					ELEMENT[at0003] occurrences matches {0..1} matches {	-- Gewenste situatie en doelen van de cliënt
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+					CLUSTER[at0004] occurrences matches {0..1} matches {	-- Persoonlijke kracht
+						items cardinality matches {1..*; unordered} matches {
+							ELEMENT[at0005] occurrences matches {0..1} matches {	-- Fysieke mogelijkheden en zelfredzaamheid
+								value matches {
+									DV_TEXT matches {*}
+								}
+							}
+							ELEMENT[at0006] occurrences matches {0..1} matches {	-- Mentale veerkracht en motivatie
+								value matches {
+									DV_TEXT matches {*}
+								}
+							}
+							ELEMENT[at0007] occurrences matches {0..1} matches {	-- Vaardigheden en leervermogen
+								value matches {
+									DV_TEXT matches {*}
+								}
+							}
+						}
+					}
+					CLUSTER[at0008] occurrences matches {0..1} matches {	-- Netwerkkracht en mantelzorg
+						items cardinality matches {1..*; unordered} matches {
+							ELEMENT[at0009] occurrences matches {0..1} matches {	-- Aanwezigheid informeel netwerk
+								value matches {
+									DV_CODED_TEXT matches {
+										defining_code matches {
+											[local::
+											at0010, 	-- Sterk en actief betrokken netwerk
+											at0011, 	-- Beperkt netwerk aanwezig
+											at0012]	-- Geen of nauwelijks sociaal netwerk
+										}
+									}
+								}
+							}
+							ELEMENT[at0013] occurrences matches {0..1} matches {	-- Belasting mantelzorger
+								value matches {
+									DV_CODED_TEXT matches {
+										defining_code matches {
+											[local::
+											at0014, 	-- Goed vol te houden (niet overbelast)
+											at0015, 	-- Dreigende overbelasting
+											at0016]	-- Ernstig overbelast (respijtzorg nodig)
+										}
+									}
+								}
+							}
+							ELEMENT[at0017] occurrences matches {0..1} matches {	-- Toelichting mantelzorg en netwerk
+								value matches {
+									DV_TEXT matches {*}
+								}
+							}
+						}
+					}
+					CLUSTER[at0018] occurrences matches {0..1} matches {	-- Ordening van lasten
+						items cardinality matches {1..*; unordered} matches {
+							ELEMENT[at0019] occurrences matches {0..1} matches {	-- Primaire belemmeringen en lasten
+								value matches {
+									DV_TEXT matches {*}
+								}
+							}
+							ELEMENT[at0020] occurrences matches {0..1} matches {	-- Mate van complexiteit
+								value matches {
+									DV_CODED_TEXT matches {
+										defining_code matches {
+											[local::
+											at0021, 	-- Laag-complex (enkelvoudige zorgvraag)
+											at0022, 	-- Midden-complex (meervoudige problematiek)
+											at0023]	-- Hoog-complex (multiproblematiek / wankel evenwicht)
+										}
+									}
+								}
+							}
+						}
+					}
+					ELEMENT[at0024] occurrences matches {0..1} matches {	-- Conclusie Verpleegkundig Adviesgesprek
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+					ELEMENT[at0025] occurrences matches {0..*} matches {	-- Advies voor Anamnese (aandachtspatronen)
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Verpleegkundig Adviesgesprek (VAG)">
+					description = <"Verkenning van hulpvraag, eigen regie, persoonlijke kracht en netwerk.">
+				>
+				["at0001"] = <
+					text = <"Boom">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Hulpvraag van de cliënt">
+					description = <"De oorspronkelijke hulpvraag in de woorden van de cliënt/aanvrager.">
+				>
+				["at0003"] = <
+					text = <"Gewenste situatie en doelen van de cliënt">
+					description = <"Wat wil de cliënt bereiken of behouden?">
+				>
+				["at0004"] = <
+					text = <"Persoonlijke kracht">
+					description = <"Inventarisatie van fysieke, mentale en cognitieve vermogens.">
+				>
+				["at0005"] = <
+					text = <"Fysieke mogelijkheden en zelfredzaamheid">
+					description = <"Wat kan de cliënt zelfstandig of met hulpmiddelen?">
+				>
+				["at0006"] = <
+					text = <"Mentale veerkracht en motivatie">
+					description = <"Gezindheid, wilskracht en motivatie tot herstel of zelfmanagement.">
+				>
+				["at0007"] = <
+					text = <"Vaardigheden en leervermogen">
+					description = <"Vermogen om nieuwe handelingen of routines aan te leren.">
+				>
+				["at0008"] = <
+					text = <"Netwerkkracht en mantelzorg">
+					description = <"Kracht en draagkracht van het sociale netwerk.">
+				>
+				["at0009"] = <
+					text = <"Aanwezigheid informeel netwerk">
+					description = <"Mate waarin mantelzorg en netwerk beschikbaar zijn.">
+				>
+				["at0010"] = <
+					text = <"Sterk en actief betrokken netwerk">
+					description = <"Netwerk levert substantiële ondersteuning.">
+				>
+				["at0011"] = <
+					text = <"Beperkt netwerk aanwezig">
+					description = <"Slechts enkele personen of beperkte inzetbaarheid.">
+				>
+				["at0012"] = <
+					text = <"Geen of nauwelijks sociaal netwerk">
+					description = <"Sociaal geïsoleerd of afwezig netwerk.">
+				>
+				["at0013"] = <
+					text = <"Belasting mantelzorger">
+					description = <"Draaglast en risico op overbelasting van de belangrijkste mantelzorger.">
+				>
+				["at0014"] = <
+					text = <"Goed vol te houden (niet overbelast)">
+					description = <"Geen overbelasting.">
+				>
+				["at0015"] = <
+					text = <"Dreigende overbelasting">
+					description = <"Signalen van fysieke of mentale vermoeidheid.">
+				>
+				["at0016"] = <
+					text = <"Ernstig overbelast (respijtzorg nodig)">
+					description = <"Overbelast; directe ontlasting vereist.">
+				>
+				["at0017"] = <
+					text = <"Toelichting mantelzorg en netwerk">
+					description = <"Beschrijving van wie wat doet in het netwerk.">
+				>
+				["at0018"] = <
+					text = <"Ordening van lasten">
+					description = <"Analyse van problemen en belemmerende factoren.">
+				>
+				["at0019"] = <
+					text = <"Primaire belemmeringen en lasten">
+					description = <"Wat belemmert de cliënt het meest in het dagelijks leven?">
+				>
+				["at0020"] = <
+					text = <"Mate van complexiteit">
+					description = <"Klinische complexiteit van de zorgsituatie.">
+				>
+				["at0021"] = <
+					text = <"Laag-complex (enkelvoudige zorgvraag)">
+					description = <"Enkelvoudig, overzichtelijk.">
+				>
+				["at0022"] = <
+					text = <"Midden-complex (meervoudige problematiek)">
+					description = <"Combinatie van factoren.">
+				>
+				["at0023"] = <
+					text = <"Hoog-complex (multiproblematiek / wankel evenwicht)">
+					description = <"Complexe wisselwerking tussen somatiek, psyche en systeem.">
+				>
+				["at0024"] = <
+					text = <"Conclusie Verpleegkundig Adviesgesprek">
+					description = <"Eindoordeel over regievermogen en noodzakelijke vervolgfocus.">
+				>
+				["at0025"] = <
+					text = <"Advies voor Anamnese (aandachtspatronen)">
+					description = <"Patronen van Gordon die specifiek moeten worden uitgevraagd.">
+				>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <
+					text = <"Nursing Consultation (VAG)">
+					description = <"Exploration of care needs, autonomy, personal resilience, and network.">
+				>
+				["at0001"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Client care demand">
+					description = <"Care demand in patient's words.">
+				>
+				["at0003"] = <
+					text = <"Desired situation and goals">
+					description = <"Target goals.">
+				>
+				["at0004"] = <
+					text = <"Personal resilience">
+					description = <"Personal capabilities.">
+				>
+				["at0005"] = <
+					text = <"Physical abilities and ADL">
+					description = <"Physical abilities.">
+				>
+				["at0006"] = <
+					text = <"Mental resilience and motivation">
+					description = <"Motivation.">
+				>
+				["at0007"] = <
+					text = <"Skills and learning capacity">
+					description = <"Learning skills.">
+				>
+				["at0008"] = <
+					text = <"Informal network and caregivers">
+					description = <"Network support.">
+				>
+				["at0009"] = <
+					text = <"Informal network presence">
+					description = <"Availability.">
+				>
+				["at0010"] = <
+					text = <"Strong and actively involved network">
+					description = <"Strong network.">
+				>
+				["at0011"] = <
+					text = <"Limited network available">
+					description = <"Limited network.">
+				>
+				["at0012"] = <
+					text = <"No or minimal network">
+					description = <"Isolated.">
+				>
+				["at0013"] = <
+					text = <"Caregiver burden">
+					description = <"Caregiver strain.">
+				>
+				["at0014"] = <
+					text = <"Manageable (not overloaded)">
+					description = <"Manageable.">
+				>
+				["at0015"] = <
+					text = <"Impending overload">
+					description = <"At risk.">
+				>
+				["at0016"] = <
+					text = <"Severely overloaded (respite care required)">
+					description = <"Overloaded.">
+				>
+				["at0017"] = <
+					text = <"Caregiver comment">
+					description = <"Comment.">
+				>
+				["at0018"] = <
+					text = <"Burden structure">
+					description = <"Burden analysis.">
+				>
+				["at0019"] = <
+					text = <"Primary barriers and burdens">
+					description = <"Barriers.">
+				>
+				["at0020"] = <
+					text = <"Complexity level">
+					description = <"Complexity.">
+				>
+				["at0021"] = <
+					text = <"Low complexity">
+					description = <"Single domain.">
+				>
+				["at0022"] = <
+					text = <"Medium complexity">
+					description = <"Multi domain.">
+				>
+				["at0023"] = <
+					text = <"High complexity">
+					description = <"High complexity.">
+				>
+				["at0024"] = <
+					text = <"Consultation conclusion">
+					description = <"Conclusion.">
+				>
+				["at0025"] = <
+					text = <"Assessment recommendations">
+					description = <"Recommended patterns.">
+				>
+			>
+		>
+	>

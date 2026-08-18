@@ -1,0 +1,570 @@
+archetype (adl_version=1.4; uid=f3a4b5c6-e7f8-9012-cdef-ab3456789012)
+	openEHR-EHR-EVALUATION.omaha_assessment_nl.v0
+
+concept
+	[at0000]	-- Omaha System Probleem en Zorgplanbeoordeling
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Vastleggen van de Omaha System probleemclassificatie, signalen/symptomen, KBS-scores (Kennis, Gedrag, Status), actievlakken en interventies conform het Verpleegkundig Proces in Sensii en de V&VN standaarden.">
+			use = <"Gebruik voor de 4 geselecteerde aandachtsgebieden in Sensii (Hoofdstuk 2 en 3) om de diagnose, doelen, interventies en evaluaties volgens Omaha System vast te leggen.">
+			keywords = <"Omaha System", "aandachtsgebied", "probleemclassificatie", "KBS", "actievlakken", "Sensii", "wijkverpleging">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Recording the Omaha System problem classification, signs/symptoms, KBS scores (Knowledge, Behavior, Status), intervention categories, and care plan details.">
+			use = <"Used for up to 4 prioritized problem areas in nursing care plan and assessment.">
+			keywords = <"Omaha System", "nursing diagnosis", "problem classification", "care plan">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	EVALUATION[at0000] matches {	-- Omaha System Probleem en Zorgplanbeoordeling
+		data matches {
+			ITEM_TREE[at0001] matches {	-- Boom
+				items cardinality matches {1..*; unordered} matches {
+					ELEMENT[at0002] matches {	-- Omaha Domein
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0003, 	-- 1. Omgevingsdomein
+									at0004, 	-- 2. Psychosociaal domein
+									at0005, 	-- 3. Fysiologisch domein
+									at0006]	-- 4. Gezondheidsgerelateerd gedragsdomein
+								}
+							}
+						}
+					}
+					ELEMENT[at0007] matches {	-- Omaha Aandachtsgebied (Probleem)
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+					ELEMENT[at0008] occurrences matches {0..1} matches {	-- Prioriteitsslot
+						value matches {
+							1|[local::at0009],	-- Prioriteit 1 (Eerste aandachtsgebied)
+							2|[local::at0010],	-- Prioriteit 2 (Tweede aandachtsgebied)
+							3|[local::at0011],	-- Prioriteit 3 (Derde aandachtsgebied)
+							4|[local::at0012] 	-- Prioriteit 4 (Vierde aandachtsgebied)
+						}
+					}
+					ELEMENT[at0013] occurrences matches {0..1} matches {	-- Aard van het probleem
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0014, 	-- Actueel probleem
+									at0015, 	-- Potentieel probleem / Risico
+									at0016]	-- Gezondheidsbevordering
+								}
+							}
+						}
+					}
+					ELEMENT[at0017] occurrences matches {0..1} matches {	-- Doelgroep
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0018, 	-- Individu
+									at0019, 	-- Gezin / Familie
+									at0020]	-- Gemeenschap
+								}
+							}
+						}
+					}
+					ELEMENT[at0021] occurrences matches {0..*} matches {	-- Signalen en symptomen
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+					CLUSTER[at0022] occurrences matches {0..1} matches {	-- KBS Scores (Kennis, Gedrag, Status)
+						items cardinality matches {1..*; unordered} matches {
+							ELEMENT[at0023] occurrences matches {0..1} matches {	-- Kennis baseline
+								value matches {
+									DV_COUNT matches {
+										magnitude matches {|1..5|}
+									}
+								}
+							}
+							ELEMENT[at0024] occurrences matches {0..1} matches {	-- Kennis streefscore
+								value matches {
+									DV_COUNT matches {
+										magnitude matches {|1..5|}
+									}
+								}
+							}
+							ELEMENT[at0025] occurrences matches {0..1} matches {	-- Kennis evaluatiescore
+								value matches {
+									DV_COUNT matches {
+										magnitude matches {|1..5|}
+									}
+								}
+							}
+							ELEMENT[at0026] occurrences matches {0..1} matches {	-- Gedrag baseline
+								value matches {
+									DV_COUNT matches {
+										magnitude matches {|1..5|}
+									}
+								}
+							}
+							ELEMENT[at0027] occurrences matches {0..1} matches {	-- Gedrag streefscore
+								value matches {
+									DV_COUNT matches {
+										magnitude matches {|1..5|}
+									}
+								}
+							}
+							ELEMENT[at0028] occurrences matches {0..1} matches {	-- Gedrag evaluatiescore
+								value matches {
+									DV_COUNT matches {
+										magnitude matches {|1..5|}
+									}
+								}
+							}
+							ELEMENT[at0029] occurrences matches {0..1} matches {	-- Status baseline
+								value matches {
+									DV_COUNT matches {
+										magnitude matches {|1..5|}
+									}
+								}
+							}
+							ELEMENT[at0030] occurrences matches {0..1} matches {	-- Status streefscore
+								value matches {
+									DV_COUNT matches {
+										magnitude matches {|1..5|}
+									}
+								}
+							}
+							ELEMENT[at0031] occurrences matches {0..1} matches {	-- Status evaluatiescore
+								value matches {
+									DV_COUNT matches {
+										magnitude matches {|1..5|}
+									}
+								}
+							}
+						}
+					}
+					CLUSTER[at0032] occurrences matches {0..*} matches {	-- Omaha Interventies en Actievlakken
+						items cardinality matches {1..*; unordered} matches {
+							ELEMENT[at0033] matches {	-- Soort actie
+								value matches {
+									DV_CODED_TEXT matches {
+										defining_code matches {
+											[local::
+											at0034, 	-- 1. Adviseren, instrueren en begeleiden
+											at0035, 	-- 2. Behandelen en procedures toepassen
+											at0036, 	-- 3. Verpleegkundig monitoren en bewaken
+											at0037]	-- 4. Casemanagement en samenwerken
+										}
+									}
+								}
+							}
+							ELEMENT[at0038] occurrences matches {0..1} matches {	-- Actievlak
+								value matches {
+									DV_TEXT matches {*}
+								}
+							}
+							ELEMENT[at0039] occurrences matches {0..1} matches {	-- Cliënt-specifieke actiebeschrijving
+								value matches {
+									DV_TEXT matches {*}
+								}
+							}
+							ELEMENT[at0040] occurrences matches {0..1} matches {	-- Frequentie en tijdsduur
+								value matches {
+									DV_TEXT matches {*}
+								}
+							}
+							ELEMENT[at0041] occurrences matches {0..1} matches {	-- Uitvoerende discipline
+								value matches {
+									DV_TEXT matches {*}
+								}
+							}
+						}
+					}
+					ELEMENT[at0042] occurrences matches {0..1} matches {	-- Klinische toelichting en redeneerlijn
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Omaha System Probleem en Zorgplanbeoordeling">
+					description = <"Classificatie en zorgplanning conform het Omaha System.">
+				>
+				["at0001"] = <
+					text = <"Boom">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Omaha Domein">
+					description = <"Het overkoepelende Omaha domein.">
+				>
+				["at0003"] = <
+					text = <"1. Omgevingsdomein">
+					description = <"Materiële en fysieke leefomgeving en veiligheid.">
+				>
+				["at0004"] = <
+					text = <"2. Psychosociaal domein">
+					description = <"Patronen van gedrag, emoties, communicatie en relaties.">
+				>
+				["at0005"] = <
+					text = <"3. Fysiologisch domein">
+					description = <"Functionele en lichamelijke processen en condities.">
+				>
+				["at0006"] = <
+					text = <"4. Gezondheidsgerelateerd gedragsdomein">
+					description = <"Gezondheidsgedrag, voeding, activiteit en therapietrouw.">
+				>
+				["at0007"] = <
+					text = <"Omaha Aandachtsgebied (Probleem)">
+					description = <"Het specifieke aandachtsgebied (bijv. Huid, Cognitie, Ademhaling, Medicatietrouw).">
+				>
+				["at0008"] = <
+					text = <"Prioriteitsslot">
+					description = <"De prioriteitspositie in Sensii (maximaal 4 aandachtsgebieden tegelijk in actieve zorgplan).">
+				>
+				["at0009"] = <
+					text = <"Prioriteit 1 (Eerste aandachtsgebied)">
+					description = <"Hoogste prioriteit in zorgplan.">
+				>
+				["at0010"] = <
+					text = <"Prioriteit 2 (Tweede aandachtsgebied)">
+					description = <"Tweede prioriteit.">
+				>
+				["at0011"] = <
+					text = <"Prioriteit 3 (Derde aandachtsgebied)">
+					description = <"Derde prioriteit.">
+				>
+				["at0012"] = <
+					text = <"Prioriteit 4 (Vierde aandachtsgebied)">
+					description = <"Vierde prioriteit.">
+				>
+				["at0013"] = <
+					text = <"Aard van het probleem">
+					description = <"Karakteristiek van het Omaha probleem.">
+				>
+				["at0014"] = <
+					text = <"Actueel probleem">
+					description = <"Bestaand probleem met actuele symptomen.">
+				>
+				["at0015"] = <
+					text = <"Potentieel probleem / Risico">
+					description = <"Verhoogd risico, preventieve inzet nodig.">
+				>
+				["at0016"] = <
+					text = <"Gezondheidsbevordering">
+					description = <"Behoud en versterking van gezond functioneren.">
+				>
+				["at0017"] = <
+					text = <"Doelgroep">
+					description = <"Wie betreft het probleem.">
+				>
+				["at0018"] = <
+					text = <"Individu">
+					description = <"De individuele cliënt.">
+				>
+				["at0019"] = <
+					text = <"Gezin / Familie">
+					description = <"Het gezinssysteem of mantelzorgers.">
+				>
+				["at0020"] = <
+					text = <"Gemeenschap">
+					description = <"Grotere gemeenschap of woonomgeving.">
+				>
+				["at0021"] = <
+					text = <"Signalen en symptomen">
+					description = <"Geselecteerde signalen/symptomen behorend bij het aandachtsgebied.">
+				>
+				["at0022"] = <
+					text = <"KBS Scores (Kennis, Gedrag, Status)">
+					description = <"Metingen op de Omaha 5-puntsschalen voor Kennis, Gedrag en Status.">
+				>
+				["at0023"] = <
+					text = <"Kennis baseline">
+					description = <"Mate van inzicht/kennis bij start (1=geen kennis .. 5=uitstekende kennis).">
+				>
+				["at0024"] = <
+					text = <"Kennis streefscore">
+					description = <"Doelscore voor kennis.">
+				>
+				["at0025"] = <
+					text = <"Kennis evaluatiescore">
+					description = <"Gemeten kennis bij evaluatie.">
+				>
+				["at0026"] = <
+					text = <"Gedrag baseline">
+					description = <"Mate van passend gezondheidsgedrag bij start (1=nooit passend .. 5=altijd passend).">
+				>
+				["at0027"] = <
+					text = <"Gedrag streefscore">
+					description = <"Doelscore voor gedrag.">
+				>
+				["at0028"] = <
+					text = <"Gedrag evaluatiescore">
+					description = <"Gemeten gedrag bij evaluatie.">
+				>
+				["at0029"] = <
+					text = <"Status baseline">
+					description = <"Mate van ernst/belemmering bij start (1=ernstige belemmering .. 5=geen belemmering).">
+				>
+				["at0030"] = <
+					text = <"Status streefscore">
+					description = <"Doelscore voor status.">
+				>
+				["at0031"] = <
+					text = <"Status evaluatiescore">
+					description = <"Gemeten status bij evaluatie.">
+				>
+				["at0032"] = <
+					text = <"Omaha Interventies en Actievlakken">
+					description = <"Geplande en uitgevoerde acties behorend bij dit probleem.">
+				>
+				["at0033"] = <
+					text = <"Soort actie">
+					description = <"Eén van de 4 Omaha actiesoorten.">
+				>
+				["at0034"] = <
+					text = <"1. Adviseren, instrueren en begeleiden">
+					description = <"Ondersteunen bij kennis, inzicht en zelfzorgvaardigheden.">
+				>
+				["at0035"] = <
+					text = <"2. Behandelen en procedures toepassen">
+					description = <"Directe verpleegtechnische of lichamelijke handelingen.">
+				>
+				["at0036"] = <
+					text = <"3. Verpleegkundig monitoren en bewaken">
+					description = <"Systematisch observeren en controleren van gezondheidstoestand.">
+				>
+				["at0037"] = <
+					text = <"4. Casemanagement en samenwerken">
+					description = <"Afstemming met artsen, disciplines, mantelzorg en netwerk.">
+				>
+				["at0038"] = <
+					text = <"Actievlak">
+					description = <"Het specifieke actievlak (bijv. anatomie/fysiologie, medicatietoediening, wondzorg).">
+				>
+				["at0039"] = <
+					text = <"Cliënt-specifieke actiebeschrijving">
+					description = <"De op maat geformuleerde instructie of zorgafspraak.">
+				>
+				["at0040"] = <
+					text = <"Frequentie en tijdsduur">
+					description = <"Bijv. 2x per dag, 7 dagen per week.">
+				>
+				["at0041"] = <
+					text = <"Uitvoerende discipline">
+					description = <"Bijv. wijkverpleegkundige, verzorgende IG, cliënt zelf, mantelzorger.">
+				>
+				["at0042"] = <
+					text = <"Klinische toelichting en redeneerlijn">
+					description = <"Verpleegkundige onderbouwing van de gekozen probleemfocus.">
+				>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <
+					text = <"Omaha System Assessment and Care Plan">
+					description = <"Omaha System problem classification, rating scales, and interventions.">
+				>
+				["at0001"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Omaha Domain">
+					description = <"Omaha Domain.">
+				>
+				["at0003"] = <
+					text = <"1. Environmental Domain">
+					description = <"Environmental.">
+				>
+				["at0004"] = <
+					text = <"2. Psychosocial Domain">
+					description = <"Psychosocial.">
+				>
+				["at0005"] = <
+					text = <"3. Physiological Domain">
+					description = <"Physiological.">
+				>
+				["at0006"] = <
+					text = <"4. Health-related Behaviors Domain">
+					description = <"Health-related Behaviors.">
+				>
+				["at0007"] = <
+					text = <"Omaha Problem">
+					description = <"Specific problem concept.">
+				>
+				["at0008"] = <
+					text = <"Priority slot">
+					description = <"Priority ranking 1-4.">
+				>
+				["at0009"] = <
+					text = <"Priority 1">
+					description = <"Top priority.">
+				>
+				["at0010"] = <
+					text = <"Priority 2">
+					description = <"Second priority.">
+				>
+				["at0011"] = <
+					text = <"Priority 3">
+					description = <"Third priority.">
+				>
+				["at0012"] = <
+					text = <"Priority 4">
+					description = <"Fourth priority.">
+				>
+				["at0013"] = <
+					text = <"Nature of problem">
+					description = <"Actual, potential, or health promotion.">
+				>
+				["at0014"] = <
+					text = <"Actual problem">
+					description = <"Actual.">
+				>
+				["at0015"] = <
+					text = <"Potential / Risk">
+					description = <"Potential.">
+				>
+				["at0016"] = <
+					text = <"Health promotion">
+					description = <"Promotion.">
+				>
+				["at0017"] = <
+					text = <"Target">
+					description = <"Individual, family, or community.">
+				>
+				["at0018"] = <
+					text = <"Individual">
+					description = <"Individual.">
+				>
+				["at0019"] = <
+					text = <"Family">
+					description = <"Family.">
+				>
+				["at0020"] = <
+					text = <"Community">
+					description = <"Community.">
+				>
+				["at0021"] = <
+					text = <"Signs and symptoms">
+					description = <"Signs and symptoms.">
+				>
+				["at0022"] = <
+					text = <"KBS Rating Scales (Knowledge, Behavior, Status)">
+					description = <"Omaha 5-point scales.">
+				>
+				["at0023"] = <
+					text = <"Knowledge baseline">
+					description = <"Baseline score 1-5.">
+				>
+				["at0024"] = <
+					text = <"Knowledge target">
+					description = <"Target score 1-5.">
+				>
+				["at0025"] = <
+					text = <"Knowledge evaluation">
+					description = <"Evaluation score 1-5.">
+				>
+				["at0026"] = <
+					text = <"Behavior baseline">
+					description = <"Baseline score 1-5.">
+				>
+				["at0027"] = <
+					text = <"Behavior target">
+					description = <"Target score 1-5.">
+				>
+				["at0028"] = <
+					text = <"Behavior evaluation">
+					description = <"Evaluation score 1-5.">
+				>
+				["at0029"] = <
+					text = <"Status baseline">
+					description = <"Baseline score 1-5.">
+				>
+				["at0030"] = <
+					text = <"Status target">
+					description = <"Target score 1-5.">
+				>
+				["at0031"] = <
+					text = <"Status evaluation">
+					description = <"Evaluation score 1-5.">
+				>
+				["at0032"] = <
+					text = <"Interventions and Action Categories">
+					description = <"Interventions.">
+				>
+				["at0033"] = <
+					text = <"Category of action">
+					description = <"One of 4 categories.">
+				>
+				["at0034"] = <
+					text = <"1. Teaching, Guidance, and Counseling">
+					description = <"Education and guidance.">
+				>
+				["at0035"] = <
+					text = <"2. Treatments and Procedures">
+					description = <"Direct treatments.">
+				>
+				["at0036"] = <
+					text = <"3. Surveillance">
+					description = <"Monitoring and surveillance.">
+				>
+				["at0037"] = <
+					text = <"4. Case Management">
+					description = <"Coordination and collaboration.">
+				>
+				["at0038"] = <
+					text = <"Target area">
+					description = <"Target area.">
+				>
+				["at0039"] = <
+					text = <"Specific action description">
+					description = <"Care instruction.">
+				>
+				["at0040"] = <
+					text = <"Frequency and duration">
+					description = <"Frequency.">
+				>
+				["at0041"] = <
+					text = <"Performing role">
+					description = <"Role/discipline.">
+				>
+				["at0042"] = <
+					text = <"Clinical rationale">
+					description = <"Nursing reasoning rationale.">
+				>
+			>
+		>
+	>

@@ -1,0 +1,49 @@
+template (adl_version=2.0.6; rm_release=1.1.0)
+	openEHR-EHR-COMPOSITION.sensire_sensii_h3_zorgplan_inzet.v1.0.0
+
+specialize
+	openEHR-EHR-COMPOSITION.encounter.v1
+
+language
+	original_language = <[ISO_639-1::nl]>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Sensii Hoofdstuk 3: Wat we gaan doen — Zorgplanning, Omaha actievlakken en interventies, KBS streefscores, toewijzing van zorg, financieringskader (Zvw/Wlz/Wmo) en leveringsvormen.">
+			use = <"Gebruik voor het opstellen en vastleggen van het dynamische wijkverpleegkundige zorgplan in Sensii.">
+			keywords = <"Sensii", "zorgplan", "Omaha actievlakken", "KBS streefscore", "financiering", "leveringsvorm", "wijkverpleging">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	COMPOSITION[id1] matches {
+		content matches {
+			use_archetype EVALUATION[id2, openEHR-EHR-EVALUATION.omaha_assessment_nl.v0]
+			use_archetype INSTRUCTION[id3, openEHR-EHR-INSTRUCTION.care_plan_request.v0]
+			use_archetype ACTION[id4, openEHR-EHR-ACTION.care_plan.v0]
+			use_archetype ADMIN_ENTRY[id5, openEHR-EHR-ADMIN_ENTRY.care_funding_delivery_nl.v0]
+			use_archetype ACTION[id6, openEHR-EHR-ACTION.health_education.v1]
+			use_archetype EVALUATION[id7, openEHR-EHR-EVALUATION.clinical_synopsis.v1]
+		}
+	}
+
+terminology
+	term_definitions = <
+		["nl"] = <
+			["id1"] = <text = <"Sensii Hoofdstuk 3: Wat we gaan doen & Zorgplan"> description = <"Zorgplanning, Omaha interventies, KBS doelen en inzet van zorg.">>
+			["id2"] = <text = <"Omaha Zorgplan per Aandachtsgebied"> description = <"Actievlakken (adviseren, behandelen, bewaken, casemanagement), streefscores KBS en interventies.">>
+			["id3"] = <text = <"Zorgplaninstructies"> description = <"Aanvraag en planning van specifieke zorgactiviteiten.">>
+			["id4"] = <text = <"Zorgplanuitvoering"> description = <"Status van opstart en operationele uitvoering van het zorgplan.">>
+			["id5"] = <text = <"Financiering & Leveringsvorm"> description = <"Wettelijk kader (Zvw/Wlz/Wmo), leveringsvorm (ZIN/PGB/VPT/MPT) en geïndiceerde zorgduur.">>
+			["id6"] = <text = <"Voorlichting en Begeleiding"> description = <"Verpleegkundige educatie, zelfmanagement-instructie en leefregels.">>
+			["id7"] = <text = <"Toelichting Zorgplan"> description = <"Klinische verantwoording en afspraken met de cliënt en mantelzorg.">>
+		>
+	>

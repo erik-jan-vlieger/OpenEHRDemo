@@ -1,0 +1,47 @@
+template (adl_version=2.0.6; rm_release=1.1.0)
+	openEHR-EHR-COMPOSITION.sensire_sensii_h2_anamnese_diagnostiek.v1.0.0
+
+specialize
+	openEHR-EHR-COMPOSITION.encounter.v1
+
+language
+	original_language = <[ISO_639-1::nl]>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Sensii Hoofdstuk 2: Wat er speelt — Systematische verpleegkundige anamnese volgens de 11 gezondheidspatronen van Gordon, Groningen Frailty Indicator (GFI), regietrede bepaling, verpleegkundig redeneren en Omaha System probleemselectie.">
+			use = <"Gebruik tijdens de diagnostische en anamnesefase in Sensii.">
+			keywords = <"Sensii", "anamnese", "Gordon patronen", "GFI", "regietrede", "Omaha System", "diagnostiek">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	COMPOSITION[id1] matches {
+		content matches {
+			use_archetype OBSERVATION[id2, openEHR-EHR-OBSERVATION.nursing_gordon_patterns_nl.v0]
+			use_archetype OBSERVATION[id3, openEHR-EHR-OBSERVATION.groningen_frailty_indicator_nl.v0]
+			use_archetype OBSERVATION[id4, openEHR-EHR-OBSERVATION.self_management_regietrede_nl.v0]
+			use_archetype EVALUATION[id5, openEHR-EHR-EVALUATION.omaha_assessment_nl.v0]
+			use_archetype EVALUATION[id6, openEHR-EHR-EVALUATION.clinical_synopsis.v1]
+		}
+	}
+
+terminology
+	term_definitions = <
+		["nl"] = <
+			["id1"] = <text = <"Sensii Hoofdstuk 2: Wat er speelt"> description = <"Verpleegkundige anamnese, kwetsbaarheidsmeting en Omaha probleemclassificatie.">>
+			["id2"] = <text = <"11 Gezondheidspatronen van Gordon"> description = <"Systematische anamnese over alle functionele gezondheidspatronen.">>
+			["id3"] = <text = <"Groningen Frailty Indicator (GFI)"> description = <"Screening van kwetsbaarheid over fysiek, cognitief, sociaal en psychisch domein.">>
+			["id4"] = <text = <"Huidige Regietrede"> description = <"Inschaling van de actuele eigen regie (trede 1-5) en vergelijking met Sensii beslismotor.">>
+			["id5"] = <text = <"Omaha Probleemselectie"> description = <"Geprioriteerde Omaha aandachtsgebieden (maximaal 4) met signalen/symptomen en baseline KBS.">>
+			["id6"] = <text = <"Klinisch Redeneren & Dilemma's"> description = <"Verpleegkundige synthese van bevindingen en professionele afwegingen.">>
+		>
+	>

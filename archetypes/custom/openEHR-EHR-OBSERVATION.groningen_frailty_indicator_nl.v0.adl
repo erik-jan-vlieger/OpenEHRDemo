@@ -1,0 +1,664 @@
+archetype (adl_version=1.4; uid=f1a2b3c4-d5e6-7890-abcd-ef1234567890)
+	openEHR-EHR-OBSERVATION.groningen_frailty_indicator_nl.v0
+
+concept
+	[at0000]	-- Groningen Frailty Indicator (GFI)
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Vastleggen van de Groningen Frailty Indicator (GFI) score, een gevalideerd screeningsinstrument om kwetsbaarheid (frailty) bij ouderen en cliënten in de wijkverpleging te meten over vier domeinen: fysiek, cognitief, sociaal en psychisch.">
+			use = <"Gebruik binnen het Sensii verpleegkundig proces en wijkverpleegkundige anamnese. Score loopt van 0 tot 15. Een score van 4 of hoger duidt op matige tot ernstige kwetsbaarheid.">
+			misuse = <"Niet gebruiken als vervanging voor een uitgebreid Geriatrisch Assessment.">
+			keywords = <"GFI", "Groningen Frailty Indicator", "kwetsbaarheid", "frailty", "ouderenzorg", "Sensii", "wijkverpleging">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Recording the Groningen Frailty Indicator (GFI) score to assess frailty in elderly and home care clients across physical, cognitive, social, and psychological domains.">
+			use = <"Used within nursing assessment and care pathways. Total score 0-15; score >= 4 indicates frailty.">
+			keywords = <"GFI", "frailty", "geriatric assessment", "nursing">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	OBSERVATION[at0000] matches {	-- Groningen Frailty Indicator (GFI)
+		data matches {
+			HISTORY[at0001] matches {	-- Event Series
+				events cardinality matches {1..*; unordered} matches {
+					EVENT[at0002] occurrences matches {0..*} matches {	-- Elk evenement
+						data matches {
+							ITEM_TREE[at0003] matches {	-- Boom
+								items cardinality matches {0..*; unordered} matches {
+									CLUSTER[at0004] occurrences matches {0..1} matches {	-- Fysiek domein
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0005] occurrences matches {0..1} matches {	-- Boodschappen doen
+												value matches {
+													0|[local::at0006],	-- Zelfstandig zonder hulp (0 pt)
+													1|[local::at0007] 	-- Helemaal niet of met hulp (1 pt)
+												}
+											}
+											ELEMENT[at0008] occurrences matches {0..1} matches {	-- Buitenshuis rondlopen
+												value matches {
+													0|[local::at0009],	-- Zelfstandig zonder hulp (0 pt)
+													1|[local::at0010] 	-- Helemaal niet of met hulp (1 pt)
+												}
+											}
+											ELEMENT[at0011] occurrences matches {0..1} matches {	-- Aan- en uitkleden
+												value matches {
+													0|[local::at0012],	-- Zelfstandig zonder hulp (0 pt)
+													1|[local::at0013] 	-- Helemaal niet of met hulp (1 pt)
+												}
+											}
+											ELEMENT[at0014] occurrences matches {0..1} matches {	-- Naar het toilet gaan
+												value matches {
+													0|[local::at0015],	-- Zelfstandig zonder hulp (0 pt)
+													1|[local::at0016] 	-- Helemaal niet of met hulp (1 pt)
+												}
+											}
+											ELEMENT[at0017] occurrences matches {0..1} matches {	-- Fysieke conditie / fitheid
+												value matches {
+													0|[local::at0018],	-- Goed tot uitstekend (0 pt)
+													1|[local::at0019] 	-- Matig tot slecht (1 pt)
+												}
+											}
+											ELEMENT[at0020] occurrences matches {0..1} matches {	-- Zichtbeperking
+												value matches {
+													0|[local::at0021],	-- Geen belemmering (0 pt)
+													1|[local::at0022] 	-- Belemmering in dagelijks leven (1 pt)
+												}
+											}
+											ELEMENT[at0023] occurrences matches {0..1} matches {	-- Gehoorbeperking
+												value matches {
+													0|[local::at0024],	-- Geen belemmering (0 pt)
+													1|[local::at0025] 	-- Belemmering in dagelijks leven (1 pt)
+												}
+											}
+											ELEMENT[at0026] occurrences matches {0..1} matches {	-- Gewichtsverlies
+												value matches {
+													0|[local::at0027],	-- Geen onbedoeld gewichtsverlies (0 pt)
+													1|[local::at0028] 	-- Onbedoeld afgevallen afgelopen 6 mnd (1 pt)
+												}
+											}
+											ELEMENT[at0029] occurrences matches {0..1} matches {	-- Medicijngebruik (>= 4 soorten)
+												value matches {
+													0|[local::at0030],	-- Minder dan 4 soorten medicijnen (0 pt)
+													1|[local::at0031] 	-- 4 of meer verschillende medicijnen (1 pt)
+												}
+											}
+										}
+									}
+									CLUSTER[at0032] occurrences matches {0..1} matches {	-- Cognitief domein
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0033] occurrences matches {0..1} matches {	-- Geheugenklachten
+												value matches {
+													0|[local::at0034],	-- Geen geheugenklachten (0 pt)
+													1|[local::at0035] 	-- Soms of regelmatig geheugenklachten (1 pt)
+												}
+											}
+										}
+									}
+									CLUSTER[at0036] occurrences matches {0..1} matches {	-- Sociaal domein
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0037] occurrences matches {0..1} matches {	-- Ervaren van leegte
+												value matches {
+													0|[local::at0038],	-- Nooit of zelden (0 pt)
+													1|[local::at0039] 	-- Soms tot vaak (1 pt)
+												}
+											}
+											ELEMENT[at0040] occurrences matches {0..1} matches {	-- Mensen om zich heen missen
+												value matches {
+													0|[local::at0041],	-- Nooit of zelden (0 pt)
+													1|[local::at0042] 	-- Soms tot vaak (1 pt)
+												}
+											}
+											ELEMENT[at0043] occurrences matches {0..1} matches {	-- In de steek gelaten voelen
+												value matches {
+													0|[local::at0044],	-- Nooit of zelden (0 pt)
+													1|[local::at0045] 	-- Soms tot vaak (1 pt)
+												}
+											}
+										}
+									}
+									CLUSTER[at0046] occurrences matches {0..1} matches {	-- Psychisch domein
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0047] occurrences matches {0..1} matches {	-- Somberheid / neerslachtigheid
+												value matches {
+													0|[local::at0048],	-- Nooit of zelden (0 pt)
+													1|[local::at0049] 	-- Soms tot vaak (1 pt)
+												}
+											}
+											ELEMENT[at0050] occurrences matches {0..1} matches {	-- Nerveus of angstig gevoel
+												value matches {
+													0|[local::at0051],	-- Nooit of zelden (0 pt)
+													1|[local::at0052] 	-- Soms tot vaak (1 pt)
+												}
+											}
+										}
+									}
+									ELEMENT[at0053] occurrences matches {0..1} matches {	-- GFI Totaalscore
+										value matches {
+											DV_COUNT matches {
+												magnitude matches {|0..15|}
+											}
+										}
+									}
+									ELEMENT[at0054] occurrences matches {0..1} matches {	-- Interpretatie kwetsbaarheid
+										value matches {
+											DV_CODED_TEXT matches {
+												defining_code matches {
+													[local::
+													at0055, 	-- Niet kwetsbaar (score 0-3)
+													at0056]	-- Kwetsbaar (score >= 4)
+												}
+											}
+										}
+									}
+									ELEMENT[at0057] occurrences matches {0..1} matches {	-- Toelichting
+										value matches {
+											DV_TEXT matches {*}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Groningen Frailty Indicator (GFI)">
+					description = <"Screeningsinstrument voor het vaststellen van kwetsbaarheid bij ouderen.">
+				>
+				["at0001"] = <
+					text = <"Event Series">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Elk evenement">
+					description = <"Tijdstip van de afname.">
+				>
+				["at0003"] = <
+					text = <"Boom">
+					description = <"@ internal @">
+				>
+				["at0004"] = <
+					text = <"Fysiek domein">
+					description = <"Vragen over dagelijks functioneren, mobiliteit, zintuigen en voeding.">
+				>
+				["at0005"] = <
+					text = <"Boodschappen doen">
+					description = <"Kunt u zelfstandig boodschappen doen?">
+				>
+				["at0006"] = <
+					text = <"Zelfstandig zonder hulp (0 pt)">
+					description = <"Zonder hulp">
+				>
+				["at0007"] = <
+					text = <"Helemaal niet of met hulp (1 pt)">
+					description = <"Met hulp of niet zelfstandig">
+				>
+				["at0008"] = <
+					text = <"Buitenshuis rondlopen">
+					description = <"Kunt u zelfstandig buitenshuis rondlopen?">
+				>
+				["at0009"] = <
+					text = <"Zelfstandig zonder hulp (0 pt)">
+					description = <"Zonder hulp">
+				>
+				["at0010"] = <
+					text = <"Helemaal niet of met hulp (1 pt)">
+					description = <"Met hulp of niet zelfstandig">
+				>
+				["at0011"] = <
+					text = <"Aan- en uitkleden">
+					description = <"Kunt u zich geheel zelfstandig aan- en uitkleden?">
+				>
+				["at0012"] = <
+					text = <"Zelfstandig zonder hulp (0 pt)">
+					description = <"Zonder hulp">
+				>
+				["at0013"] = <
+					text = <"Helemaal niet of met hulp (1 pt)">
+					description = <"Met hulp">
+				>
+				["at0014"] = <
+					text = <"Naar het toilet gaan">
+					description = <"Kunt u geheel zelfstandig naar het toilet gaan?">
+				>
+				["at0015"] = <
+					text = <"Zelfstandig zonder hulp (0 pt)">
+					description = <"Zonder hulp">
+				>
+				["at0016"] = <
+					text = <"Helemaal niet of met hulp (1 pt)">
+					description = <"Met hulp">
+				>
+				["at0017"] = <
+					text = <"Fysieke conditie / fitheid">
+					description = <"Hoe beoordeelt u uw lichamelijke fitheid?">
+				>
+				["at0018"] = <
+					text = <"Goed tot uitstekend (0 pt)">
+					description = <"Cijfer 7 of hoger">
+				>
+				["at0019"] = <
+					text = <"Matig tot slecht (1 pt)">
+					description = <"Cijfer 6 of lager">
+				>
+				["at0020"] = <
+					text = <"Zichtbeperking">
+					description = <"Ondervindt u belemmeringen door slecht zien?">
+				>
+				["at0021"] = <
+					text = <"Geen belemmering (0 pt)">
+					description = <"Nee of nauwelijks">
+				>
+				["at0022"] = <
+					text = <"Belemmering in dagelijks leven (1 pt)">
+					description = <"Ja, belemmerend">
+				>
+				["at0023"] = <
+					text = <"Gehoorbeperking">
+					description = <"Ondervindt u belemmeringen door slecht horen?">
+				>
+				["at0024"] = <
+					text = <"Geen belemmering (0 pt)">
+					description = <"Nee of nauwelijks">
+				>
+				["at0025"] = <
+					text = <"Belemmering in dagelijks leven (1 pt)">
+					description = <"Ja, belemmerend">
+				>
+				["at0026"] = <
+					text = <"Gewichtsverlies">
+					description = <"Bent u de afgelopen zes maanden onbedoeld veel afgevallen?">
+				>
+				["at0027"] = <
+					text = <"Geen onbedoeld gewichtsverlies (0 pt)">
+					description = <"Nee">
+				>
+				["at0028"] = <
+					text = <"Onbedoeld afgevallen afgelopen 6 mnd (1 pt)">
+					description = <"Ja (> 3-6 kg)">
+				>
+				["at0029"] = <
+					text = <"Medicijngebruik (>= 4 soorten)">
+					description = <"Gebruikt u 4 of meer verschillende soorten medicijnen?">
+				>
+				["at0030"] = <
+					text = <"Minder dan 4 soorten medicijnen (0 pt)">
+					description = <"Nee (0-3)">
+				>
+				["at0031"] = <
+					text = <"4 of meer verschillende medicijnen (1 pt)">
+					description = <"Ja (polyfarmacie)">
+				>
+				["at0032"] = <
+					text = <"Cognitief domein">
+					description = <"Vragen over geheugen en cognitieve klachten.">
+				>
+				["at0033"] = <
+					text = <"Geheugenklachten">
+					description = <"Heeft u klachten over uw geheugen?">
+				>
+				["at0034"] = <
+					text = <"Geen geheugenklachten (0 pt)">
+					description = <"Zelden of nooit">
+				>
+				["at0035"] = <
+					text = <"Soms of regelmatig geheugenklachten (1 pt)">
+					description = <"Soms of vaak">
+				>
+				["at0036"] = <
+					text = <"Sociaal domein">
+					description = <"Vragen over eenzaamheid en sociaal netwerk.">
+				>
+				["at0037"] = <
+					text = <"Ervaren van leegte">
+					description = <"Ervaart u een leegte om u heen?">
+				>
+				["at0038"] = <
+					text = <"Nooit of zelden (0 pt)">
+					description = <"Nee">
+				>
+				["at0039"] = <
+					text = <"Soms tot vaak (1 pt)">
+					description = <"Ja">
+				>
+				["at0040"] = <
+					text = <"Mensen om zich heen missen">
+					description = <"Mist u wel eens mensen om u heen?">
+				>
+				["at0041"] = <
+					text = <"Nooit of zelden (0 pt)">
+					description = <"Nee">
+				>
+				["at0042"] = <
+					text = <"Soms tot vaak (1 pt)">
+					description = <"Ja">
+				>
+				["at0043"] = <
+					text = <"In de steek gelaten voelen">
+					description = <"Voelt u zich wel eens in de steek gelaten?">
+				>
+				["at0044"] = <
+					text = <"Nooit of zelden (0 pt)">
+					description = <"Nee">
+				>
+				["at0045"] = <
+					text = <"Soms tot vaak (1 pt)">
+					description = <"Ja">
+				>
+				["at0046"] = <
+					text = <"Psychisch domein">
+					description = <"Vragen over stemming en angst.">
+				>
+				["at0047"] = <
+					text = <"Somberheid / neerslachtigheid">
+					description = <"Heeft u zich de laatste tijd somber of neerslachtig gevoeld?">
+				>
+				["at0048"] = <
+					text = <"Nooit of zelden (0 pt)">
+					description = <"Nee">
+				>
+				["at0049"] = <
+					text = <"Soms tot vaak (1 pt)">
+					description = <"Ja">
+				>
+				["at0050"] = <
+					text = <"Nerveus of angstig gevoel">
+					description = <"Heeft u zich de laatste tijd nerveus of angstig gevoeld?">
+				>
+				["at0051"] = <
+					text = <"Nooit of zelden (0 pt)">
+					description = <"Nee">
+				>
+				["at0052"] = <
+					text = <"Soms tot vaak (1 pt)">
+					description = <"Ja">
+				>
+				["at0053"] = <
+					text = <"GFI Totaalscore">
+					description = <"Somscore van alle 15 items (0-15).">
+				>
+				["at0054"] = <
+					text = <"Interpretatie kwetsbaarheid">
+					description = <"Klinische interpretatie van de GFI-score.">
+				>
+				["at0055"] = <
+					text = <"Niet kwetsbaar (score 0-3)">
+					description = <"Score onder de grenswaarde.">
+				>
+				["at0056"] = <
+					text = <"Kwetsbaar (score >= 4)">
+					description = <"Score indicatief voor kwetsbaarheid.">
+				>
+				["at0057"] = <
+					text = <"Toelichting">
+					description = <"Klinische context of toelichting van de wijkverpleegkundige.">
+				>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <
+					text = <"Groningen Frailty Indicator (GFI)">
+					description = <"Screening instrument for frailty assessment in older adults.">
+				>
+				["at0001"] = <
+					text = <"Event Series">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Any event">
+					description = <"Timing of assessment.">
+				>
+				["at0003"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0004"] = <
+					text = <"Physical domain">
+					description = <"Questions on ADL, mobility, senses, and nutrition.">
+				>
+				["at0005"] = <
+					text = <"Shopping">
+					description = <"Can you do shopping independently?">
+				>
+				["at0006"] = <
+					text = <"Independent without help (0 pt)">
+					description = <"Without help">
+				>
+				["at0007"] = <
+					text = <"Unable or with help (1 pt)">
+					description = <"With help">
+				>
+				["at0008"] = <
+					text = <"Walking outdoor">
+					description = <"Can you walk outdoors independently?">
+				>
+				["at0009"] = <
+					text = <"Independent without help (0 pt)">
+					description = <"Without help">
+				>
+				["at0010"] = <
+					text = <"Unable or with help (1 pt)">
+					description = <"With help">
+				>
+				["at0011"] = <
+					text = <"Dressing">
+					description = <"Can you dress and undress independently?">
+				>
+				["at0012"] = <
+					text = <"Independent without help (0 pt)">
+					description = <"Without help">
+				>
+				["at0013"] = <
+					text = <"Unable or with help (1 pt)">
+					description = <"With help">
+				>
+				["at0014"] = <
+					text = <"Using toilet">
+					description = <"Can you use the toilet independently?">
+				>
+				["at0015"] = <
+					text = <"Independent without help (0 pt)">
+					description = <"Without help">
+				>
+				["at0016"] = <
+					text = <"Unable or with help (1 pt)">
+					description = <"With help">
+				>
+				["at0017"] = <
+					text = <"Physical fitness">
+					description = <"How do you rate your physical fitness?">
+				>
+				["at0018"] = <
+					text = <"Good to excellent (0 pt)">
+					description = <"Grade 7 or above">
+				>
+				["at0019"] = <
+					text = <"Fair to poor (1 pt)">
+					description = <"Grade 6 or below">
+				>
+				["at0020"] = <
+					text = <"Vision impairment">
+					description = <"Do you experience problems due to poor vision?">
+				>
+				["at0021"] = <
+					text = <"No impairment (0 pt)">
+					description = <"No">
+				>
+				["at0022"] = <
+					text = <"Impairment in daily life (1 pt)">
+					description = <"Yes">
+				>
+				["at0023"] = <
+					text = <"Hearing impairment">
+					description = <"Do you experience problems due to poor hearing?">
+				>
+				["at0024"] = <
+					text = <"No impairment (0 pt)">
+					description = <"No">
+				>
+				["at0025"] = <
+					text = <"Impairment in daily life (1 pt)">
+					description = <"Yes">
+				>
+				["at0026"] = <
+					text = <"Weight loss">
+					description = <"Have you experienced unintentional weight loss in the past 6 months?">
+				>
+				["at0027"] = <
+					text = <"No unintentional weight loss (0 pt)">
+					description = <"No">
+				>
+				["at0028"] = <
+					text = <"Unintentional weight loss in past 6 mo (1 pt)">
+					description = <"Yes">
+				>
+				["at0029"] = <
+					text = <"Medication count (>= 4 types)">
+					description = <"Do you take 4 or more different types of medication?">
+				>
+				["at0030"] = <
+					text = <"Fewer than 4 medications (0 pt)">
+					description = <"No">
+				>
+				["at0031"] = <
+					text = <"4 or more medications (1 pt)">
+					description = <"Yes (polypharmacy)">
+				>
+				["at0032"] = <
+					text = <"Cognitive domain">
+					description = <"Questions on memory and cognition.">
+				>
+				["at0033"] = <
+					text = <"Memory complaints">
+					description = <"Do you experience memory problems?">
+				>
+				["at0034"] = <
+					text = <"No memory complaints (0 pt)">
+					description = <"Rarely or never">
+				>
+				["at0035"] = <
+					text = <"Sometimes or frequent memory complaints (1 pt)">
+					description = <"Sometimes or often">
+				>
+				["at0036"] = <
+					text = <"Social domain">
+					description = <"Questions on loneliness and social support.">
+				>
+				["at0037"] = <
+					text = <"Experiencing emptiness">
+					description = <"Do you experience emptiness around you?">
+				>
+				["at0038"] = <
+					text = <"Never or rarely (0 pt)">
+					description = <"No">
+				>
+				["at0039"] = <
+					text = <"Sometimes to often (1 pt)">
+					description = <"Yes">
+				>
+				["at0040"] = <
+					text = <"Missing people">
+					description = <"Do you miss having people around you?">
+				>
+				["at0041"] = <
+					text = <"Never or rarely (0 pt)">
+					description = <"No">
+				>
+				["at0042"] = <
+					text = <"Sometimes to often (1 pt)">
+					description = <"Yes">
+				>
+				["at0043"] = <
+					text = <"Feeling abandoned">
+					description = <"Do you ever feel abandoned?">
+				>
+				["at0044"] = <
+					text = <"Never or rarely (0 pt)">
+					description = <"No">
+				>
+				["at0045"] = <
+					text = <"Sometimes to often (1 pt)">
+					description = <"Yes">
+				>
+				["at0046"] = <
+					text = <"Psychological domain">
+					description = <"Questions on mood and anxiety.">
+				>
+				["at0047"] = <
+					text = <"Feeling depressed">
+					description = <"Have you recently felt down or depressed?">
+				>
+				["at0048"] = <
+					text = <"Never or rarely (0 pt)">
+					description = <"No">
+				>
+				["at0049"] = <
+					text = <"Sometimes to often (1 pt)">
+					description = <"Yes">
+				>
+				["at0050"] = <
+					text = <"Nervous or anxious feeling">
+					description = <"Have you recently felt nervous or anxious?">
+				>
+				["at0051"] = <
+					text = <"Never or rarely (0 pt)">
+					description = <"No">
+				>
+				["at0052"] = <
+					text = <"Sometimes to often (1 pt)">
+					description = <"Yes">
+				>
+				["at0053"] = <
+					text = <"GFI Total score">
+					description = <"Sum score of all 15 items (0-15).">
+				>
+				["at0054"] = <
+					text = <"Frailty interpretation">
+					description = <"Clinical interpretation of GFI score.">
+				>
+				["at0055"] = <
+					text = <"Not frail (score 0-3)">
+					description = <"Below frailty threshold.">
+				>
+				["at0056"] = <
+					text = <"Frail (score >= 4)">
+					description = <"Score indicative of frailty.">
+				>
+				["at0057"] = <
+					text = <"Comment">
+					description = <"Clinical context or comment.">
+				>
+			>
+		>
+	>

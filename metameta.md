@@ -17,7 +17,7 @@ Geen enkele cruciale technische beslissing of configuratie mag uitsluitend in ch
 ## 2. De Rol van `metadocumenten.md`
 
 [`metadocumenten.md`](file:///home/vlieger/OpenEHRDemo/metadocumenten.md) fungeert als:
-- **Architectuurhandboek**: Gedetailleerde beschrijving van hoe bronbestanden (JSON flows), compilers (Archie & Python postprocessor), templates (ADLT & OPT 1.4) en databases (EHRbase & PostgreSQL) op elkaar aansluiten.
+- **Architectuurhandboek**: Gedetailleerde beschrijving van hoe bronbestanden (JSON flows & Sensii contracten), compilers (Archie & Python postprocessor), templates (ADLT & OPT 1.4) en databases (EHRbase & PostgreSQL) op elkaar aansluiten.
 - **Kennis- en Foutenregister**: Een overzicht van specifieke openEHR en EHRbase eigenaardigheden (zoals `category` vereisten, WebTemplate headers, RM typenamen en FLAT formats) inclusief de bewezen oplossingen.
 - **Centrale Index**: Verwijzingen met werkende bestandspaden naar alle kernscripts, configuraties en datafolders.
 - **Operationeel Runbook**: Eenduidige commando's om de stack te starten, individuele zorgpaden te verwerken of batch-runs uit te voeren.
@@ -31,7 +31,7 @@ Bij **elke** toekomstige sessie of handeling van een AI-assistent (of ontwikkela
 ```mermaid
 graph TD
     A["1. Leesfase: Raadpleeg metadocumenten.md"] --> B["2. Uitvoeringsfase: Ontwerp & Implementeer"]
-    B --> C["3. Validatiefase: Test live tegen EHRbase"]
+    B --> C["3. Validatiefase: Test live tegen EHRbase / Archie"]
     C --> D["4. Synchronisatiefase: Werk metadocumenten.md bij"]
 ```
 
@@ -42,7 +42,7 @@ graph TD
 - Pas code of scripts aan conform de vastgestelde architectuur (bijv. Archie + OPT 1.4 postprocessor via [`compiler/full_opt14_lxml.py`](file:///home/vlieger/OpenEHRDemo/compiler/full_opt14_lxml.py)).
 
 ### Stap 3: Validatiefase
-- Valideer wijzigingen altijd direct met werkende commando's (compilatie, HTTP upload naar EHRbase, AQL bevraging).
+- Valideer wijzigingen altijd direct met werkende commando's (compilatie, Archie test, HTTP upload naar EHRbase, AQL bevraging).
 
 ### Stap 4: Synchronisatiefase (Afsluiting van elke taak)
 Als tijdens de handeling een van de volgende gebeurtenissen plaatsvindt, **moet** [`metadocumenten.md`](file:///home/vlieger/OpenEHRDemo/metadocumenten.md) direct worden bijgewerkt:
@@ -68,3 +68,4 @@ Wanneer `metadocumenten.md` of gerelateerde documenten worden bewerkt, gelden de
 | Datum | Auteur / Agent | Wijziging |
 | :--- | :--- | :--- |
 | **2026-08-14** | Antigravity AI | Initiële creatie van `metadocumenten.md` en `metameta.md`. Volledige documentatie van 148 zorgpaden batch-pipeline, OPT 1.4 category fix, Archie build en AQL validatie. |
+| **2026-08-18** | Antigravity AI | Toevoeging van 16 ReAble zorgpaden (totaal 164), 5-staps Terminologiecascade (`TERMINOLOGIE_CASCADE.md`), Nederlandse vertalingen van CKM archetypes, en volledige openEHR afspiegeling van Sensii (7 custom archetypes + 5 ADLT/OPT templates in `opts/`). |

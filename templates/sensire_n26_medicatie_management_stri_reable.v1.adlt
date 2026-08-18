@@ -1,0 +1,85 @@
+template (adl_version=2.0.6; rm_release=1.1.0)
+	openEHR-EHR-COMPOSITION.sensire_n26_medicatie_management_stri_reable.v1.0.0
+
+specialize
+	openEHR-EHR-COMPOSITION.encounter.v1
+
+language
+	original_language = <[ISO_639-1::nl]>
+
+description
+	original_author = <
+		["name"] = <"Sensire Speciele Beslisondersteuning ReAblement">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"ReAble Zorgpad N26 (Medicatie-management & strikte inname-tijden bij Parkinson) Sensire">
+			use = <"Ondersteuning van reablement, zelfregie en vaardigheidstraining in de wijkverpleging.">
+			misuse = <"Niet buiten VVT context.">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	COMPOSITION[id1] matches {
+		content matches {
+			use_archetype EVALUATION[id2, openEHR-EHR-EVALUATION.problem_diagnosis.v1]
+			use_archetype EVALUATION[id3, openEHR-EHR-EVALUATION.goal.v1]
+			use_archetype OBSERVATION[id4, openEHR-EHR-OBSERVATION.story.v1]
+			use_archetype ACTION[id5, openEHR-EHR-ACTION.health_education.v1]
+			use_archetype INSTRUCTION[id6, openEHR-EHR-INSTRUCTION.care_plan_request.v0]
+			use_archetype ACTION[id7, openEHR-EHR-ACTION.medication.v1]
+			use_archetype ACTION[id8, openEHR-EHR-ACTION.procedure.v1]
+			use_archetype INSTRUCTION[id9, openEHR-EHR-INSTRUCTION.service_request.v1]
+			use_archetype EVALUATION[id10, openEHR-EHR-EVALUATION.clinical_synopsis.v1]
+		}
+	}
+
+terminology
+	term_definitions = <
+		["nl"] = <
+				["id1"] = <
+					text = <"N26 - Medicatie-management & strikte inname-tijden bij Parkinson (ReAble)">
+					description = <"Wijkverpleegkundige ondersteunt bij het medicatiebeheer van een cliënt met de ziekte van Parkinson, met specifieke aandacht voor strikte innametijden, toedieningsvormen en het signaleren van complicaties. De wijkverpleegkundige signaleert en escaleert; de behandelaar past de dosering aan.">
+				>
+				["id2"] = <
+					text = <"Probleem of Diagnose">
+					description = <"Primaire aandoening of indicatie van het zorgpad.">
+				>
+				["id3"] = <
+					text = <"Persoonlijk Doel & Streefdoelen">
+					description = <"Doel van de cliënt in eigen woorden en gewenste uitkomsten.">
+				>
+				["id4"] = <
+					text = <"Anamnese & Wil-vraag">
+					description = <"Wensen van de client, bereidheid tot afspraken en klinische observaties.">
+				>
+				["id5"] = <
+					text = <"Instructie & Zelfmanagement Coaching">
+					description = <"Voorlichting, educatie en vaardigheidstraining rond zelfzorg.">
+				>
+				["id6"] = <
+					text = <"Afspraken & Zelfmonitoring Plan">
+					description = <"Gezamenlijke afspraken over zelfmonitoring, frequentie en actieplan.">
+				>
+				["id7"] = <
+					text = <"Medicatietoediening & Zelfinname">
+					description = <"Toediening, inname-instructie of aanpassing van medicatie.">
+				>
+				["id8"] = <
+					text = <"Interventie / Handeling">
+					description = <"Verpleegkundige acties, ondersteuning en rol-verdeling.">
+				>
+				["id9"] = <
+					text = <"Escalatie / Verwijzing">
+					description = <"Overleg of order aan arts of specialist bij verslechtering.">
+				>
+				["id10"] = <
+					text = <"Klinische Synopsis & Kunnen-Status">
+					description = <"Eindevaluatie en zelfstandigheidsstatus van de cliënt.">
+				>
+		>
+	>

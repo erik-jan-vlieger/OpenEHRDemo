@@ -1,4 +1,4 @@
-﻿archetype (adl_version=1.4; uid=bbf04420-92d9-46a5-8a82-99cb39ed88bb)
+archetype (adl_version=1.4; uid=bbf04420-92d9-46a5-8a82-99cb39ed88bb)
 	openEHR-EHR-ACTION.health_education.v1
 
 concept
@@ -46,6 +46,12 @@ language
 				["email"] = <"linforest@163.com">
 			>
 			accreditation = <"?">
+		>
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			author = <
+				["name"] = <"Sensire / OpenEHR Nederland">
+			>
 		>
 	>
 description
@@ -161,6 +167,22 @@ Jika edukasi yang diberikan adalah kursus atau rangkaian kegiatan maka detail te
 如果所提供的教育是一门课程/讲座或者一系列的活动，则要依据“所提供的教育”（Education provided）路径步骤，来记录每次活动或就诊/访视的详情，而当整个课程/讲座完成之后，则要依据“所完成的教育”（Education completed）路径步骤来记录相应的数据。如果所提供的教育是单次的活动或就诊/访视，则要同时记录关于“所提供的教育”和“所完成的教育”的数据。">
 			keywords = <"信息", "资料", "教育", "宣教", "课程", "讲座", "说明资料", "情况说明书", "资料页", "资料单", "教导", "嘱咐", "嘱托", "指令", "演示", "示范", "教学", "教授", "示教", "素养", "素质", "文化", "引导", "指导", "指导意见", "培训", "训练", "建议", "忠告", "教练", "辅导">
 			misuse = <"并非旨在用于记录关于健康教育的同意信息；例如，在提供说明资料之后同意进行输精管结扎术。对于此类的目的，应当采用知情同意原始型 ACTION.informed_consent。">
+		>
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Voor het vastleggen van gegevens over communicatie en activiteiten gericht op het verbeteren van gezondheidsvaardigheden, leefstijlvaardigheden en zelfmanagement.">
+			use = <"Gebruik voor het vastleggen van gegevens over communicatie en activiteiten ter bevordering van gezondheidsvaardigheden, zelfredzaamheid en leefstijlvaardigheden.
+
+Gezondheidsvoorlichting kan onder andere omvatten:
+- mondeling advies of instructie;
+- demonstratie of inoefenen van een handeling/techniek;
+- verstrekken van informatiemateriaal, zoals folders, apps of instructiekaarten.
+
+Vaardigheden kunnen onder meer omvatten: medicatiegebruik, zelfinjectie, wondverzorging, stomazorg of postoperatieve zelfzorg.
+
+Indien de voorlichting een traject of reeks sessies betreft, worden de gegevens van elke sessie vastgelegd in de stap 'Educatie gegeven / uitgevoerd', en bij afronding van het totale traject in de stap 'Educatie voltooid'. Bij een eenmalige sessie worden beide stappen gelijktijdig vastgelegd.">
+			keywords = <"voorlichting", "educatie", "instructie", "advies", "training", "zelfmanagement", "leefstijl", "demonstratie", "begeleiding", "coaching", "informatie">
+			misuse = <"Niet bedoeld voor het vastleggen van toestemming (informed consent); gebruik daarvoor ACTION.informed_consent.">
 		>
 	>
 	lifecycle_state = <"published">
@@ -1237,6 +1259,134 @@ ontology
 					text = <"Indikasi klinis">
 					description = <"Alasan klinis dilakukannya edukasi.">
 					comment = <"Misalnya: 'Diabetes' atau 'Manajemen kanker'. Pengkodean indikasi dengan terminologi lebih dipilih, jika memungkinkan. Elemen data ini memungkinkan kejadian berganda.">
+				>
+			>
+		>
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Gezondheidsvoorlichting en -educatie">
+					description = <"Communicatie en interventies ter bevordering van gezondheidsvaardigheden, zelfredzaamheid en leefstijl.">
+				>
+				["at0001"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Onderwerp">
+					description = <"Benaming van het onderwerp van de gezondheidsvoorlichting of educatie.">
+					comment = <"Het onderwerp kan een specifiek thema, vaardigheid of instructie betreffen, of de naam van een cursus of ReAblement-programma.">
+				>
+				["at0003"] = <
+					text = <"Beschrijving">
+					description = <"Verhalende beschrijving over de gegeven of geplande voorlichting en educatie.">
+				>
+				["at0004"] = <
+					text = <"Methode">
+					description = <"Methode of vorm waarmee de voorlichting/educatie is overgedragen.">
+					comment = <"Bijvoorbeeld: mondeling, demonstratie, praktische oefening, schriftelijk/folder of mobiele applicatie.">
+				>
+				["at0006"] = <
+					text = <"Educatie gepland">
+					description = <"Voorlichting of educatie is gepland, maar er zijn nog geen stappen ondernomen om deze te starten.">
+				>
+				["at0007"] = <
+					text = <"Educatie ingepland">
+					description = <"Afspraak of datum voor de voorlichting/educatie is ingepland.">
+				>
+				["at0008"] = <
+					text = <"Educatie gegeven / uitgevoerd">
+					description = <"Voorlichtingssessie, instructie of materiaal is verstrekt of uitgevoerd.">
+				>
+				["at0010"] = <
+					text = <"Reden">
+					description = <"Reden waarom deze stap in het zorgpad is uitgevoerd.">
+					comment = <"Bijvoorbeeld: 'Opgeschort - cliënt te vermoeid om instructie te vervolgen' of 'Niet voltooid - cliënt niet aanwezig'.">
+				>
+				["at0013"] = <
+					text = <"Educatie voltooid">
+					description = <"Alle geplande voorlichtings- en trainingsactiviteiten zijn succesvol afgerond.">
+				>
+				["at0014"] = <
+					text = <"Educatie uitgesteld">
+					description = <"Voorlichting/educatie is uitgesteld vóór aanvang.">
+				>
+				["at0015"] = <
+					text = <"Educatie geannuleerd">
+					description = <"Voorlichting/educatie is geannuleerd vóór aanvang.">
+				>
+				["at0016"] = <
+					text = <"Educatie niet voltooid">
+					description = <"Voorlichtingssessie of traject is voortijdig afgebroken voor afronding.">
+				>
+				["at0017"] = <
+					text = <"Educatie opgeschort">
+					description = <"Geplande voorlichtingssessies zijn tijdelijk onderbroken na aanvang.">
+				>
+				["at0018"] = <
+					text = <"Educatie aanbevolen">
+					description = <"Voorlichting/educatie is aanbevolen, maar er zijn nog geen verdere stappen gepland.">
+				>
+				["at0019"] = <
+					text = <"Uitkomst">
+					description = <"Beschrijving of evaluatie van het resultaat van de voorlichting/educatie.">
+					comment = <"Bijvoorbeeld: mate van begrip en vaardigheid volgens de zorgverlener of cliënt, of 'behaald/niet behaald'.">
+				>
+				["at0020"] = <
+					text = <"Sessienummer">
+					description = <"Nummer van de sessie in een serie van meerdere bijeenkomsten.">
+				>
+				["at0021"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0023"] = <
+					text = <"Uitbreiding">
+					description = <"Aanvullende informatie vereist voor lokale context of afstemming met andere standaarden (zoals FHIR of ZIBs).">
+				>
+				["at0025"] = <
+					text = <"Materiaaldetails">
+					description = <"Gestructureerde gegevens over het verstrekte informatiemateriaal of de applicatie.">
+				>
+				["at0026"] = <
+					text = <"Geplande datum/tijd">
+					description = <"Datum en/of tijdstip waarop de activiteit gepland staat.">
+				>
+				["at0027"] = <
+					text = <"Opmerking">
+					description = <"Aanvullende toelichting over de activiteit of de zorgpadstap.">
+				>
+				["at0028"] = <
+					text = <"Aanvrager">
+					description = <"Gegevens over de zorgverlener of organisatie die de voorlichting/educatie heeft aangevraagd.">
+				>
+				["at0029"] = <
+					text = <"Uitvoerder">
+					description = <"Gegevens over de zorgverlener of organisatie die de voorlichting/educatie verzorgt.">
+				>
+				["at0030"] = <
+					text = <"Aanvraagidentificatie">
+					description = <"Lokale identificatiecode toegekend door de aanvrager.">
+				>
+				["at0031"] = <
+					text = <"Uitvoerderidentificatie">
+					description = <"Lokale identificatiecode toegekend door de uitvoerder.">
+				>
+				["at0032"] = <
+					text = <"Ontvanger">
+					description = <"De ontvanger van de voorlichting/educatie (de cliënt zelf of diens mantelzorger/vertegenwoordiger).">
+				>
+				["at0033"] = <
+					text = <"Aanvullende details">
+					description = <"Aanvullende gestructureerde details over de gezondheidsvoorlichting.">
+				>
+				["at0034"] = <
+					text = <"Tolkdetails">
+					description = <"Gegevens over eventuele tolkondersteuning.">
+				>
+				["at0035"] = <
+					text = <"Klinische indicatie">
+					description = <"De klinische aanleiding of zorgbehoefte voor de voorlichtingsactiviteit.">
 				>
 			>
 		>

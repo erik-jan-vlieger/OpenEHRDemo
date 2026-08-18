@@ -1,0 +1,533 @@
+archetype (adl_version=1.4; uid=f4a5b6c7-e8f9-0123-defa-bc4567890123)
+	openEHR-EHR-OBSERVATION.nursing_gordon_patterns_nl.v0
+
+concept
+	[at0000]	-- Gezondheidspatronen van Gordon Anamnese
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Systematisch vastleggen van de verpleegkundige anamnese volgens de 11 functionele gezondheidspatronen van Gordon, zoals toegepast in Sensii.">
+			use = <"Gebruik tijdens de anamnesefase (Hoofdstuk 2 van Sensii) ter inventarisatie van gezondheidsproblemen, risico's en belemmeringen per patroon.">
+			keywords = <"Gordon", "gezondheidspatronen", "anamnese", "verpleegkundig proces", "Sensii", "wijkverpleging">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Systematic recording of nursing assessment according to Gordon's 11 Functional Health Patterns.">
+			use = <"Used during nursing assessment phase.">
+			keywords = <"Gordon", "functional health patterns", "nursing assessment">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	OBSERVATION[at0000] matches {	-- Gezondheidspatronen van Gordon Anamnese
+		data matches {
+			HISTORY[at0001] matches {	-- Event Series
+				events cardinality matches {1..*; unordered} matches {
+					EVENT[at0002] occurrences matches {0..*} matches {	-- Elk evenement
+						data matches {
+							ITEM_TREE[at0003] matches {	-- Boom
+								items cardinality matches {0..*; unordered} matches {
+									CLUSTER[at0004] occurrences matches {0..1} matches {	-- 1. Gezondheidsbeleving en -instandshouding
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0005] occurrences matches {0..1} matches {	-- Afwijking of risico aanwezig
+												value matches {
+													DV_BOOLEAN matches {*}
+												}
+											}
+											ELEMENT[at0006] occurrences matches {0..1} matches {	-- Bevindingen en toelichting
+												value matches {
+													DV_TEXT matches {*}
+												}
+											}
+										}
+									}
+									CLUSTER[at0007] occurrences matches {0..1} matches {	-- 2. Voedings- en stofwisselingspatroon
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0008] occurrences matches {0..1} matches {	-- Afwijking of risico aanwezig
+												value matches {
+													DV_BOOLEAN matches {*}
+												}
+											}
+											ELEMENT[at0009] occurrences matches {0..1} matches {	-- Bevindingen en toelichting
+												value matches {
+													DV_TEXT matches {*}
+												}
+											}
+										}
+									}
+									CLUSTER[at0010] occurrences matches {0..1} matches {	-- 3. Uitscheidingspatroon
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0011] occurrences matches {0..1} matches {	-- Afwijking of risico aanwezig
+												value matches {
+													DV_BOOLEAN matches {*}
+												}
+											}
+											ELEMENT[at0012] occurrences matches {0..1} matches {	-- Bevindingen en toelichting
+												value matches {
+													DV_TEXT matches {*}
+												}
+											}
+										}
+									}
+									CLUSTER[at0013] occurrences matches {0..1} matches {	-- 4. Activiteiten- en bewegingspatroon
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0014] occurrences matches {0..1} matches {	-- Afwijking of risico aanwezig
+												value matches {
+													DV_BOOLEAN matches {*}
+												}
+											}
+											ELEMENT[at0015] occurrences matches {0..1} matches {	-- Bevindingen en toelichting
+												value matches {
+													DV_TEXT matches {*}
+												}
+											}
+										}
+									}
+									CLUSTER[at0016] occurrences matches {0..1} matches {	-- 5. Slaap- en rustpatroon
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0017] occurrences matches {0..1} matches {	-- Afwijking of risico aanwezig
+												value matches {
+													DV_BOOLEAN matches {*}
+												}
+											}
+											ELEMENT[at0018] occurrences matches {0..1} matches {	-- Bevindingen en toelichting
+												value matches {
+													DV_TEXT matches {*}
+												}
+											}
+										}
+									}
+									CLUSTER[at0019] occurrences matches {0..1} matches {	-- 6. Cognitief en waarnemingspatroon
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0020] occurrences matches {0..1} matches {	-- Afwijking of risico aanwezig
+												value matches {
+													DV_BOOLEAN matches {*}
+												}
+											}
+											ELEMENT[at0021] occurrences matches {0..1} matches {	-- Bevindingen en toelichting
+												value matches {
+													DV_TEXT matches {*}
+												}
+											}
+										}
+									}
+									CLUSTER[at0022] occurrences matches {0..1} matches {	-- 7. Zelfbeeld- en zelfbelevingspatroon
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0023] occurrences matches {0..1} matches {	-- Afwijking of risico aanwezig
+												value matches {
+													DV_BOOLEAN matches {*}
+												}
+											}
+											ELEMENT[at0024] occurrences matches {0..1} matches {	-- Bevindingen en toelichting
+												value matches {
+													DV_TEXT matches {*}
+												}
+											}
+										}
+									}
+									CLUSTER[at0025] occurrences matches {0..1} matches {	-- 8. Rollen- en relatiepatroon
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0026] occurrences matches {0..1} matches {	-- Afwijking of risico aanwezig
+												value matches {
+													DV_BOOLEAN matches {*}
+												}
+											}
+											ELEMENT[at0027] occurrences matches {0..1} matches {	-- Bevindingen en toelichting
+												value matches {
+													DV_TEXT matches {*}
+												}
+											}
+										}
+									}
+									CLUSTER[at0028] occurrences matches {0..1} matches {	-- 9. Seksualiteits- en voortplantingspatroon
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0029] occurrences matches {0..1} matches {	-- Afwijking of risico aanwezig
+												value matches {
+													DV_BOOLEAN matches {*}
+												}
+											}
+											ELEMENT[at0030] occurrences matches {0..1} matches {	-- Bevindingen en toelichting
+												value matches {
+													DV_TEXT matches {*}
+												}
+											}
+										}
+									}
+									CLUSTER[at0031] occurrences matches {0..1} matches {	-- 10. Coping- en stresstolerantiepatroon
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0032] occurrences matches {0..1} matches {	-- Afwijking of risico aanwezig
+												value matches {
+													DV_BOOLEAN matches {*}
+												}
+											}
+											ELEMENT[at0033] occurrences matches {0..1} matches {	-- Bevindingen en toelichting
+												value matches {
+													DV_TEXT matches {*}
+												}
+											}
+										}
+									}
+									CLUSTER[at0034] occurrences matches {0..1} matches {	-- 11. Waarden- en overtuigingenpatroon
+										items cardinality matches {1..*; unordered} matches {
+											ELEMENT[at0035] occurrences matches {0..1} matches {	-- Afwijking of risico aanwezig
+												value matches {
+													DV_BOOLEAN matches {*}
+												}
+											}
+											ELEMENT[at0036] occurrences matches {0..1} matches {	-- Bevindingen en toelichting
+												value matches {
+													DV_TEXT matches {*}
+												}
+											}
+										}
+									}
+									ELEMENT[at0037] occurrences matches {0..1} matches {	-- Samenvatting anamnese
+										value matches {
+											DV_TEXT matches {*}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Gezondheidspatronen van Gordon Anamnese">
+					description = <"Verpleegkundige anamnese volgens de 11 functionele gezondheidspatronen van Marjory Gordon.">
+				>
+				["at0001"] = <
+					text = <"Event Series">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Elk evenement">
+					description = <"Tijdstip van anamnese.">
+				>
+				["at0003"] = <
+					text = <"Boom">
+					description = <"@ internal @">
+				>
+				["at0004"] = <
+					text = <"1. Gezondheidsbeleving en -instandshouding">
+					description = <"Gezondheidsbeleving, leefstijl, therapietrouw en veiligheidsgedrag.">
+				>
+				["at0005"] = <
+					text = <"Afwijking of risico aanwezig">
+					description = <"Is er op dit patroon een verpleegkundig aandachtspunt?">
+				>
+				["at0006"] = <
+					text = <"Bevindingen en toelichting">
+					description = <"Klinische observaties en uitspraken van de cliënt.">
+				>
+				["at0007"] = <
+					text = <"2. Voedings- en stofwisselingspatroon">
+					description = <"Eet- en drinkpatroon, gewicht, huidconditie, gebit en eetlust.">
+				>
+				["at0008"] = <
+					text = <"Afwijking of risico aanwezig">
+					description = <"Aandachtspunt aanwezig.">
+				>
+				["at0009"] = <
+					text = <"Bevindingen en toelichting">
+					description = <"Observaties voeding en stofwisseling.">
+				>
+				["at0010"] = <
+					text = <"3. Uitscheidingspatroon">
+					description = <"Darm- en blaasfunctie, continentie, transpiratie.">
+				>
+				["at0011"] = <
+					text = <"Afwijking of risico aanwezig">
+					description = <"Aandachtspunt aanwezig.">
+				>
+				["at0012"] = <
+					text = <"Bevindingen en toelichting">
+					description = <"Observaties uitscheiding.">
+				>
+				["at0013"] = <
+					text = <"4. Activiteiten- en bewegingspatroon">
+					description = <"Mobiliteit, ADL-zelfstandigheid, energie, vrije tijd en conditie.">
+				>
+				["at0014"] = <
+					text = <"Afwijking of risico aanwezig">
+					description = <"Aandachtspunt aanwezig.">
+				>
+				["at0015"] = <
+					text = <"Bevindingen en toelichting">
+					description = <"Observaties mobiliteit en ADL.">
+				>
+				["at0016"] = <
+					text = <"5. Slaap- en rustpatroon">
+					description = <"Slaapkwaliteit, inslaap-/doorslaapproblemen, rustmomenten.">
+				>
+				["at0017"] = <
+					text = <"Afwijking of risico aanwezig">
+					description = <"Aandachtspunt aanwezig.">
+				>
+				["at0018"] = <
+					text = <"Bevindingen en toelichting">
+					description = <"Observaties slaap en rust.">
+				>
+				["at0019"] = <
+					text = <"6. Cognitief en waarnemingspatroon">
+					description = <"Geheugen, oriëntatie, zintuiglijke waarneming, pijn, oordeelsvorming.">
+				>
+				["at0020"] = <
+					text = <"Afwijking of risico aanwezig">
+					description = <"Aandachtspunt aanwezig.">
+				>
+				["at0021"] = <
+					text = <"Bevindingen en toelichting">
+					description = <"Observaties cognitie, pijn en zintuigen.">
+				>
+				["at0022"] = <
+					text = <"7. Zelfbeeld- en zelfbelevingspatroon">
+					description = <"Zelfwaardering, lichaamsbeeld, stemming, gevoel van eigenwaarde.">
+				>
+				["at0023"] = <
+					text = <"Afwijking of risico aanwezig">
+					description = <"Aandachtspunt aanwezig.">
+				>
+				["at0024"] = <
+					text = <"Bevindingen en toelichting">
+					description = <"Observaties zelfbeeld.">
+				>
+				["at0025"] = <
+					text = <"8. Rollen- en relatiepatroon">
+					description = <"Gezinsrelaties, sociale contacten, mantelzorg, maatschappelijke rollen.">
+				>
+				["at0026"] = <
+					text = <"Afwijking of risico aanwezig">
+					description = <"Aandachtspunt aanwezig.">
+				>
+				["at0027"] = <
+					text = <"Bevindingen en toelichting">
+					description = <"Observaties relaties en netwerk.">
+				>
+				["at0028"] = <
+					text = <"9. Seksualiteits- en voortplantingspatroon">
+					description = <"Seksuele gezondheid, intimiteit, voortplanting en beleving.">
+				>
+				["at0029"] = <
+					text = <"Afwijking of risico aanwezig">
+					description = <"Aandachtspunt aanwezig.">
+				>
+				["at0030"] = <
+					text = <"Bevindingen en toelichting">
+					description = <"Observaties seksualiteit en intimiteit.">
+				>
+				["at0031"] = <
+					text = <"10. Coping- en stresstolerantiepatroon">
+					description = <"Omgaan met stress, verlies, ziekte, draagkracht, veerkracht.">
+				>
+				["at0032"] = <
+					text = <"Afwijking of risico aanwezig">
+					description = <"Aandachtspunt aanwezig.">
+				>
+				["at0033"] = <
+					text = <"Bevindingen en toelichting">
+					description = <"Observaties coping en veerkracht.">
+				>
+				["at0034"] = <
+					text = <"11. Waarden- en overtuigingenpatroon">
+					description = <"Levensvisie, religie, ethische normen, wat het leven betekenis geeft.">
+				>
+				["at0035"] = <
+					text = <"Afwijking of risico aanwezig">
+					description = <"Aandachtspunt aanwezig.">
+				>
+				["at0036"] = <
+					text = <"Bevindingen en toelichting">
+					description = <"Observaties waarden en overtuigingen.">
+				>
+				["at0037"] = <
+					text = <"Samenvatting anamnese">
+					description = <"Algehele samenvattende verpleegkundige conclusie over de 11 patronen.">
+				>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <
+					text = <"Gordon Functional Health Patterns Assessment">
+					description = <"Nursing assessment according to Gordon's 11 functional health patterns.">
+				>
+				["at0001"] = <
+					text = <"Event Series">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Any event">
+					description = <"Timing.">
+				>
+				["at0003"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0004"] = <
+					text = <"1. Health Perception and Management">
+					description = <"Health perception.">
+				>
+				["at0005"] = <
+					text = <"Risk or abnormality present">
+					description = <"Flag.">
+				>
+				["at0006"] = <
+					text = <"Findings and comments">
+					description = <"Narrative.">
+				>
+				["at0007"] = <
+					text = <"2. Nutritional-Metabolic Pattern">
+					description = <"Nutrition.">
+				>
+				["at0008"] = <
+					text = <"Risk or abnormality present">
+					description = <"Flag.">
+				>
+				["at0009"] = <
+					text = <"Findings and comments">
+					description = <"Narrative.">
+				>
+				["at0010"] = <
+					text = <"3. Elimination Pattern">
+					description = <"Elimination.">
+				>
+				["at0011"] = <
+					text = <"Risk or abnormality present">
+					description = <"Flag.">
+				>
+				["at0012"] = <
+					text = <"Findings and comments">
+					description = <"Narrative.">
+				>
+				["at0013"] = <
+					text = <"4. Activity-Exercise Pattern">
+					description = <"Activity.">
+				>
+				["at0014"] = <
+					text = <"Risk or abnormality present">
+					description = <"Flag.">
+				>
+				["at0015"] = <
+					text = <"Findings and comments">
+					description = <"Narrative.">
+				>
+				["at0016"] = <
+					text = <"5. Sleep-Rest Pattern">
+					description = <"Sleep.">
+				>
+				["at0017"] = <
+					text = <"Risk or abnormality present">
+					description = <"Flag.">
+				>
+				["at0018"] = <
+					text = <"Findings and comments">
+					description = <"Narrative.">
+				>
+				["at0019"] = <
+					text = <"6. Cognitive-Perceptual Pattern">
+					description = <"Cognition.">
+				>
+				["at0020"] = <
+					text = <"Risk or abnormality present">
+					description = <"Flag.">
+				>
+				["at0021"] = <
+					text = <"Findings and comments">
+					description = <"Narrative.">
+				>
+				["at0022"] = <
+					text = <"7. Self-Perception-Self-Concept Pattern">
+					description = <"Self concept.">
+				>
+				["at0023"] = <
+					text = <"Risk or abnormality present">
+					description = <"Flag.">
+				>
+				["at0024"] = <
+					text = <"Findings and comments">
+					description = <"Narrative.">
+				>
+				["at0025"] = <
+					text = <"8. Roles-Relationships Pattern">
+					description = <"Roles and relations.">
+				>
+				["at0026"] = <
+					text = <"Risk or abnormality present">
+					description = <"Flag.">
+				>
+				["at0027"] = <
+					text = <"Findings and comments">
+					description = <"Narrative.">
+				>
+				["at0028"] = <
+					text = <"9. Sexuality-Reproductive Pattern">
+					description = <"Sexuality.">
+				>
+				["at0029"] = <
+					text = <"Risk or abnormality present">
+					description = <"Flag.">
+				>
+				["at0030"] = <
+					text = <"Findings and comments">
+					description = <"Narrative.">
+				>
+				["at0031"] = <
+					text = <"10. Coping-Stress Tolerance Pattern">
+					description = <"Coping.">
+				>
+				["at0032"] = <
+					text = <"Risk or abnormality present">
+					description = <"Flag.">
+				>
+				["at0033"] = <
+					text = <"Findings and comments">
+					description = <"Narrative.">
+				>
+				["at0034"] = <
+					text = <"11. Values-Belief Pattern">
+					description = <"Values.">
+				>
+				["at0035"] = <
+					text = <"Risk or abnormality present">
+					description = <"Flag.">
+				>
+				["at0036"] = <
+					text = <"Findings and comments">
+					description = <"Narrative.">
+				>
+				["at0037"] = <
+					text = <"Summary">
+					description = <"Summary narrative.">
+				>
+			>
+		>
+	>

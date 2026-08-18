@@ -1,0 +1,285 @@
+archetype (adl_version=1.4; uid=f5a6b7c8-e9f0-1234-defa-cd5678901234)
+	openEHR-EHR-EVALUATION.triage_nursing_nl.v0
+
+concept
+	[at0000]	-- Wijkverpleegkundige Triage
+
+language
+	original_language = <[ISO_639-1::nl]>
+	translations = <
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			author = <
+				["name"] = <"Erik-Jan Vlieger">
+			>
+		>
+	>
+
+description
+	original_author = <
+		["name"] = <"Erik-Jan Vlieger">
+		["organisation"] = <"Sensire">
+		["date"] = <"2026-08-18">
+	>
+	details = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Vastleggen van de verpleegkundige triage bij aanmelding voor wijkverpleging conform Sensii.">
+			use = <"Gebruik in de triagefase om vast te stellen of een zorgvraag passend is voor wijkverpleging, wat de urgentie is en of een Verpleegkundig Adviesgesprek (VAG) moet worden gepland.">
+			keywords = <"triage", "wijkverpleging", "aanmelding", "urgentie", "Sensii", "toegankelijkheid">
+			copyright = <"© 2026 Sensire">
+		>
+		["en"] = <
+			language = <[ISO_639-1::en]>
+			purpose = <"Recording home care nursing triage upon intake and referral.">
+			use = <"Used to evaluate appropriateness of home care, urgency category, and next steps.">
+			keywords = <"triage", "home care", "intake", "urgency">
+			copyright = <"© 2026 Sensire">
+		>
+	>
+	lifecycle_state = <"in_development">
+
+definition
+	EVALUATION[at0000] matches {	-- Wijkverpleegkundige Triage
+		data matches {
+			ITEM_TREE[at0001] matches {	-- Boom
+				items cardinality matches {1..*; unordered} matches {
+					ELEMENT[at0002] matches {	-- Passendheid voor wijkverpleging
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0003, 	-- Passend voor wijkverpleging
+									at0004, 	-- Niet passend (verwijzen naar voorliggend veld / sociaal domein)
+									at0005, 	-- Specialistische / ziekenhuiszorg vereist
+									at0006]	-- Acute medische beoordeling vereist (huisarts/SEH)
+								}
+							}
+						}
+					}
+					ELEMENT[at0007] occurrences matches {0..1} matches {	-- Urgentiecategorie
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0008, 	-- Planbare zorg (binnen reguliere termijn)
+									at0009, 	-- Dringende zorg (binnen 24-48 uur)
+									at0010]	-- Urgente zorg (direct / dezelfde dag)
+								}
+							}
+						}
+					}
+					ELEMENT[at0011] occurrences matches {0..1} matches {	-- Verwachte zorgrelatie
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0012, 	-- Intensieve langdurige relatie (Langer thuis route)
+									at0013, 	-- Laagfrequente langdurige relatie
+									at0014]	-- Kortdurend / incidenteel hersteltraject
+								}
+							}
+						}
+					}
+					ELEMENT[at0015] occurrences matches {0..1} matches {	-- Vervolgstap / Advies
+						value matches {
+							DV_CODED_TEXT matches {
+								defining_code matches {
+									[local::
+									at0016, 	-- Verpleegkundig adviesgesprek (VAG) inplannen
+									at0017, 	-- Directe intake en anamnese starten
+									at0018, 	-- Warme overdracht / Terugkoppeling aanvrager
+									at0019]	-- Geen verdere actie wijkverpleging
+								}
+							}
+						}
+					}
+					ELEMENT[at0020] occurrences matches {0..1} matches {	-- Toelichting triagebesluit
+						value matches {
+							DV_TEXT matches {*}
+						}
+					}
+				}
+			}
+		}
+	}
+
+ontology
+	term_definitions = <
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Wijkverpleegkundige Triage">
+					description = <"Triagebeoordeling van de hulpvraag bij aanmelding.">
+				>
+				["at0001"] = <
+					text = <"Boom">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Passendheid voor wijkverpleging">
+					description = <"Beoordeling of de vraag binnen het domein van wijkverpleging valt.">
+				>
+				["at0003"] = <
+					text = <"Passend voor wijkverpleging">
+					description = <"Zorgvraag sluit aan bij aanspraak wijkverpleging (Zvw).">
+				>
+				["at0004"] = <
+					text = <"Niet passend (verwijzen naar voorliggend veld / sociaal domein)">
+					description = <"Hulpvraag hoort thuis bij Wmo, welzijn of informele zorg.">
+				>
+				["at0005"] = <
+					text = <"Specialistische / ziekenhuiszorg vereist">
+					description = <"Zorgvraag vereist specialistische behandeling.">
+				>
+				["at0006"] = <
+					text = <"Acute medische beoordeling vereist (huisarts/SEH)">
+					description = <"Acute situatie waar direct artscontact voor nodig is.">
+				>
+				["at0007"] = <
+					text = <"Urgentiecategorie">
+					description = <"Snelheid waarmee zorgopstart noodzakelijk is.">
+				>
+				["at0008"] = <
+					text = <"Planbare zorg (binnen reguliere termijn)">
+					description = <"Binnen gebruikelijke wachttijd/intakevenster.">
+				>
+				["at0009"] = <
+					text = <"Dringende zorg (binnen 24-48 uur)">
+					description = <"Opstart binnen 1-2 dagen noodzakelijk.">
+				>
+				["at0010"] = <
+					text = <"Urgente zorg (direct / dezelfde dag)">
+					description = <"Directe zorginzet vereist.">
+				>
+				["at0011"] = <
+					text = <"Verwachte zorgrelatie">
+					description = <"Type zorgroute (bijv. Langer Thuis route bij langdurige relatie).">
+				>
+				["at0012"] = <
+					text = <"Intensieve langdurige relatie (Langer thuis route)">
+					description = <"Opent de verdiepende routes zoals 'Leer de ander kennen' en 'Levensverhaal'.">
+				>
+				["at0013"] = <
+					text = <"Laagfrequente langdurige relatie">
+					description = <"Periodieke controle of waakvlamzorg.">
+				>
+				["at0014"] = <
+					text = <"Kortdurend / incidenteel hersteltraject">
+					description = <"Tijdelijke zorg gericht op herstel van zelfstandigheid.">
+				>
+				["at0015"] = <
+					text = <"Vervolgstap / Advies">
+					description = <"Vervolgactie naar aanleiding van triage.">
+				>
+				["at0016"] = <
+					text = <"Verpleegkundig adviesgesprek (VAG) inplannen">
+					description = <"VAG plannen met cliënt en mantelzorg.">
+				>
+				["at0017"] = <
+					text = <"Directe intake en anamnese starten">
+					description = <"Zorgpad direct opstarten.">
+				>
+				["at0018"] = <
+					text = <"Warme overdracht / Terugkoppeling aanvrager">
+					description = <"Terugkoppelen naar verwijzer.">
+				>
+				["at0019"] = <
+					text = <"Geen verdere actie wijkverpleging">
+					description = <"Afsluiten na triage.">
+				>
+				["at0020"] = <
+					text = <"Toelichting triagebesluit">
+					description = <"Nadere motivering van de verpleegkundige.">
+				>
+			>
+		>
+		["en"] = <
+			items = <
+				["at0000"] = <
+					text = <"Community Nursing Triage">
+					description = <"Triage assessment for home care referral.">
+				>
+				["at0001"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Appropriateness for home care">
+					description = <"Suitability assessment.">
+				>
+				["at0003"] = <
+					text = <"Appropriate for home care">
+					description = <"Appropriate.">
+				>
+				["at0004"] = <
+					text = <"Not appropriate (refer to social domain)">
+					description = <"Social care referral.">
+				>
+				["at0005"] = <
+					text = <"Specialist hospital care required">
+					description = <"Specialist care.">
+				>
+				["at0006"] = <
+					text = <"Acute medical assessment required (GP/ED)">
+					description = <"Acute GP/ED referral.">
+				>
+				["at0007"] = <
+					text = <"Urgency category">
+					description = <"Urgency level.">
+				>
+				["at0008"] = <
+					text = <"Elective (standard timeframe)">
+					description = <"Standard.">
+				>
+				["at0009"] = <
+					text = <"Urgent (within 24-48 hours)">
+					description = <"24-48 hours.">
+				>
+				["at0010"] = <
+					text = <"Emergency / Same day">
+					description = <"Same day.">
+				>
+				["at0011"] = <
+					text = <"Expected care relationship">
+					description = <"Relationship type.">
+				>
+				["at0012"] = <
+					text = <"Long-term intensive relationship">
+					description = <"Long-term.">
+				>
+				["at0013"] = <
+					text = <"Low-frequency long-term relationship">
+					description = <"Low-frequency.">
+				>
+				["at0014"] = <
+					text = <"Short-term rehabilitation episode">
+					description = <"Short-term.">
+				>
+				["at0015"] = <
+					text = <"Next step / Recommendation">
+					description = <"Action plan.">
+				>
+				["at0016"] = <
+					text = <"Schedule nursing consultation (VAG)">
+					description = <"Schedule VAG.">
+				>
+				["at0017"] = <
+					text = <"Start direct intake and assessment">
+					description = <"Direct start.">
+				>
+				["at0018"] = <
+					text = <"Handover to referrer">
+					description = <"Handover.">
+				>
+				["at0019"] = <
+					text = <"No further nursing action">
+					description = <"Close.">
+				>
+				["at0020"] = <
+					text = <"Triage comment">
+					description = <"Narrative.">
+				>
+			>
+		>
+	>

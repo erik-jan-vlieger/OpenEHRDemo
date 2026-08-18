@@ -1,10 +1,18 @@
-﻿archetype (adl_version=1.4; uid=1a2859a8-f424-45d6-9b02-7f4578e819cd)
+archetype (adl_version=1.4; uid=1a2859a8-f424-45d6-9b02-7f4578e819cd)
 	openEHR-EHR-ACTION.care_plan.v0
 
 concept
 	[at0000]	-- Care Plan
 language
 	original_language = <[ISO_639-1::en]>
+	translations = <
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			author = <
+				["name"] = <"Sensire / OpenEHR Nederland">
+			>
+		>
+	>
 description
 	original_author = <
 		["name"] = <"Heather Leslie">
@@ -20,6 +28,13 @@ description
 			keywords = <"care plan", "activity">
 			misuse = <"Not to be used to record activity of individual components of a care plan - use the specific ACTION archetype appropriate for each activity.">
 			copyright = <"© Australian Digital Health Agency, openEHR Foundation">
+		>
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Voor het vastleggen van de levenscyclus en activiteiten rondom de planning en uitvoering van een zorgplan of ReAblement-traject als geheel.">
+			use = <"Gebruik voor het vastleggen van de status, voortgang en levenscyclus van een zorgplan of ReAblement-traject als geheel.">
+			keywords = <"zorgplan", "zorgplanuitvoering", "activiteit", "zorgpad", "reablement", "behandelplan">
+			misuse = <"Niet te gebruiken voor de individuele verrichtingen of metingen binnen een zorgplan - gebruik daarvoor de specifieke ACTION of OBSERVATION archetypes (bijv. ACTION.health_education, ACTION.procedure).">
 		>
 	>
 	lifecycle_state = <"in_development">
@@ -292,6 +307,86 @@ ontology
 				["at0035"] = <
 					text = <"Care Plan Suspended">
 					description = <"Care plan is temporarily suspended but intended to resume at a later date.">
+				>
+			>
+		>
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Zorgplan uitvoering">
+					description = <"Plan of reeks van samenhangende activiteiten gericht op het bereiken van een specifiek behandel- of ondersteuningsdoel, uitgevoerd door zorgverleners en/of de cliënt zelf.">
+				>
+				["at0002"] = <
+					text = <"Zorgplannaam">
+					description = <"Naam of identificatie van het zorgplan.">
+				>
+				["at0003"] = <
+					text = <"Zorgplanbehoefte geïdentificeerd">
+					description = <"De behoefte aan een specifiek zorgplan of ReAblement-traject is vastgesteld.">
+				>
+				["at0006"] = <
+					text = <"Zorgplan gestart">
+					description = <"Activiteiten binnen het zorgplan zijn gestart en in uitvoering.">
+				>
+				["at0008"] = <
+					text = <"Zorgplan opgesteld">
+					description = <"Onderdelen van het zorgplan zijn geïdentificeerd, afgestemd en gedocumenteerd.">
+				>
+				["at0010"] = <
+					text = <"Zorgplan verlopen">
+					description = <"De geldigheidsduur of geplande einddatum van het zorgplan is verstreken.">
+				>
+				["at0013"] = <
+					text = <"Zorgplan voltooid">
+					description = <"Alle activiteiten gerelateerd aan het zorgplan zijn afgerond en doelstellingen zijn geëvalueerd.">
+				>
+				["at0015"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0016"] = <
+					text = <"Zorgplan ID">
+					description = <"Unieke identificatiecode van het zorgplan.">
+				>
+				["at0017"] = <
+					text = <"Vervaldatum">
+					description = <"Verwachte einddatum of datum waarop het zorgplan herzien moet worden.">
+				>
+				["at0018"] = <
+					text = <"Zorgplan ingepland">
+					description = <"Het zorgplan en de bijbehorende afspraken zijn ingepland in het rooster of elektronisch dossier.">
+				>
+				["at0019"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0020"] = <
+					text = <"Zorgplan geëvalueerd">
+					description = <"Het zorgplan is periodiek of tussentijds geëvalueerd en eventueel bijgesteld.">
+				>
+				["at0021"] = <
+					text = <"Beschrijving">
+					description = <"Beschrijving van de uitgevoerde activiteiten of voortgang van het zorgplan.">
+				>
+				["at0025"] = <
+					text = <"Reden">
+					description = <"Reden voor de uitgevoerde zorgplanactiviteit of statusovergang.">
+				>
+				["at0032"] = <
+					text = <"Zorgplan afgebroken">
+					description = <"Het zorgplan is voortijdig definitief gestaakt.">
+				>
+				["at0033"] = <
+					text = <"Zorgplan geannuleerd">
+					description = <"Het zorgplan is geannuleerd vóórdat met de uitvoering werd begonnen.">
+				>
+				["at0034"] = <
+					text = <"Zorgplan uitgesteld">
+					description = <"De start van het zorgplan is tijdelijk uitgesteld naar een latere datum.">
+				>
+				["at0035"] = <
+					text = <"Zorgplan opgeschort">
+					description = <"Het lopende zorgplan is tijdelijk stilgelegd met de intentie om dit later te hervatten.">
 				>
 			>
 		>

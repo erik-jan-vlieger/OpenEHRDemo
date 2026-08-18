@@ -1,4 +1,4 @@
-﻿archetype (adl_version=1.4; uid=87e2704b-955b-43bc-b569-755e06dbd3f5)
+archetype (adl_version=1.4; uid=87e2704b-955b-43bc-b569-755e06dbd3f5)
 	openEHR-EHR-EVALUATION.clinical_synopsis.v1
 
 concept
@@ -94,6 +94,12 @@ language
 				["name"] = <"Clara Calleja Vega">
 				["organisation"] = <"CatSalut. Servei Català de la Salut.">
 				["email"] = <"ccalleja@catsalut.cat">
+			>
+		>
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			author = <
+				["name"] = <"Sensire / OpenEHR Nederland">
 			>
 		>
 	>
@@ -243,6 +249,13 @@ Por ejemplo, una Sinopsis Clínica puede comunicar un resumen sucinto del ingres
 			keywords = <"resumen", "conclusión", "esquema", "precisión", "resumen", "evaluación", "sinopsis", "epicrisis", "comentario", "nota">
 			misuse = <"No debe utilizarse para registrar información sanitaria específica y estructurada. Por ejemplo, la información detallada sobre problemas, diagnósticos y resultados de pruebas debe registrarse utilizando los arquetipos específicos pertinentes EVALUATION.problema, EVALUATION.problem-diagnosis, y los resultados de laboratorio o radiología en OBSERVATIONs. La sinopsis clínica puede transmitir algunos resultados numéricos críticos y seleccionados de estos detalles estructurados cuando se considere importante para completar la sinopsis, pero NO es el lugar de registro principal para ellos.
 El término \"Sinopsis Clínica\" puede referirse a veces a documentos complejos y exhaustivos, como un Resumen de Alta o un Informe. En openEHR, estos documentos deben representarse como agregaciones de arquetipos restringidos, es decir, una plantilla de Resumen del alta o una plantilla de Informe, que comprenden una serie de arquetipos separados, de los cuales este arquetipo de Sinopsis Clínica puede ser uno.">
+		>
+		["nl"] = <
+			language = <[ISO_639-1::nl]>
+			purpose = <"Voor het handmatig samenvatten en vastleggen van een verhalende klinische samenvatting, beoordeling of conclusie over een cliënt vanuit het perspectief van de zorgverlener.">
+			use = <"Gebruik voor het vastleggen van een verhalende samenvatting over de gezondheidstoestand of zorgsituatie van de cliënt. Deze samenvatting kan vastgestelde problemen, geboden zorg, interpretatie en cliëntbeleving bevatten.">
+			keywords = <"samenvatting", "conclusie", "synopsis", "beoordeling", "epicrise", "beschouwing", "klinische impressie">
+			misuse = <"Niet te gebruiken voor het vastleggen van specifieke, gestructureerde klinische gegevens zoals diagnoses of laboratoriumuitslagen.">
 		>
 	>
 	lifecycle_state = <"published">
@@ -437,6 +450,31 @@ ontology
 					text = <"*Extension(en)">
 					description = <"*Additional information required to capture local content or to align with other reference models/formalisms.(en)">
 					comment = <"*For example: local information requirements or additional metadata to align with FHIR or CIMI equivalents.(en)">
+				>
+			>
+		>
+		["nl"] = <
+			items = <
+				["at0000"] = <
+					text = <"Klinische synopsis">
+					description = <"Verhalende samenvatting, klinische impressie of overzicht over een cliënt vanuit het perspectief van de zorgverlener, met of zonder bijbehorende klinische interpretatie.">
+				>
+				["at0001"] = <
+					text = <"List">
+					description = <"@ internal @">
+				>
+				["at0002"] = <
+					text = <"Synopsis">
+					description = <"De samenvatting, klinische beoordeling of conclusie van de bevindingen.">
+				>
+				["at0003"] = <
+					text = <"Tree">
+					description = <"@ internal @">
+				>
+				["at0004"] = <
+					text = <"Uitbreiding">
+					description = <"Aanvullende informatie vereist voor lokale context of afstemming met andere referentiemodellen (zoals FHIR of ZIBs).">
+					comment = <"Bijvoorbeeld: lokale informatienoodzaak of aanvullende metadata om aan te sluiten bij FHIR of CIMI equivalenten.">
 				>
 			>
 		>
